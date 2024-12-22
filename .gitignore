@@ -1,0 +1,4 @@
+model/
+!model/qwen2-audio-7b-mnn/
+records/
+build
