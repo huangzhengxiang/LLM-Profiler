@@ -1,6 +1,3 @@
 [submodule "MNN"]
 	path = MNN
 	url = https://github.com/alibaba/MNN.git
-[submodule "model-py"]
-	path = model-py
-	url = https://github.com/vb000/LookOnceToHear.git
