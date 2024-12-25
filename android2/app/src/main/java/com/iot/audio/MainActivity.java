@@ -1,10 +1,13 @@
 package com.iot.audio;
 import android.content.pm.PackageManager;
+import android.graphics.Interpolator;
 import android.media.AudioFormat;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.BatteryManager;
+import android.content.Context;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
@@ -23,30 +26,89 @@ import android.provider.MediaStore;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.os.SystemClock.elapsedRealtime;
 
 public class MainActivity extends AppCompatActivity {
-    // Initializing all variables..
+    // <energy profile begin
+    private Timer energyTimer;
+    private EnergyMonitor energyMonitor;
+    private final long energySampleInterval = 100L; // 100ms
+    // energy profile end>
+
+    // <time profile begin
+    private long mElapsedBegin;
+    private long mElapsedEnd;
+    // time profile end>
+
+    // <media record begin
     private File recordDir;
     private String recordFilePath;
-    private final String systemPrompt = "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n";
-    private Button mLoadButton;
-    private Chat mChat;
-    private final String mSearchPath = "/data/local/tmp/llm/model/";
-    private final String mModelName = "qwen2-audio-7b-mnn";
-    private String mModelDir = mSearchPath + mModelName + "/config.json";
-    private TextView startTV, stopTV, playTV, stopplayTV, statusTV, responseTV;
-
-    // creating a variable for media recorder object class.
+//    private final String systemPrompt = "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n";
     private wavClass mRecorder;
-
-    // creating a variable for mediaplayer class
     private MediaPlayer mPlayer;
 
     // constant for storing audio permission
     public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+    // media record end>
+
+    // <view begin
+    private TextView prefillSpeedTV, prefillEnergyTV, decodeSpeedTV, decodeEnergyTV, statusTV;
+    private Button mLoadButton, testButton;
+    // view end>
+
+    // <LLM model begin
+    private Chat mChat;
+    private final String mSearchPath = "/data/local/tmp/llm/model/";
+    private final String mModelName = "qwen2_5-1_5b-instruct-mnn";
+    private String mModelDir = mSearchPath + mModelName + "/config.json";
+    // LLM model end>
+
+    // <model profiling config begin
+    private int prefill_len = 200;
+    private int decode_len = 50;
+    private float prefill_token_speed = -1f; // tok/s
+    private float decode_token_speed = -1f; // tok/s
+    private float prefill_capacity = -1f; // tok/mAh
+    private float decode_capacity = -1f; // tok/mAh
+    private final int test_times = 2;
+    // model profiling config end>
+
+    private void startEnergyTracing() {
+        energyTimer = new Timer();
+        energyMonitor = new EnergyMonitor(this);
+        energyMonitor.resetInfo();
+        energyTimer.scheduleAtFixedRate(energyMonitor, 0, energySampleInterval);
+    }
+
+    private void endEnergyTracing() {
+        try {
+            energyTimer.cancel();
+        } catch (Exception e) {
+            Log.e("endEnergyTracing", e.getMessage());
+        }
+    }
+
+    private int getAvgCurrent() {
+        return energyMonitor.getAvgCurrent();
+    }
+
+    private void startTimeTracing() {
+        mElapsedBegin = elapsedRealtime();
+    }
+
+    private void endTimeTracing() {
+        mElapsedEnd = elapsedRealtime();
+    }
+
+    private float getTime() {
+        return ((float)(mElapsedEnd-mElapsedBegin))/1000f; // convert from ms to s.
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,57 +117,50 @@ public class MainActivity extends AppCompatActivity {
 
         // initialize all variables with their layout items.
         mLoadButton = findViewById(R.id.load_button);
-        responseTV = findViewById(R.id.response);
         statusTV = findViewById(R.id.idTVstatus);
-        startTV = findViewById(R.id.btnRecord);
-        stopTV = findViewById(R.id.btnStop);
-        playTV = findViewById(R.id.btnPlay);
-        stopplayTV = findViewById(R.id.btnStopPlay);
-        stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        playTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        stopplayTV.setBackgroundColor(getResources().getColor(R.color.gray));
+        prefillSpeedTV = findViewById(R.id.PrefillSpeed);
+        prefillEnergyTV = findViewById(R.id.PrefillEnergy);
+        decodeSpeedTV = findViewById(R.id.DecodeSpeed);
+        decodeEnergyTV = findViewById(R.id.DecodeEnergy);
+        testButton = findViewById(R.id.startTest);
+        prefillSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        prefillEnergyTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        decodeSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        decodeEnergyTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
         recordDir = getExternalFilesDir("Recordings");
         if (!recordDir.exists()) {
             recordDir.mkdirs();
         }
+//        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+//        Intent batteryStatus = this.registerReceiver(null, ifilter);
+//        int level = batteryStatus.getIntExtra(, -1);
+//        Log.i("Battery", String.format("System Battery: %d", level));
+//        Log.i("Current", String.format( "Battery Current: %d", ((BatteryManager) getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)));
+//        mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//        mAlarmIntent = new Intent(this, EnergyMonitor.class);
 
-        startTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)  {
-                // start recording method will
-                // start the recording of audio.
-                try {
-                    startRecording();
-                } catch (Exception e){
-                    Log.e("recording didn't start!", e.getMessage());
-                }
-            }
-        });
-        stopTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // pause Recording method will
-                // pause the recording of audio.
-                pauseRecording();
-
-            }
-        });
-        playTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // play audio method will play
-                // the audio which we have recorded
-                playAudio();
-            }
-        });
-        stopplayTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // pause play method will
-                // pause the play of audio
-                pausePlaying();
-            }
-        });
+//        startTV.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v)  {
+//                // start recording method will
+//                // start the recording of audio.
+//                try {
+//                    startRecording();
+//                } catch (Exception e){
+//                    Log.e("recording didn't start!", e.getMessage());
+//                }
+//            }
+//        });
+//        stopTV.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // pause Recording method will
+//                // pause the recording of audio.
+//                pauseRecording();
+//
+//            }
+//        });
     }
     private boolean checkModelsReady() {
         File dir = new File(mModelDir);
@@ -134,31 +189,29 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void startRecording() throws IOException {
-        // check permission method is used to check
-        // that the user has granted permission
-        // to record and store the audio.
-        if (CheckPermissions()) {
-
-            // setbackgroundcolor method will change
-            // the background color of text view.
-            stopTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-            startTV.setBackgroundColor(getResources().getColor(R.color.gray));
-            playTV.setBackgroundColor(getResources().getColor(R.color.gray));
-            stopplayTV.setBackgroundColor(getResources().getColor(R.color.gray));
-
-
-            mRecorder = new wavClass(recordDir);
-            recordFilePath = mRecorder.getWavFilePath();
-            mRecorder.startRecording();
-            statusTV.setText("Recording Started");
-        } else {
-            // if audio recording permissions are
-            // not granted by user below method will
-            // ask for runtime permission for mic and storage.
-            RequestPermissions();
-        }
-    }
+//    private void startRecording() throws IOException {
+//        // check permission method is used to check
+//        // that the user has granted permission
+//        // to record and store the audio.
+//        if (CheckPermissions()) {
+//
+//            // setbackgroundcolor method will change
+//            // the background color of text view.
+//            stopTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+//            startTV.setBackgroundColor(getResources().getColor(R.color.gray));
+//
+//
+//            mRecorder = new wavClass(recordDir);
+//            recordFilePath = mRecorder.getWavFilePath();
+//            mRecorder.startRecording();
+//            statusTV.setText("Recording Started");
+//        } else {
+//            // if audio recording permissions are
+//            // not granted by user below method will
+//            // ask for runtime permission for mic and storage.
+//            RequestPermissions();
+//        }
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -192,65 +245,86 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(MainActivity.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
     }
 
-
-    public void playAudio() {
-        stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        startTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-        playTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        stopplayTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-
-        // for playing our recorded audio
-        // we are using media player class.
-        mPlayer = new MediaPlayer();
-        try {
-            // below method is used to set the
-            // data source which will be our file name
-            mPlayer.setDataSource(recordFilePath);
-
-            // below method will prepare our media player
-            mPlayer.prepare();
-
-            // below method will start our media player.
-            mPlayer.start();
-            statusTV.setText("Recording Started Playing");
-        } catch (IOException e) {
-            Log.e("MediaPlayer Error", "prepare() failed: "+e.getMessage());
-        }
-    }
-
     public void pauseRecording() {
-        stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        startTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-        playTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-        stopplayTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-
         // below method will stop
         // the audio recording.
         mRecorder.stopRecording();
         mRecorder = null;
         statusTV.setText("Recording Stopped");
-        Log.i("MediaRecorder", "recording finished!");
 
-        if (mChat==null) Log.e("LLM Error", "mChat is null!");
-        else Log.i("LLM Info", "mChat is good");
-        mChat.Submit(systemPrompt + String.format("<|im_start|>user\n<audio>%s</audio><|im_end|>\n<|im_start|>assistant\n", recordFilePath));
-        Log.i("LLM", "prefill finished!");
+        mChat.Submit("");
         byte[] ret = mChat.Response();
-        Log.i("LLM", String.format("response len: %d", ret.length));
-        Log.i("LLM", new String(ret));
+        Log.i("LLM", String.format("response len: %d, response content: %s", ret.length, new String(ret)));
         String reply = new String(ret);
-        responseTV.setText(reply);
     }
 
-    public void pausePlaying() {
-        // this method will release the media player
-        // class and pause the playing of our recorded audio.
-        mPlayer.release();
-        mPlayer = null;
-        stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        startTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-        playTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-        stopplayTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        statusTV.setText("Recording Play Stopped");
+
+    public float avgIntArray(ArrayList<Integer> arrayList) {
+        int res = 0;
+        for (int i=0; i<arrayList.size(); ++i) {
+            res += arrayList.get(i);
+        }
+        return (float)res/arrayList.size();
+    }
+
+    public float avgFloatArray(ArrayList<Float> arrayList) {
+        float res = 0f;
+        for (int i=0; i<arrayList.size(); ++i) {
+            res += arrayList.get(i);
+        }
+        return res/arrayList.size();
+    }
+
+    public float getAvgEnergyInmAh(ArrayList<Integer> mAList, ArrayList<Float> sList) {
+        float res = 0f;
+        for (int i=0; i<mAList.size(); ++i) {
+            res += mAList.get(i)*sList.get(i)/3600f; // turn second into hour.
+        }
+        return res/mAList.size();
+    }
+
+    public void testRun(View v) {
+        testButton.setBackgroundColor(getResources().getColor(R.color.gray));
+        statusTV.setText("Testing...");
+        // get prefill len and decode len
+        // for now, hard coded.
+        ArrayList<Integer> mAPrefillList = new ArrayList<Integer>(); // in milli-ampere
+        ArrayList<Integer> mADecodeList = new ArrayList<Integer>(); // in milli-ampere
+        ArrayList<Float> timePrefillList = new ArrayList<Float>(); // in s
+        ArrayList<Float> timeDecodeList = new ArrayList<Float>(); // in s
+        for (int i=0; i<test_times; ++i) {
+            startEnergyTracing();
+            startTimeTracing();
+            mChat.Forward(prefill_len, true);
+            endTimeTracing();
+            endEnergyTracing();
+            mAPrefillList.add(getAvgCurrent()/1000);
+            timePrefillList.add(getTime());
+
+            startEnergyTracing();
+            startTimeTracing();
+            mChat.Forward(decode_len, false);
+            endTimeTracing();
+            endEnergyTracing();
+            mADecodeList.add(getAvgCurrent()/1000);
+            timeDecodeList.add(getTime());
+
+            mChat.Reset();
+            mChat.Done();
+        }
+        prefill_token_speed = prefill_len/avgFloatArray(timePrefillList);
+        decode_token_speed = decode_len/avgFloatArray(timeDecodeList);
+        prefill_capacity = -prefill_len/getAvgEnergyInmAh(mAPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
+        decode_capacity = -decode_len/getAvgEnergyInmAh(mADecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
+        prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", prefill_token_speed));
+        prefillEnergyTV.setText(String.format("prefill energy:\n %.4f tok/mAh", prefill_capacity));
+        decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", decode_token_speed));
+        decodeEnergyTV.setText(String.format("decode energy:\n %.4f tok/mAh", decode_capacity));
+        Log.i("prefill", String.format("prefill speed: %.4f tok/s", prefill_token_speed));
+        Log.i("prefill", String.format("prefill energy: %.4f tok/mAh", prefill_capacity));
+        Log.i("decode", String.format("decode speed: %.4f tok/s", decode_token_speed));
+        Log.i("decode", String.format("decode energy: %.4f tok/mAh", decode_capacity));
+        testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        statusTV.setText("Test Finished!");
     }
 }

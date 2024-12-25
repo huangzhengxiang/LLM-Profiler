@@ -43,6 +43,28 @@ JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Ready(JNIEnv* env, jobject th
     return JNI_FALSE;
 }
 
+JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Forward(JNIEnv* env, jobject thiz, jint length, jboolean is_prefill) {
+    __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Submit");
+    if (!llm.get()) {
+        __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm not ready!");
+        return;
+    } else {
+        __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm is ready!");
+    }
+    std::vector<int> test_prompt((int)length, 200);
+    VARP logits;
+    if ((bool)is_prefill) {
+        // test prefill
+        logits = llm->forward(test_prompt, true); // prefill a prompt of length length.
+        logits->readMap<float>();
+    } else {
+        // test decode, decode for length times
+        for(int i=0; i<(int)length; ++i) { logits = llm->forward({200}, false); logits->readMap<float>(); }
+    }
+    __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "After Foward!");
+    return;
+}
+
 JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_Submit(JNIEnv* env, jobject thiz, jstring inputStr) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Submit");
     if (!llm.get()) {

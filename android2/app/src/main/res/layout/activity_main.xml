@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:text="@string/audio_recorder"
+        android:text="LLM Profiler"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="30sp" />
@@ -43,15 +43,6 @@
         android:onClick="loadModel">
     </Button>
 
-    <TextView
-        android:id="@+id/response"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="180dp"
-        android:text="模型回复"
-        android:textAlignment="center"
-        android:textSize="16sp" />
-
     <!--Linear Layout for adding textviews
         in horizontal manner-->
     <LinearLayout
@@ -65,62 +56,71 @@
         <!--Textview to start audio recording
             drawableTop will add above mic image-->
         <TextView
-            android:id="@+id/btnRecord"
+            android:id="@+id/PrefillSpeed"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:background="@color/purple_500"
             android:padding="5dp"
-            android:text="@string/start_recording"
+            android:text="prefill speed:"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            app:drawableTopCompat="@drawable/ic_start_recording" />
+            android:textColor="@color/white"/>
 
         <!--Textview to stop audio recording
             drawableTop will add above mic image-->
         <TextView
-            android:id="@+id/btnStop"
+            android:id="@+id/PrefillEnergy"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:background="@color/purple_500"
             android:padding="5dp"
-            android:text="@string/stop_recording"
+            android:text="prefill energy:"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            app:drawableTopCompat="@drawable/ic_stop_recording" />
+            android:textColor="@color/white" />
 
         <!--Textview to play audio that is recorded
             drawableTop will add above mic image-->
         <TextView
-            android:id="@+id/btnPlay"
+            android:id="@+id/DecodeSpeed"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:background="@color/purple_500"
             android:padding="5dp"
-            android:text="@string/play_recording"
+            android:text="decode speed:"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            app:drawableTopCompat="@drawable/ic_play_audio" />
+            android:textColor="@color/white" />
 
         <!--Textview to pause the play of audio recording
             drawableTop will add above mic image-->
         <TextView
-            android:id="@+id/btnStopPlay"
+            android:id="@+id/DecodeEnergy"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:background="@color/purple_500"
             android:padding="5dp"
-            android:text="@string/stop_playing"
+            android:text="decode energy:"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            app:drawableTopCompat="@drawable/ic_pause_audio" />
+            android:textColor="@color/white" />
 
     </LinearLayout>
+    
+    <Button
+        android:id="@+id/startTest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="200dp"
+        android:layout_marginBottom="40dp"
+        android:background="#3bb5ee"
+        android:text="start test"
+        android:onClick="testRun">
+    </Button>
+
 </RelativeLayout>
