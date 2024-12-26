@@ -1,0 +1,10 @@
+{
+    "llm_model": "llm.mnn",
+    "llm_weight": "llm.mnn.weight",
+    "backend_type": "cpu",
+    "thread_num": 4,
+    "power": "high",
+    "precision": "low",
+    "memory": "low",
+    "tmp_path": "tmp"
+}

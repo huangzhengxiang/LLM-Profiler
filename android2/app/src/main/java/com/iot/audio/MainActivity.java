@@ -9,9 +9,13 @@ import android.os.Bundle;
 import android.os.BatteryManager;
 import android.content.Context;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
@@ -46,9 +50,13 @@ public class MainActivity extends AppCompatActivity {
     private long mElapsedEnd;
     // time profile end>
 
-    // <media record begin
+    // <file and path begin
     private File recordDir;
+    private File tmpDir;
     private String recordFilePath;
+    // file and path end>
+
+    // <media record begin
 //    private final String systemPrompt = "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n";
     private wavClass mRecorder;
     private MediaPlayer mPlayer;
@@ -58,15 +66,18 @@ public class MainActivity extends AppCompatActivity {
     // media record end>
 
     // <view begin
+    private EditText modelPathTV, configNameTV, threadNumTV;
     private TextView prefillSpeedTV, prefillEnergyTV, decodeSpeedTV, decodeEnergyTV, statusTV;
     private Button mLoadButton, testButton;
+    private Handler mHandler;
     // view end>
 
     // <LLM model begin
     private Chat mChat;
     private final String mSearchPath = "/data/local/tmp/llm/model/";
-    private final String mModelName = "qwen2_5-1_5b-instruct-mnn";
-    private String mModelDir = mSearchPath + mModelName + "/config.json";
+    private String mModelName = "qwen2_5-1_5b-instruct-mnn";
+    private String mConfigName = "/config.json";
+    private String mModelDir = mSearchPath + mModelName + mConfigName;
     // LLM model end>
 
     // <model profiling config begin
@@ -123,15 +134,43 @@ public class MainActivity extends AppCompatActivity {
         decodeSpeedTV = findViewById(R.id.DecodeSpeed);
         decodeEnergyTV = findViewById(R.id.DecodeEnergy);
         testButton = findViewById(R.id.startTest);
+        modelPathTV = findViewById(R.id.modelPath);
+        configNameTV = findViewById(R.id.configName);
+        threadNumTV = findViewById(R.id.threadNum);
+        modelPathTV.setText(mModelName);
+        configNameTV.setText(mConfigName);
         prefillSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         prefillEnergyTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         decodeSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         decodeEnergyTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        testButton.setClickable(false);
         recordDir = getExternalFilesDir("Recordings");
         if (!recordDir.exists()) {
             recordDir.mkdirs();
         }
+        tmpDir = getExternalFilesDir("tmp");
+        if (!tmpDir.exists()) {
+            tmpDir.mkdirs();
+        }
+        mHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message message) {
+                if (message.getData().getString("call").equals("testRun")) {
+                    testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
+                    testButton.setClickable(true);
+                    prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", message.getData().getFloat("prefill_token_speed")));
+                    prefillEnergyTV.setText(String.format("prefill energy:\n %.4f tok/mAh", message.getData().getFloat("prefill_capacity")));
+                    decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
+                    decodeEnergyTV.setText(String.format("decode energy:\n %.4f tok/mAh", message.getData().getFloat("decode_capacity")));
+                    statusTV.setText("Test Finished!");
+                } else if (message.getData().getString("call").equals("loadModel")) {
+                    statusTV.setText("模型加载完成！");
+                    mLoadButton.setText("模型已加载");
+                    testButton.setClickable(true);
+                }
+            }
+        };
 //        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
 //        Intent batteryStatus = this.registerReceiver(null, ifilter);
 //        int level = batteryStatus.getIntExtra(, -1);
@@ -181,11 +220,19 @@ public class MainActivity extends AppCompatActivity {
         mLoadButton.setBackgroundColor(Color.parseColor("#2454e4"));
         mLoadButton.setText("模型加载中 ...");
 
+        mModelName = modelPathTV.getText().toString();
+        mConfigName = configNameTV.getText().toString();
+        mModelDir = mSearchPath + mModelName + mConfigName;
+        Log.i("LLM Model Path", mModelDir);
+
         new Thread(() -> {
             mChat = new Chat();
-            mChat.Init(mModelDir);
-            statusTV.setText("模型加载完成！");
-            mLoadButton.setText("模型已加载");
+            mChat.Init(mModelDir, tmpDir.getPath(), threadNumTV.getText().toString());
+            Message message=new Message();
+            Bundle data=new Bundle();
+            data.putString("call", "loadModel");
+            message.setData(data);
+            mHandler.sendMessage(message);
         }).start();
     }
 
@@ -285,46 +332,56 @@ public class MainActivity extends AppCompatActivity {
 
     public void testRun(View v) {
         testButton.setBackgroundColor(getResources().getColor(R.color.gray));
+        testButton.setClickable(false);
         statusTV.setText("Testing...");
-        // get prefill len and decode len
-        // for now, hard coded.
-        ArrayList<Integer> mAPrefillList = new ArrayList<Integer>(); // in milli-ampere
-        ArrayList<Integer> mADecodeList = new ArrayList<Integer>(); // in milli-ampere
-        ArrayList<Float> timePrefillList = new ArrayList<Float>(); // in s
-        ArrayList<Float> timeDecodeList = new ArrayList<Float>(); // in s
-        for (int i=0; i<test_times; ++i) {
-            startEnergyTracing();
-            startTimeTracing();
-            mChat.Forward(prefill_len, true);
-            endTimeTracing();
-            endEnergyTracing();
-            mAPrefillList.add(getAvgCurrent()/1000);
-            timePrefillList.add(getTime());
 
-            startEnergyTracing();
-            startTimeTracing();
-            mChat.Forward(decode_len, false);
-            endTimeTracing();
-            endEnergyTracing();
-            mADecodeList.add(getAvgCurrent()/1000);
-            timeDecodeList.add(getTime());
+        new Thread(() -> {
+            // get prefill len and decode len
+            // for now, hard coded.
+            // tracing
+            mChat.Trace();
+            ArrayList<Integer> mAPrefillList = new ArrayList<Integer>(); // in milli-ampere
+            ArrayList<Integer> mADecodeList = new ArrayList<Integer>(); // in milli-ampere
+            ArrayList<Float> timePrefillList = new ArrayList<Float>(); // in s
+            ArrayList<Float> timeDecodeList = new ArrayList<Float>(); // in s
+            for (int i = 0; i < test_times; ++i) {
+                startEnergyTracing();
+                startTimeTracing();
+                mChat.Forward(prefill_len, true);
+                endTimeTracing();
+                endEnergyTracing();
+                mAPrefillList.add(getAvgCurrent() / 1000);
+                timePrefillList.add(getTime());
 
-            mChat.Reset();
-            mChat.Done();
-        }
-        prefill_token_speed = prefill_len/avgFloatArray(timePrefillList);
-        decode_token_speed = decode_len/avgFloatArray(timeDecodeList);
-        prefill_capacity = -prefill_len/getAvgEnergyInmAh(mAPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
-        decode_capacity = -decode_len/getAvgEnergyInmAh(mADecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
-        prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", prefill_token_speed));
-        prefillEnergyTV.setText(String.format("prefill energy:\n %.4f tok/mAh", prefill_capacity));
-        decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", decode_token_speed));
-        decodeEnergyTV.setText(String.format("decode energy:\n %.4f tok/mAh", decode_capacity));
-        Log.i("prefill", String.format("prefill speed: %.4f tok/s", prefill_token_speed));
-        Log.i("prefill", String.format("prefill energy: %.4f tok/mAh", prefill_capacity));
-        Log.i("decode", String.format("decode speed: %.4f tok/s", decode_token_speed));
-        Log.i("decode", String.format("decode energy: %.4f tok/mAh", decode_capacity));
-        testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
-        statusTV.setText("Test Finished!");
+                startEnergyTracing();
+                startTimeTracing();
+                mChat.Forward(decode_len, false);
+                endTimeTracing();
+                endEnergyTracing();
+                mADecodeList.add(getAvgCurrent() / 1000);
+                timeDecodeList.add(getTime());
+
+                mChat.Reset();
+                mChat.Done();
+            }
+            prefill_token_speed = prefill_len / avgFloatArray(timePrefillList);
+            decode_token_speed = decode_len / avgFloatArray(timeDecodeList);
+            Log.i("debug", String.format("%.4f", avgFloatArray(timeDecodeList)));
+            prefill_capacity = -prefill_len / getAvgEnergyInmAh(mAPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
+            decode_capacity = -decode_len / getAvgEnergyInmAh(mADecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
+            Log.i("prefill", String.format("prefill speed: %.4f tok/s", prefill_token_speed));
+            Log.i("prefill", String.format("prefill energy: %.4f tok/mAh", prefill_capacity));
+            Log.i("decode", String.format("decode speed: %.4f tok/s", decode_token_speed));
+            Log.i("decode", String.format("decode energy: %.4f tok/mAh", decode_capacity));
+            Message message=new Message();
+            Bundle data=new Bundle();
+            data.putFloat("prefill_token_speed", prefill_token_speed);
+            data.putFloat("prefill_capacity", prefill_capacity);
+            data.putFloat("decode_token_speed", decode_token_speed);
+            data.putFloat("decode_capacity", decode_capacity);
+            data.putString("call", "testRun");
+            message.setData(data);
+            mHandler.sendMessage(message);
+        }).start();
     }
 }

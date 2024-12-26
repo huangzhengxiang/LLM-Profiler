@@ -3,7 +3,8 @@ package com.iot.audio;
 import java.io.Serializable;
 
 public class Chat implements Serializable {
-    public native boolean Init(String modelDir);
+    public native boolean Init(String modelDir, String tmpFile, String threadNum);
+    public native void Trace();
     public native void Forward(int length, boolean is_prefill);
     public native String Submit(String input);
     public native byte[] Response();

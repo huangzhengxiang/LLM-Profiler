@@ -22,11 +22,39 @@
 
     <!--This will display the status of our app when 
         we will record some audio and play that audio-->
+
+    <EditText
+        android:id="@+id/modelPath"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="model path"
+        android:textAlignment="center"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/configName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:text="config name"
+        android:textAlignment="center"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/threadNum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:text="thread number"
+        android:textAlignment="center"
+        android:textSize="16sp" />
+
     <TextView
         android:id="@+id/idTVstatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="170dp"
         android:text="@string/status"
         android:textAlignment="center"
         android:textSize="16sp" />
@@ -36,12 +64,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="110dp"
+        android:layout_marginTop="200dp"
         android:layout_marginBottom="40dp"
         android:background="#3bb5ee"
         android:text="加载模型"
         android:onClick="loadModel">
     </Button>
+
+    <Button
+        android:id="@+id/startTest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="260dp"
+        android:layout_marginBottom="40dp"
+        android:background="#3bb5ee"
+        android:onClick="testRun"
+        android:text="start test"></Button>
 
     <!--Linear Layout for adding textviews
         in horizontal manner-->
@@ -49,7 +88,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="300dp"
         android:orientation="horizontal"
         android:weightSum="4">
 
@@ -110,17 +149,5 @@
             android:textColor="@color/white" />
 
     </LinearLayout>
-    
-    <Button
-        android:id="@+id/startTest"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="200dp"
-        android:layout_marginBottom="40dp"
-        android:background="#3bb5ee"
-        android:text="start test"
-        android:onClick="testRun">
-    </Button>
 
 </RelativeLayout>

@@ -357,14 +357,14 @@ bool Llm::select_module(size_t index) {
 
 void Llm::trace(bool start) {
     auto status = MNN::Interpreter::Session_Resize_Check;
-    if (start) {
-        status = MNN::Interpreter::Session_Resize_Check;
-    } else {
-        status = MNN::Interpreter::Session_Resize_Fix;
-    }
-    for (auto& m : decode_modules_) {
-        m->traceOrOptimize(status);
-    }
+    // if (start) {
+    //     status = MNN::Interpreter::Session_Resize_Check;
+    // } else {
+    //     status = MNN::Interpreter::Session_Resize_Fix;
+    // }
+    // for (auto& m : decode_modules_) {
+    //     m->traceOrOptimize(status);
+    // }
 
     runtime_manager_->updateCache();
     mTracing = start;
