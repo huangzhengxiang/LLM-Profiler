@@ -50,11 +50,29 @@
         android:textAlignment="center"
         android:textSize="16sp" />
 
+    <EditText
+        android:id="@+id/prefillLen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="160dp"
+        android:text="prefill len"
+        android:textAlignment="center"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/decodeLen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200dp"
+        android:text="decode len"
+        android:textAlignment="center"
+        android:textSize="16sp" />
+
     <TextView
         android:id="@+id/idTVstatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="170dp"
+        android:layout_marginTop="260dp"
         android:text="@string/status"
         android:textAlignment="center"
         android:textSize="16sp" />
@@ -64,7 +82,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="300dp"
         android:layout_marginBottom="40dp"
         android:background="#3bb5ee"
         android:text="加载模型"
@@ -76,7 +94,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="260dp"
+        android:layout_marginTop="360dp"
         android:layout_marginBottom="40dp"
         android:background="#3bb5ee"
         android:onClick="testRun"
@@ -87,8 +105,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="300dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="500dp"
         android:orientation="horizontal"
         android:weightSum="4">
 

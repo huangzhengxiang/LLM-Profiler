@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     // media record end>
 
     // <view begin
-    private EditText modelPathTV, configNameTV, threadNumTV;
+    private EditText modelPathTV, configNameTV, threadNumTV, prefillLenTV, decodeLenTV;
     private TextView prefillSpeedTV, prefillEnergyTV, decodeSpeedTV, decodeEnergyTV, statusTV;
     private Button mLoadButton, testButton;
     private Handler mHandler;
@@ -81,8 +81,8 @@ public class MainActivity extends AppCompatActivity {
     // LLM model end>
 
     // <model profiling config begin
-    private int prefill_len = 200;
-    private int decode_len = 50;
+    private int prefill_len = 100;
+    private int decode_len = 200;
     private float prefill_token_speed = -1f; // tok/s
     private float decode_token_speed = -1f; // tok/s
     private float prefill_capacity = -1f; // tok/mAh
@@ -137,6 +137,8 @@ public class MainActivity extends AppCompatActivity {
         modelPathTV = findViewById(R.id.modelPath);
         configNameTV = findViewById(R.id.configName);
         threadNumTV = findViewById(R.id.threadNum);
+        prefillLenTV = findViewById(R.id.prefillLen);
+        decodeLenTV = findViewById(R.id.decodeLen);
         modelPathTV.setText(mModelName);
         configNameTV.setText(mConfigName);
         prefillSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
@@ -335,9 +337,23 @@ public class MainActivity extends AppCompatActivity {
         testButton.setClickable(false);
         statusTV.setText("Testing...");
 
+        // get prefill len and decode len
+        try {
+            prefill_len = Integer.parseInt(prefillLenTV.getText().toString());
+        }
+        catch (NumberFormatException e) {
+            prefill_len = 100;
+            statusTV.setText("Warning: prefill len shall be int");
+        }
+        try {
+            decode_len = Integer.parseInt(decodeLenTV.getText().toString());
+        } catch (NumberFormatException e) {
+            decode_len = 200;
+            statusTV.setText("Warning: decode len shall be int");
+        }
+
+
         new Thread(() -> {
-            // get prefill len and decode len
-            // for now, hard coded.
             // tracing
             mChat.Trace();
             ArrayList<Integer> mAPrefillList = new ArrayList<Integer>(); // in milli-ampere
