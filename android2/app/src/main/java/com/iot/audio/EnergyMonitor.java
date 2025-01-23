@@ -36,6 +36,7 @@ public class EnergyMonitor extends TimerTask {
     @Override
     public void run() {
         int mBatteryCurrent = ((BatteryManager) ctx.getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
+        if (mBatteryCurrent <= 10000) { mBatteryCurrent *= 1000; } // convert mA -> uA. (device heterogeneity resolution.)
         mAList.add(mBatteryCurrent);
     }
 }

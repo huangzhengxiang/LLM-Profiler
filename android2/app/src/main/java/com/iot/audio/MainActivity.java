@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     // media record end>
 
     // <view begin
-    private EditText modelPathTV, configNameTV, threadNumTV, prefillLenTV, decodeLenTV;
+    private EditText modelPathTV, configNameTV, threadNumTV, powerModeTV, prefillLenTV, decodeLenTV;
     private TextView prefillSpeedTV, prefillEnergyTV, decodeSpeedTV, decodeEnergyTV, statusTV;
     private Button mLoadButton, testButton;
     private Handler mHandler;
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private float decode_token_speed = -1f; // tok/s
     private float prefill_capacity = -1f; // tok/mAh
     private float decode_capacity = -1f; // tok/mAh
-    private final int test_times = 2;
+    private final int test_times = 3;
     // model profiling config end>
 
     private void startEnergyTracing() {
@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         modelPathTV = findViewById(R.id.modelPath);
         configNameTV = findViewById(R.id.configName);
         threadNumTV = findViewById(R.id.threadNum);
+        powerModeTV = findViewById(R.id.powerMode);
         prefillLenTV = findViewById(R.id.prefillLen);
         decodeLenTV = findViewById(R.id.decodeLen);
         modelPathTV.setText(mModelName);
@@ -162,9 +163,9 @@ public class MainActivity extends AppCompatActivity {
                     testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
                     testButton.setClickable(true);
                     prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", message.getData().getFloat("prefill_token_speed")));
-                    prefillEnergyTV.setText(String.format("prefill energy:\n %.4f tok/mAh", message.getData().getFloat("prefill_capacity")));
+                    prefillEnergyTV.setText(String.format("prefill energy:\n %.4f uAh/tok", message.getData().getFloat("prefill_capacity")));
                     decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
-                    decodeEnergyTV.setText(String.format("decode energy:\n %.4f tok/mAh", message.getData().getFloat("decode_capacity")));
+                    decodeEnergyTV.setText(String.format("decode energy:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
                     statusTV.setText("Test Finished!");
                 } else if (message.getData().getString("call").equals("loadModel")) {
                     statusTV.setText("模型加载完成！");
@@ -229,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             mChat = new Chat();
-            mChat.Init(mModelDir, tmpDir.getPath(), threadNumTV.getText().toString());
+            mChat.Init(mModelDir, tmpDir.getPath(), threadNumTV.getText().toString(), powerModeTV.getText().toString());
             Message message=new Message();
             Bundle data=new Bundle();
             data.putString("call", "loadModel");
@@ -383,12 +384,12 @@ public class MainActivity extends AppCompatActivity {
             prefill_token_speed = prefill_len / avgFloatArray(timePrefillList);
             decode_token_speed = decode_len / avgFloatArray(timeDecodeList);
             Log.i("debug", String.format("%.4f", avgFloatArray(timeDecodeList)));
-            prefill_capacity = -prefill_len / getAvgEnergyInmAh(mAPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
-            decode_capacity = -decode_len / getAvgEnergyInmAh(mADecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
+            prefill_capacity = -getAvgEnergyInmAh(mAPrefillList, timePrefillList) * 1000 / prefill_len; // negate it, because it's doomed to be negative.
+            decode_capacity = -getAvgEnergyInmAh(mADecodeList, timeDecodeList) * 1000 / decode_len; // negate it, because it's doomed to be negative.
             Log.i("prefill", String.format("prefill speed: %.4f tok/s", prefill_token_speed));
-            Log.i("prefill", String.format("prefill energy: %.4f tok/mAh", prefill_capacity));
+            Log.i("prefill", String.format("prefill energy: %.4f uAh/tok", prefill_capacity));
             Log.i("decode", String.format("decode speed: %.4f tok/s", decode_token_speed));
-            Log.i("decode", String.format("decode energy: %.4f tok/mAh", decode_capacity));
+            Log.i("decode", String.format("decode energy: %.4f uAh/tok", decode_capacity));
             Message message=new Message();
             Bundle data=new Bundle();
             data.putFloat("prefill_token_speed", prefill_token_speed);

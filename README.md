@@ -32,16 +32,12 @@ After model and apk uploading. Install the apk and use it. Click `加载模型` 
 
 ### 3. build from source
 Before build, first modify MNN a little by running the following commands.
-```bat
-cd modify-MNN
-# win
-modify.bat
-```
 
-```bash
-cd modify-MNN
-# linux/macos
-modify.sh
-```
+MNN-Habst is forked from MNN master branch at commit: b23b55b4950781763baa52423a0af3c65837d2e6 (tag 3.0.4).
+Then, heterogeneity-aware backend selection and tuning is added to the repo.
 
 Then, open project in `Android Studio` and build.
+
+### 4. ThreadPool Design
+
+Prefill core number will be greater than decode, so tuning the onResize will allocate big enough buffer, while onExecute may use dynamic thread number.

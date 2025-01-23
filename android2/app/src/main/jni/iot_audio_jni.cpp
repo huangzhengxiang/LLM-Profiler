@@ -27,14 +27,16 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "JNI_OnUnload");
 }
 
-JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv* env, jobject thiz, jstring modelDir, jstring tmpFile, jstring threadNum) {
+JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv* env, jobject thiz, jstring modelDir, jstring tmpFile, jstring threadNum, jstring powerMode) {
     const char* model_dir = env->GetStringUTFChars(modelDir, 0);
     std::string tmp_path = std::string(env->GetStringUTFChars(tmpFile, 0));
     std::string thread_num = std::string(env->GetStringUTFChars(threadNum, 0));
+    std::string power_mode = std::string(env->GetStringUTFChars(powerMode, 0));
     if (!llm.get()) {
         llm.reset(Llm::createLLM(model_dir));
-        llm->set_config("{\"tmp_path\":\"" + tmp_path + "\"}");
-        llm->set_config("{\"thread_num\":" + thread_num + "}");
+        llm->set_config("{\"tmp_path\":\"" + tmp_path + "\"}"); // tmp_path (string, need quotation marks)
+        llm->set_config("{\"thread_num\":" + thread_num + "}"); // thread_num (int, no quotation marks)
+        llm->set_config("{\"power\":\"" + power_mode + "\"}"); // power (string: need quotation marks)
         llm->load();
     }
     return JNI_TRUE;
@@ -56,6 +58,7 @@ JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Trace(JNIEnv* env, jobject thiz) 
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm is ready!");
     }
     llm->trace(true);
+    llm->switchMode(Llm::Prefill);
     llm->forward({200, 200});
     llm->trace(false);
     llm->reset();
@@ -74,11 +77,13 @@ JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Forward(JNIEnv* env, jobject thiz
     float res = 0.f;
     if ((bool)is_prefill) {
         // test prefill
-        logits = llm->forward(test_prompt, true); // prefill a prompt of length length.
+        llm->switchMode(Llm::Prefill);
+        logits = llm->forward(test_prompt); // prefill a prompt of length length.
         res = logits->readMap<float>()[0];
     } else {
         // test decode, decode for length times
-        for(int i=0; i<(int)length; ++i) { logits = llm->forward({200}, false); res += logits->readMap<float>()[0]; }
+        llm->switchMode(Llm::Decode);
+        for(int i=0; i<(int)length; ++i) { logits = llm->forward({200}); res += logits->readMap<float>()[0]; }
     }
     __android_log_print(ANDROID_LOG_INFO, "MNN_PROFILE", "res: %.4f", res);
     __android_log_print(ANDROID_LOG_INFO, "MNN_DEBUG", "After Foward!");
@@ -94,9 +99,7 @@ JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_Submit(JNIEnv* env, jobject th
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm is ready!");
     }
     const char* input_str = env->GetStringUTFChars(inputStr, 0);
-    std::vector<int> ids = llm->tokenizer_encode(input_str, false);
-    std::string output_str = llm->generate(ids, &response_buffer, "");
-    __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "%s", output_str.c_str());
+    llm->response(input_str, &response_buffer, "");
     jstring result = env->NewStringUTF("Submit success!");
     return result;
 }

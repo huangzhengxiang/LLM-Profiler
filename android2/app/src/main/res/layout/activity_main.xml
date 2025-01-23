@@ -51,10 +51,19 @@
         android:textSize="16sp" />
 
     <EditText
-        android:id="@+id/prefillLen"
+        android:id="@+id/powerMode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="160dp"
+        android:text="power mode"
+        android:textAlignment="center"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/prefillLen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200dp"
         android:text="prefill len"
         android:textAlignment="center"
         android:textSize="16sp" />
@@ -63,7 +72,7 @@
         android:id="@+id/decodeLen"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="240dp"
         android:text="decode len"
         android:textAlignment="center"
         android:textSize="16sp" />
@@ -72,7 +81,7 @@
         android:id="@+id/idTVstatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="260dp"
+        android:layout_marginTop="300dp"
         android:text="@string/status"
         android:textAlignment="center"
         android:textSize="16sp" />
@@ -82,7 +91,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="300dp"
+        android:layout_marginTop="350dp"
         android:layout_marginBottom="40dp"
         android:background="#3bb5ee"
         android:text="加载模型"
@@ -94,7 +103,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="360dp"
+        android:layout_marginTop="410dp"
         android:layout_marginBottom="40dp"
         android:background="#3bb5ee"
         android:onClick="testRun"
