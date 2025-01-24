@@ -10,6 +10,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TimerTask;
+import java.lang.Math;
 
 public class EnergyMonitor extends TimerTask {
     private final ArrayList<Integer> mAList;
@@ -36,7 +37,7 @@ public class EnergyMonitor extends TimerTask {
     @Override
     public void run() {
         int mBatteryCurrent = ((BatteryManager) ctx.getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
-        if (mBatteryCurrent <= 10000) { mBatteryCurrent *= 1000; } // convert mA -> uA. (device heterogeneity resolution.)
+        if (Math.abs(mBatteryCurrent) <= 10000) { mBatteryCurrent *= 1000; Log.i("Energy", String.format("%d", mBatteryCurrent)); } // convert mA -> uA. (device heterogeneity resolution.)
         mAList.add(mBatteryCurrent);
     }
 }

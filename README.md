@@ -33,7 +33,7 @@ After model and apk uploading. Install the apk and use it. Click `加载模型` 
 ### 3. build from source
 Before build, first modify MNN a little by running the following commands.
 
-MNN-Habst is forked from MNN master branch at commit: b23b55b4950781763baa52423a0af3c65837d2e6 (tag 3.0.4).
+MNN-Habst is up-to-date with MNN master branch at commit: 5bd7ffc22a54f6436e387ec2a5cfde7e207feba1 (Version 3.0.4).
 Then, heterogeneity-aware backend selection and tuning is added to the repo of [MNN-Habst](https://github.com/Embedded-AI-Systems/MNN-Habst.git) which is the submodule.
 
 Then, open project in `Android Studio` and build.
