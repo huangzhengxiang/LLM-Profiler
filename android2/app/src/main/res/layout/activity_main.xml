@@ -91,7 +91,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="350dp"
+        android:layout_marginTop="340dp"
         android:layout_marginBottom="40dp"
         android:background="#3bb5ee"
         android:text="加载模型"
@@ -103,7 +103,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="410dp"
+        android:layout_marginTop="390dp"
         android:layout_marginBottom="40dp"
         android:background="#3bb5ee"
         android:onClick="testRun"
@@ -115,7 +115,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="500dp"
+        android:layout_marginTop="440dp"
         android:orientation="horizontal"
         android:weightSum="4">
 
@@ -136,14 +136,14 @@
         <!--Textview to stop audio recording
             drawableTop will add above mic image-->
         <TextView
-            android:id="@+id/PrefillEnergy"
+            android:id="@+id/PrefillCapacity"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:background="@color/purple_500"
             android:padding="5dp"
-            android:text="prefill energy:"
+            android:text="prefill battery use:"
             android:textAlignment="center"
             android:textColor="@color/white" />
 
@@ -164,6 +164,40 @@
         <!--Textview to pause the play of audio recording
             drawableTop will add above mic image-->
         <TextView
+            android:id="@+id/DecodeCapacity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@color/purple_500"
+            android:padding="5dp"
+            android:text="decode battery use:"
+            android:textAlignment="center"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="540dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        
+        <TextView
+            android:id="@+id/PrefillEnergy"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@color/purple_500"
+            android:padding="5dp"
+            android:text="prefill energy:"
+            android:textAlignment="center"
+            android:textColor="@color/white" />
+
+        <TextView
             android:id="@+id/DecodeEnergy"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -176,5 +210,17 @@
             android:textColor="@color/white" />
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/DecodeCorePlan"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="600dp"
+        android:background="@color/purple_500"
+        android:padding="5dp"
+        android:text="decode core plan:"
+        android:textAlignment="center"
+        android:textColor="@color/white" />
 
 </RelativeLayout>

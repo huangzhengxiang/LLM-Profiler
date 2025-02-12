@@ -1,4 +1,7 @@
 package com.iot.audio;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.content.pm.PackageManager;
 import android.graphics.Interpolator;
 import android.media.AudioFormat;
@@ -42,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     // <energy profile begin
     private Timer energyTimer;
     private EnergyMonitor energyMonitor;
-    private final long energySampleInterval = 100L; // 100ms
+    private final long energySampleInterval = 50L; // 50ms
     // energy profile end>
 
     // <time profile begin
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
     // <view begin
     private EditText modelPathTV, configNameTV, threadNumTV, powerModeTV, prefillLenTV, decodeLenTV;
-    private TextView prefillSpeedTV, prefillEnergyTV, decodeSpeedTV, decodeEnergyTV, statusTV;
+    private TextView prefillSpeedTV, prefillBatteryTV, prefillEnergyTV, decodeSpeedTV, decodeBatteryTV, decodeEnergyTV, statusTV, decodeCorePlanTV;
     private Button mLoadButton, testButton;
     private Handler mHandler;
     // view end>
@@ -85,9 +88,15 @@ public class MainActivity extends AppCompatActivity {
     private int decode_len = 200;
     private float prefill_token_speed = -1f; // tok/s
     private float decode_token_speed = -1f; // tok/s
-    private float prefill_capacity = -1f; // tok/mAh
-    private float decode_capacity = -1f; // tok/mAh
+    private float prefill_capacity = -1f; // uAh/tok
+    private float decode_capacity = -1f; // uAh/tok
+    private float prefill_energy= -1f; // mJ/tok
+    private float decode_energy = -1f; // mJ/tok
     private final int test_times = 3;
+
+    private ArrayList<Integer> decodeCorePlan;
+    private int decode_tune_tolerance = 5;
+    private float mBatteryVoltage = 0;
     // model profiling config end>
 
     private void startEnergyTracing() {
@@ -105,9 +114,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private int getAvgCurrent() {
-        return energyMonitor.getAvgCurrent();
-    }
+    private int getAvgCurrent() { return energyMonitor.getAvgCurrent(); } // in uA
+
+    private float getAvgPower() { return energyMonitor.getAvgPower(); } // in uW
 
     private void startTimeTracing() {
         mElapsedBegin = elapsedRealtime();
@@ -121,6 +130,10 @@ public class MainActivity extends AppCompatActivity {
         return ((float)(mElapsedEnd-mElapsedBegin))/1000f; // convert from ms to s.
     }
 
+    public float getVoltage() {
+        return mBatteryVoltage;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,8 +143,10 @@ public class MainActivity extends AppCompatActivity {
         mLoadButton = findViewById(R.id.load_button);
         statusTV = findViewById(R.id.idTVstatus);
         prefillSpeedTV = findViewById(R.id.PrefillSpeed);
+        prefillBatteryTV = findViewById(R.id.PrefillCapacity);
         prefillEnergyTV = findViewById(R.id.PrefillEnergy);
         decodeSpeedTV = findViewById(R.id.DecodeSpeed);
+        decodeBatteryTV = findViewById(R.id.DecodeCapacity);
         decodeEnergyTV = findViewById(R.id.DecodeEnergy);
         testButton = findViewById(R.id.startTest);
         modelPathTV = findViewById(R.id.modelPath);
@@ -140,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
         powerModeTV = findViewById(R.id.powerMode);
         prefillLenTV = findViewById(R.id.prefillLen);
         decodeLenTV = findViewById(R.id.decodeLen);
+        decodeCorePlanTV = findViewById(R.id.DecodeCorePlan);
         modelPathTV.setText(mModelName);
         configNameTV.setText(mConfigName);
         prefillSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
@@ -163,9 +179,12 @@ public class MainActivity extends AppCompatActivity {
                     testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
                     testButton.setClickable(true);
                     prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", message.getData().getFloat("prefill_token_speed")));
-                    prefillEnergyTV.setText(String.format("prefill energy:\n %.4f uAh/tok", message.getData().getFloat("prefill_capacity")));
+                    prefillBatteryTV.setText(String.format("prefill battery use:\n %.4f uAh/tok", message.getData().getFloat("prefill_capacity")));
+                    prefillEnergyTV.setText(String.format("prefill energy:\n %.4f mJ/tok", message.getData().getFloat("prefill_energy")));
                     decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
-                    decodeEnergyTV.setText(String.format("decode energy:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
+                    decodeBatteryTV.setText(String.format("decode battery use:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
+                    decodeEnergyTV.setText(String.format("decode energy:\n %.4f mJ/tok", message.getData().getFloat("decode_energy")));
+                    decodeCorePlanTV.setText("decode core plan: " + message.getData().getString("decode_core_plan"));
                     statusTV.setText("Test Finished!");
                 } else if (message.getData().getString("call").equals("loadModel")) {
                     statusTV.setText("模型加载完成！");
@@ -174,8 +193,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-//        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-//        Intent batteryStatus = this.registerReceiver(null, ifilter);
+        IntentFilter intentfilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = this.registerReceiver(broadcastreceiver, intentfilter);
+
 //        int level = batteryStatus.getIntExtra(, -1);
 //        Log.i("Battery", String.format("System Battery: %d", level));
 //        Log.i("Current", String.format( "Battery Current: %d", ((BatteryManager) getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)));
@@ -208,6 +228,13 @@ public class MainActivity extends AppCompatActivity {
         File dir = new File(mModelDir);
         return dir.exists();
     }
+
+    private BroadcastReceiver broadcastreceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mBatteryVoltage = (float) (intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE,0)) / 1000f; // mV -> V
+        }
+    };
 
     private void onCheckModels() {
         boolean modelReady = checkModelsReady();
@@ -325,12 +352,33 @@ public class MainActivity extends AppCompatActivity {
         return res/arrayList.size();
     }
 
-    public float getAvgEnergyInmAh(ArrayList<Integer> mAList, ArrayList<Float> sList) {
+    public float getAvgCapacityInuAh(ArrayList<Integer> uAList, ArrayList<Float> sList) {
         float res = 0f;
-        for (int i=0; i<mAList.size(); ++i) {
-            res += mAList.get(i)*sList.get(i)/3600f; // turn second into hour.
+        for (int i=0; i<uAList.size(); ++i) {
+            res += uAList.get(i)*sList.get(i)/3600f; // turn second into hour, unit: uAh
         }
-        return res/mAList.size();
+        return res/uAList.size();
+    }
+
+    public float getAvgEnergyInmJ(ArrayList<Float> mWList, ArrayList<Float> sList) {
+        float res = 0f;
+        for (int i=0; i<mWList.size(); ++i) {
+            res += mWList.get(i)*sList.get(i)/1000f; // unit: mJ
+        }
+        return res/mWList.size();
+    }
+
+    public void decodeTune() {
+        boolean tune_end = false;
+        decodeCorePlan = new ArrayList<Integer>();
+        while (!tune_end) {
+            startEnergyTracing();
+            startTimeTracing();
+            mChat.startDecodeTune(decode_tune_tolerance);
+            endTimeTracing();
+            endEnergyTracing();
+            tune_end = mChat.endDecodeTune(decodeCorePlan, -getAvgPower()/1000f, decode_tune_tolerance); // unit: mW (negated)
+        }
     }
 
     public void testRun(View v) {
@@ -357,25 +405,30 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             // tracing
             mChat.Trace();
-            ArrayList<Integer> mAPrefillList = new ArrayList<Integer>(); // in milli-ampere
-            ArrayList<Integer> mADecodeList = new ArrayList<Integer>(); // in milli-ampere
+            decodeTune();
+            ArrayList<Integer> uAPrefillList = new ArrayList<Integer>(); // in uA
+            ArrayList<Integer> uADecodeList = new ArrayList<Integer>(); // in uA
             ArrayList<Float> timePrefillList = new ArrayList<Float>(); // in s
             ArrayList<Float> timeDecodeList = new ArrayList<Float>(); // in s
+            ArrayList<Float> powerPrefillList = new ArrayList<Float>(); // in mW
+            ArrayList<Float> powerDecodeList = new ArrayList<Float>(); // in mW
             for (int i = 0; i < test_times; ++i) {
                 startEnergyTracing();
                 startTimeTracing();
-                mChat.Forward(prefill_len, true);
+                mChat.Forward(prefill_len, true, true);
                 endTimeTracing();
                 endEnergyTracing();
-                mAPrefillList.add(getAvgCurrent() / 1000);
+                uAPrefillList.add(getAvgCurrent());
+                powerPrefillList.add(getAvgPower());
                 timePrefillList.add(getTime());
 
                 startEnergyTracing();
                 startTimeTracing();
-                mChat.Forward(decode_len, false);
+                mChat.Forward(decode_len, false, false);
                 endTimeTracing();
                 endEnergyTracing();
-                mADecodeList.add(getAvgCurrent() / 1000);
+                uADecodeList.add(getAvgCurrent());
+                powerDecodeList.add(getAvgPower());
                 timeDecodeList.add(getTime());
 
                 mChat.Reset();
@@ -383,19 +436,30 @@ public class MainActivity extends AppCompatActivity {
             }
             prefill_token_speed = prefill_len / avgFloatArray(timePrefillList);
             decode_token_speed = decode_len / avgFloatArray(timeDecodeList);
-            Log.i("debug", String.format("%.4f", avgFloatArray(timeDecodeList)));
-            prefill_capacity = -getAvgEnergyInmAh(mAPrefillList, timePrefillList) * 1000 / prefill_len; // negate it, because it's doomed to be negative.
-            decode_capacity = -getAvgEnergyInmAh(mADecodeList, timeDecodeList) * 1000 / decode_len; // negate it, because it's doomed to be negative.
+            prefill_capacity = -getAvgCapacityInuAh(uAPrefillList, timePrefillList) / prefill_len; // negate it, because it's doomed to be negative.
+            decode_capacity = -getAvgCapacityInuAh(uADecodeList, timeDecodeList) / decode_len; // negate it, because it's doomed to be negative.
+            prefill_energy = -getAvgEnergyInmJ(powerPrefillList, timePrefillList) / prefill_len; // negate it, because it's doomed to be negative.
+            decode_energy = -getAvgEnergyInmJ(powerDecodeList, timeDecodeList) / decode_len; // negate it, because it's doomed to be negative.
             Log.i("prefill", String.format("prefill speed: %.4f tok/s", prefill_token_speed));
-            Log.i("prefill", String.format("prefill energy: %.4f uAh/tok", prefill_capacity));
+            Log.i("prefill", String.format("prefill battery use: %.4f uAh/tok", prefill_capacity));
+            Log.i("prefill", String.format("prefill energy: %.4f mJ/tok", prefill_energy));
             Log.i("decode", String.format("decode speed: %.4f tok/s", decode_token_speed));
-            Log.i("decode", String.format("decode energy: %.4f uAh/tok", decode_capacity));
+            Log.i("decode", String.format("decode battery use: %.4f uAh/tok", decode_capacity));
+            Log.i("decode", String.format("decode energy: %.4f mJ/tok", decode_energy));
             Message message=new Message();
             Bundle data=new Bundle();
+            String decode_core_plan = "";
+            for (int i = 0; i<decodeCorePlan.size(); ++i) {
+                decode_core_plan += String.format("%d ", decodeCorePlan.get(i));
+            }
+            decode_core_plan = decode_core_plan.substring(0, decode_core_plan.length()-1); // remove the last ' '
             data.putFloat("prefill_token_speed", prefill_token_speed);
             data.putFloat("prefill_capacity", prefill_capacity);
+            data.putFloat("prefill_energy", prefill_energy);
             data.putFloat("decode_token_speed", decode_token_speed);
             data.putFloat("decode_capacity", decode_capacity);
+            data.putFloat("decode_energy", decode_energy);
+            data.putString("decode_core_plan", decode_core_plan);
             data.putString("call", "testRun");
             message.setData(data);
             mHandler.sendMessage(message);

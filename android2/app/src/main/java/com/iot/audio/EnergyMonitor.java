@@ -13,31 +13,45 @@ import java.util.TimerTask;
 import java.lang.Math;
 
 public class EnergyMonitor extends TimerTask {
-    private final ArrayList<Integer> mAList;
+    private final ArrayList<Integer> uAList;
+    private final ArrayList<Float> VList;
     private final Context ctx;
 
     EnergyMonitor(Context parent) {
-        mAList = new ArrayList<Integer>();
+        uAList = new ArrayList<Integer>();
+        VList = new ArrayList<Float>();
         ctx = parent;
     }
 
     public void resetInfo() {
-        mAList.clear();
+        uAList.clear();
+        VList.clear();
     }
 
     public int getAvgCurrent() {
-        long size = mAList.size();
+        long size = uAList.size();
         long res = 0;
         for (int i=0; i < size; ++i) {
-            res += mAList.get(i);
+            res += uAList.get(i);
         }
         return  (int)(res/size);
+    }
+
+    public float getAvgPower() {
+        long size = uAList.size();
+        double res = 0;
+        for (int i=0; i < size; ++i) {
+            res += uAList.get(i)*VList.get(i);
+        }
+        return  (float)(res/size);
     }
 
     @Override
     public void run() {
         int mBatteryCurrent = ((BatteryManager) ctx.getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
-        if (Math.abs(mBatteryCurrent) <= 10000) { mBatteryCurrent *= 1000; Log.i("Energy", String.format("%d", mBatteryCurrent)); } // convert mA -> uA. (device heterogeneity resolution.)
-        mAList.add(mBatteryCurrent);
+        float mBatteryVoltage = (float) ((MainActivity)ctx).getVoltage(); // V
+        if (Math.abs(mBatteryCurrent) <= 10000) { mBatteryCurrent *= 1000; } // convert mA -> uA. (device heterogeneity resolution.)
+        uAList.add(mBatteryCurrent);
+        VList.add(mBatteryVoltage);
     }
 }

@@ -58,13 +58,54 @@ JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Trace(JNIEnv* env, jobject thiz) 
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm is ready!");
     }
     llm->trace(true);
+    std::vector<int> test_prompt(30, 200);
     llm->switchMode(Llm::Prefill);
-    llm->forward({200, 200});
+    llm->setKVCacheInfo(test_prompt.size(), 0);
+    llm->forward(test_prompt);
     llm->trace(false);
+    // reset
     llm->reset();
+    llm->setKVCacheInfo(0, llm->getCurrentHistory());
+}
+JNIEXPORT void JNICALL Java_com_iot_audio_Chat_startDecodeTune(JNIEnv* env, jobject thiz, jint tolerance) {
+    __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Trace");
+    if (!llm.get()) {
+        __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm not ready!");
+        return;
+    } else {
+        __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm is ready!");
+    }
+    std::vector<int> empty;
+    llm->decode_tuning(empty, nullptr, (int)tolerance);
 }
 
-JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Forward(JNIEnv* env, jobject thiz, jint length, jboolean is_prefill) {
+JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_endDecodeTune(JNIEnv* env, jobject thiz, jobject arrayList, jfloat energy, jint tolerance) {
+    __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Trace");
+    if (!llm.get()) {
+        __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm not ready!");
+        return true;
+    } else {
+        __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm is ready!");
+    }
+    float cenergy = (float)energy;
+    std::vector<int> core_plan;
+    bool tune_end = llm->decode_tuning(core_plan, &cenergy, (int)tolerance);
+    // modify arrayList
+    if (tune_end) {
+        jclass arrayListClass = env->GetObjectClass(arrayList);
+        jclass integerClass = env->FindClass("java/lang/Integer");
+        jmethodID addMethodID = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+        for (int core : core_plan) {
+            jobject newElement = env->NewObject(integerClass, env->GetMethodID(integerClass, "<init>", "(I)V"), core);
+            env->CallBooleanMethod(arrayList, addMethodID, newElement);
+            env->DeleteLocalRef(newElement);
+        }
+    }
+    return  (jboolean)tune_end;
+}
+
+
+JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Forward(JNIEnv* env, jobject thiz, jint length, jboolean is_prefill, jboolean is_first_prefill) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Submit");
     if (!llm.get()) {
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm not ready!");
@@ -78,12 +119,21 @@ JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Forward(JNIEnv* env, jobject thiz
     if ((bool)is_prefill) {
         // test prefill
         llm->switchMode(Llm::Prefill);
+        if ((bool)is_first_prefill) {
+            llm->setKVCacheInfo(test_prompt.size(), llm->getCurrentHistory());
+        } else {
+            llm->setKVCacheInfo(test_prompt.size(), 0);
+        }
         logits = llm->forward(test_prompt); // prefill a prompt of length length.
         res = logits->readMap<float>()[0];
     } else {
         // test decode, decode for length times
         llm->switchMode(Llm::Decode);
-        for(int i=0; i<(int)length; ++i) { logits = llm->forward({200}); res += logits->readMap<float>()[0]; }
+        for(int i=0; i<(int)length; ++i) {
+            llm->setKVCacheInfo(1, 0);
+            logits = llm->forward({200}); 
+            res += logits->readMap<float>()[0]; 
+        }
     }
     __android_log_print(ANDROID_LOG_INFO, "MNN_PROFILE", "res: %.4f", res);
     __android_log_print(ANDROID_LOG_INFO, "MNN_DEBUG", "After Foward!");
@@ -117,6 +167,7 @@ JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Done(JNIEnv* env, jobject thiz) {
 }
 
 JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Reset(JNIEnv* env, jobject thiz) {
+    llm->setKVCacheInfo(0, llm->getCurrentHistory());
     llm->reset();
 }
 
