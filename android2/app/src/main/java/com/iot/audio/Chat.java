@@ -4,7 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Chat implements Serializable {
-    public native boolean Init(String modelDir, String tmpFile, String threadNum, String powerMode);
+    public native boolean Init(String modelDir,
+                               String tmpFile,
+                               String prefillThreadNum,
+                               String decodeThreadNum,
+                               String prefillPowerMode,
+                               String decodePowerMode,
+                               String deocdeCorePlan,
+                               String tuneTimes);
     public native void startDecodeTune(int tolerance);
     public native boolean endDecodeTune(ArrayList<Integer> decodeCorePlan, float power, int tolerance);
     public native void Trace();

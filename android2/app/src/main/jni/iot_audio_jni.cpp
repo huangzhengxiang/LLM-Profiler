@@ -27,16 +27,32 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "JNI_OnUnload");
 }
 
-JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv* env, jobject thiz, jstring modelDir, jstring tmpFile, jstring threadNum, jstring powerMode) {
+JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv* env, jobject thiz,
+                                                        jstring modelDir,
+                                                        jstring tmpFile,
+                                                        jstring prefillThreadNum,
+                                                        jstring decodeThreadNum,
+                                                        jstring prefillPowerMode,
+                                                        jstring decodePowerMode,
+                                                        jstring decodeCorePlan,
+                                                        jstring tuneTimes) {
     const char* model_dir = env->GetStringUTFChars(modelDir, 0);
     std::string tmp_path = std::string(env->GetStringUTFChars(tmpFile, 0));
-    std::string thread_num = std::string(env->GetStringUTFChars(threadNum, 0));
-    std::string power_mode = std::string(env->GetStringUTFChars(powerMode, 0));
+    std::string prefill_thread_num = std::string(env->GetStringUTFChars(prefillThreadNum, 0));
+    std::string decode_thread_num = std::string(env->GetStringUTFChars(decodeThreadNum, 0));
+    std::string prefill_power_mode = std::string(env->GetStringUTFChars(prefillPowerMode, 0));
+    std::string decode_power_mode = std::string(env->GetStringUTFChars(decodePowerMode, 0));
+    std::string decode_cores = std::string(env->GetStringUTFChars(decodeCorePlan, 0));
+    std::string decode_tune_times = std::string(env->GetStringUTFChars(tuneTimes, 0));
     if (!llm.get()) {
         llm.reset(Llm::createLLM(model_dir));
         llm->set_config("{\"tmp_path\":\"" + tmp_path + "\"}"); // tmp_path (string, need quotation marks)
-        llm->set_config("{\"thread_num\":" + thread_num + "}"); // thread_num (int, no quotation marks)
-        llm->set_config("{\"power\":\"" + power_mode + "\"}"); // power (string: need quotation marks)
+        if (!prefill_thread_num.empty()) { llm->set_config("{\"prefill_thread_num\":" + prefill_thread_num + "}"); } // thread_num (int, no quotation marks)
+        if (!decode_thread_num.empty()) { llm->set_config("{\"decode_thread_num\":" + decode_thread_num + "}"); } // thread_num (int, no quotation marks)
+        if (!prefill_power_mode.empty()) { llm->set_config("{\"prefill_power\":\"" + prefill_power_mode + "\"}"); } // power (string: need quotation marks)
+        if (!decode_power_mode.empty()) { llm->set_config("{\"decode_power\":\"" + decode_power_mode + "\"}"); } // power (string: need quotation marks)
+        if (!decode_cores.empty()) { llm->set_config("{\"decode_cores\":\"" + decode_cores + "\"}"); } // power (string: need quotation marks)
+        if (!decode_tune_times.empty()) { llm->set_config("{\"decode_tune_times\":" + decode_tune_times + "}"); } // power (string: need quotation marks)
         llm->load();
     }
     return JNI_TRUE;

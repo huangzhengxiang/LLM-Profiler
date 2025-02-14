@@ -69,7 +69,8 @@ public class MainActivity extends AppCompatActivity {
     // media record end>
 
     // <view begin
-    private EditText modelPathTV, configNameTV, threadNumTV, powerModeTV, prefillLenTV, decodeLenTV;
+    private EditText modelPathTV, configNameTV, prefillThreadNumTV, decodeThreadNumTV, prefillPowerModeTV, decodePowerModeTV, decodeCorePlanInputTV,  prefillLenTV, decodeLenTV;
+    private EditText tuneTimesTV, toleranceTV;
     private TextView prefillSpeedTV, prefillBatteryTV, prefillEnergyTV, decodeSpeedTV, decodeBatteryTV, decodeEnergyTV, statusTV, decodeCorePlanTV;
     private Button mLoadButton, testButton;
     private Handler mHandler;
@@ -151,11 +152,16 @@ public class MainActivity extends AppCompatActivity {
         testButton = findViewById(R.id.startTest);
         modelPathTV = findViewById(R.id.modelPath);
         configNameTV = findViewById(R.id.configName);
-        threadNumTV = findViewById(R.id.threadNum);
-        powerModeTV = findViewById(R.id.powerMode);
+        prefillThreadNumTV = findViewById(R.id.PrefillThreadNum);
+        decodeThreadNumTV = findViewById(R.id.DecodeThreadNum);
+        prefillPowerModeTV = findViewById(R.id.PrefillPowerMode);
+        decodePowerModeTV = findViewById(R.id.DecodePowerMode);
+        decodeCorePlanInputTV = findViewById(R.id.DecodeCorePlan);
+        tuneTimesTV = findViewById(R.id.tuneTimes);
+        toleranceTV = findViewById(R.id.DecodeTol);
         prefillLenTV = findViewById(R.id.prefillLen);
         decodeLenTV = findViewById(R.id.decodeLen);
-        decodeCorePlanTV = findViewById(R.id.DecodeCorePlan);
+        decodeCorePlanTV = findViewById(R.id.DecodeCorePlanDisplay);
         modelPathTV.setText(mModelName);
         configNameTV.setText(mConfigName);
         prefillSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
@@ -257,7 +263,13 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             mChat = new Chat();
-            mChat.Init(mModelDir, tmpDir.getPath(), threadNumTV.getText().toString(), powerModeTV.getText().toString());
+            mChat.Init(mModelDir, tmpDir.getPath(),
+                       prefillThreadNumTV.getText().toString(),
+                       decodeThreadNumTV.getText().toString(),
+                       prefillPowerModeTV.getText().toString(),
+                       decodePowerModeTV.getText().toString(),
+                       decodeCorePlanInputTV.getText().toString(),
+                       tuneTimesTV.getText().toString());
             Message message=new Message();
             Bundle data=new Bundle();
             data.putString("call", "loadModel");
@@ -369,6 +381,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void decodeTune() {
+        if (decode_tune_tolerance==-1) {
+            // no tuning
+            return;
+        }
         boolean tune_end = false;
         decodeCorePlan = new ArrayList<Integer>();
         while (!tune_end) {
@@ -400,6 +416,13 @@ public class MainActivity extends AppCompatActivity {
             decode_len = 200;
             statusTV.setText("Warning: decode len shall be int");
         }
+        try {
+            decode_tune_tolerance = Integer.parseInt(toleranceTV.getText().toString());
+        } catch (NumberFormatException e) {
+            decode_tune_tolerance = -1;
+            statusTV.setText("Warning: no decode tuning!");
+        }
+
 
 
         new Thread(() -> {
@@ -449,10 +472,14 @@ public class MainActivity extends AppCompatActivity {
             Message message=new Message();
             Bundle data=new Bundle();
             String decode_core_plan = "";
-            for (int i = 0; i<decodeCorePlan.size(); ++i) {
-                decode_core_plan += String.format("%d ", decodeCorePlan.get(i));
+            if (decodeCorePlan!=null) {
+                for (int i = 0; i<decodeCorePlan.size(); ++i) {
+                    decode_core_plan += String.format("%d ", decodeCorePlan.get(i));
+                }
             }
-            decode_core_plan = decode_core_plan.substring(0, decode_core_plan.length()-1); // remove the last ' '
+            if (!decode_core_plan.isEmpty()) {
+                decode_core_plan = decode_core_plan.substring(0, decode_core_plan.length() - 1); // remove the last ' '
+            }
             data.putFloat("prefill_token_speed", prefill_token_speed);
             data.putFloat("prefill_capacity", prefill_capacity);
             data.putFloat("prefill_energy", prefill_energy);
