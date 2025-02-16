@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
     private void onCheckModels() {
         boolean modelReady = checkModelsReady();
 
+        mModelName = modelPathTV.getText().toString();
         statusTV.setText(String.format("%s加载中", mModelName));
         mLoadButton.setText("模型加载中");
 
