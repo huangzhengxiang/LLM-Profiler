@@ -13,9 +13,8 @@
 
 #include <MNN/MNNDefine.h>
 
-namespace MNN {
-namespace Transformer {
-
+// <role, content>
+using PromptItem = std::pair<std::string, std::string>; // <role, content>
 
 // parse csv
 MNN_PUBLIC std::vector<std::vector<std::string>> parse_csv(const std::vector<std::string>& lines);
@@ -27,7 +26,5 @@ std::vector<std::string> plaintext(std::string prompt_file);
 std::vector<std::string> wikitext(std::string prompt_file);
 std::vector<std::vector<std::vector<PromptItem>>> shareGPT(std::string prompt_file, int sample_size=-1); // -1: no sampling
 
-} // Transformer
-} // MNN
 
 #endif // LLM_DATASET_hpp
