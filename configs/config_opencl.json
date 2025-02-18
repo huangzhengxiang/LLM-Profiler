@@ -1,0 +1,15 @@
+{
+    "llm_model": "llm.mnn",
+    "llm_weight": "llm.mnn.weight",
+    "backend_type": "opencl",
+    "thread_num": 68,
+    "precision": "low",
+    "memory": "low",
+    "reuse_kv": true,
+    "max_all_tokens": 8192,
+    "app_type": "chat",
+    "sampler_type": "greedy",
+    "dataset": "shareGPT",
+    "dataset_sample_size": 100,
+    "tmp_path": "tmp"
+}

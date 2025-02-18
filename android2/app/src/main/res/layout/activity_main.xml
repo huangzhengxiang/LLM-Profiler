@@ -1,126 +1,353 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--XML code for activity_main.xml-->
-<RelativeLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    tools:context=".MainActivity">
-
-    <!--Heading Text View-->
-    <TextView
-        android:id="@+id/txthead"
+<ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="@string/audio_recorder"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:textSize="30sp" />
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        tools:context=".MainActivity">
 
-    <!--This will display the status of our app when 
-        we will record some audio and play that audio-->
-    <TextView
-        android:id="@+id/idTVstatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:text="@string/status"
-        android:textAlignment="center"
-        android:textSize="16sp" />
-
-    <Button
-        android:id="@+id/load_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="110dp"
-        android:layout_marginBottom="40dp"
-        android:background="#3bb5ee"
-        android:text="加载模型"
-        android:onClick="loadModel">
-    </Button>
-
-    <TextView
-        android:id="@+id/response"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="180dp"
-        android:text="模型回复"
-        android:textAlignment="center"
-        android:textSize="16sp" />
-
-    <!--Linear Layout for adding textviews
-        in horizontal manner-->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="200dp"
-        android:orientation="horizontal"
-        android:weightSum="4">
+        android:layout_height="match_parent"
+        android:layout_gravity="center|fill"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:scrollbars="vertical"
+        android:visibility="visible"
+        tools:visibility="visible">
 
-        <!--Textview to start audio recording
-            drawableTop will add above mic image-->
+        <!--Heading Text View-->
         <TextView
-            android:id="@+id/btnRecord"
-            android:layout_width="0dp"
+            android:id="@+id/txthead"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:background="@color/purple_500"
-            android:padding="5dp"
-            android:text="@string/start_recording"
+            android:layout_centerHorizontal="true"
+            android:padding="10dp"
+            android:background="@color/design_default_color_primary"
+            android:text="LLM Profiler"
             android:textAlignment="center"
             android:textColor="@color/white"
-            app:drawableTopCompat="@drawable/ic_start_recording" />
+            android:textSize="30sp" />
 
-        <!--Textview to stop audio recording
-            drawableTop will add above mic image-->
-        <TextView
-            android:id="@+id/btnStop"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:background="@color/purple_500"
-            android:padding="5dp"
-            android:text="@string/stop_recording"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:drawableTopCompat="@drawable/ic_stop_recording" />
+        <!--This will display the status of our app when 
+            we will record some audio and play that audio-->
 
-        <!--Textview to play audio that is recorded
-            drawableTop will add above mic image-->
-        <TextView
-            android:id="@+id/btnPlay"
-            android:layout_width="0dp"
+        <EditText
+            android:id="@+id/modelPath"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:background="@color/purple_500"
-            android:padding="5dp"
-            android:text="@string/play_recording"
+            android:padding="15dp"
+            android:text="model path"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            app:drawableTopCompat="@drawable/ic_play_audio" />
+            android:textSize="16sp" />
 
-        <!--Textview to pause the play of audio recording
-            drawableTop will add above mic image-->
-        <TextView
-            android:id="@+id/btnStopPlay"
-            android:layout_width="0dp"
+        <EditText
+            android:id="@+id/configName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:background="@color/purple_500"
-            android:padding="5dp"
-            android:text="@string/stop_playing"
+            android:padding="8dp"
+            android:text="config name"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            app:drawableTopCompat="@drawable/ic_pause_audio" />
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:weightSum="2">
+
+            <EditText
+                android:id="@+id/PrefillThreadNum"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="prefill thread"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/DecodeThreadNum"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="decode thread"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:weightSum="2">
+
+            <EditText
+                android:id="@+id/PrefillPowerMode"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="prefill power"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/DecodePowerMode"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="decode power"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:weightSum="2">
+
+            <EditText
+                android:id="@+id/PrefillCorePlan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="prefill cores"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/DecodeCorePlan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="decode cores"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:weightSum="2">
+
+            <EditText
+                android:id="@+id/tuneTimes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="tune times"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/DecodeTol"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="decode tol"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:weightSum="2">
+
+            <EditText
+                android:id="@+id/prefillLen"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="prefill len"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/decodeLen"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="decode len"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/idTVstatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:text="@string/status"
+            android:textAlignment="center"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="15dp"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/load_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_marginBottom="40dp"
+                android:layout_weight="1"
+                android:background="#3bb5ee"
+                android:onClick="loadModel"
+                android:text="加载模型"></Button>
+
+            <Button
+                android:id="@+id/startTest"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_marginBottom="40dp"
+                android:layout_weight="1"
+                android:background="#3bb5ee"
+                android:onClick="testRun"
+                android:text="start test"></Button>
+        </LinearLayout>
+
+        <!--Linear Layout for adding textviews
+            in horizontal manner-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="15dp"
+            android:weightSum="4">
+            <!--Textview to start audio recording
+                drawableTop will add above mic image-->
+            <TextView
+                android:id="@+id/PrefillSpeed"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="prefill speed:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+            <!--Textview to stop audio recording
+                drawableTop will add above mic image-->
+            <TextView
+                android:id="@+id/PrefillCapacity"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="prefill battery use:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+            <!--Textview to play audio that is recorded
+                drawableTop will add above mic image-->
+            <TextView
+                android:id="@+id/DecodeSpeed"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="decode speed:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+            <!--Textview to pause the play of audio recording
+                drawableTop will add above mic image-->
+            <TextView
+                android:id="@+id/DecodeCapacity"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="decode battery use:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:weightSum="2">
+
+            <TextView
+                android:id="@+id/PrefillEnergy"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="prefill energy:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/DecodeEnergy"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="decode energy:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/DecodeCorePlanDisplay"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@color/purple_500"
+            android:padding="15dp"
+            android:text="decode core plan:"
+            android:textAlignment="center"
+            android:textColor="@color/white" />
 
     </LinearLayout>
-</RelativeLayout>
+
+</ScrollView>
+

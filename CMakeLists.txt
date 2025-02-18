@@ -17,6 +17,7 @@ set(LLM_SUPPORT_VISION ON CACHE BOOL "Open LLM_SUPPORT_VISION" FORCE)
 add_definitions(-DLLM_SUPPORT_VISION)
 set(MNN_BUILD_OPENCV ON CACHE BOOL "Open MNN_BUILD_OPENCV" FORCE)
 set(MNN_IMGCODECS ON CACHE BOOL "Open MNN_IMGCODECS" FORCE)
+set(MNN_OPENCL ON CACHE BOOL "Open MNN_OPENCL" FORCE)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/MNN)
 
@@ -38,11 +39,14 @@ set_target_properties(iot PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 target_link_libraries(iot MNN MNN_Express)
 target_link_libraries(iot MNNOpenCV)
 target_link_libraries(iot llm)
+target_link_libraries(iot MNN_CL)
+
 
 set(LLM_LIBS "")
 list(APPEND LLM_LIBS $<TARGET_FILE:MNN>)
 list(APPEND LLM_LIBS $<TARGET_FILE:MNN_Express>)
 list(APPEND LLM_LIBS $<TARGET_FILE:MNNOpenCV>)
+list(APPEND LLM_LIBS $<TARGET_FILE:MNN_CL>)
 list(APPEND LLM_LIBS $<TARGET_FILE:MNNAudio>)
 list(APPEND LLM_LIBS $<TARGET_FILE:llm>)
 add_custom_command(TARGET iot POST_BUILD
