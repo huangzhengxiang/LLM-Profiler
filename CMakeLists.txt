@@ -22,7 +22,8 @@ set(MNN_OPENCL ON CACHE BOOL "Open MNN_OPENCL" FORCE)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/MNN)
 
 # include dir
-include_directories(${CMAKE_CURRENT_LIST_DIR}/MNN/transformers/llm/engine/include/
+include_directories(${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/include/
+        `           ${CMAKE_CURRENT_LIST_DIR}/MNN/transformers/llm/engine/include/
                     ${CMAKE_CURRENT_LIST_DIR}/MNN/include/
                     ${CMAKE_CURRENT_LIST_DIR}/MNN/tools/cv/include/
                     ${CMAKE_CURRENT_LIST_DIR}/MNN/3rd_party/

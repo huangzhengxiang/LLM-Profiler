@@ -1,4 +1,4 @@
-!model/qwen2-audio-7b-mnn/
 model/
 records/
 build
+dataset/
