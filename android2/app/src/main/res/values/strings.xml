@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">LLM-Profiler</string>
+    <string name="engine">select engine</string>
+    <string name="model">select model</string>
     <string name="toggle_flash">Toggle Flash</string>
     <string name="action_settings">Settings</string>
     <string name="scanned_data">Scanned Data</string>

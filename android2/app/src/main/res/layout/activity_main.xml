@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:padding="10dp"
+            android:layout_marginBottom="10dp"
             android:background="@color/design_default_color_primary"
             android:text="LLM Profiler"
             android:textAlignment="center"
@@ -36,14 +36,23 @@
         <!--This will display the status of our app when 
             we will record some audio and play that audio-->
 
-        <EditText
+       <Spinner
+            android:id="@+id/EngineSelect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="8pt"
+            android:prompt="@string/engine"
+            android:spinnerMode="dropdown"/>
+
+        <Spinner
             android:id="@+id/modelPath"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:text="model path"
-            android:textAlignment="center"
-            android:textSize="16sp" />
+            android:layout_gravity="center"
+            android:padding="8pt"
+            android:prompt="@string/model"
+            android:spinnerMode="dropdown"/>
 
         <EditText
             android:id="@+id/configName"

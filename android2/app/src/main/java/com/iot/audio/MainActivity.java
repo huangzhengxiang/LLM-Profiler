@@ -18,7 +18,10 @@ import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
@@ -69,7 +72,9 @@ public class MainActivity extends AppCompatActivity {
     // media record end>
 
     // <view begin
-    private EditText modelPathTV, configNameTV, prefillThreadNumTV, decodeThreadNumTV, prefillPowerModeTV, decodePowerModeTV, decodeCorePlanInputTV,  prefillLenTV, decodeLenTV;
+    private ArrayList<String> mEngineSelections;
+    private Spinner mEngineSelectSpinner, mModelSelectSpinner;
+    private EditText configNameTV, prefillThreadNumTV, decodeThreadNumTV, prefillPowerModeTV, decodePowerModeTV, decodeCorePlanInputTV,  prefillLenTV, decodeLenTV;
     private EditText tuneTimesTV, toleranceTV;
     private TextView prefillSpeedTV, prefillBatteryTV, prefillEnergyTV, decodeSpeedTV, decodeBatteryTV, decodeEnergyTV, statusTV, decodeCorePlanTV;
     private Button mLoadButton, testButton;
@@ -79,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
     // <LLM model begin
     private Chat mChat;
     private final String mSearchPath = "/data/local/tmp/llm/model/";
-    private String mModelName = "qwen2_5-1_5b-instruct-mnn";
+    private String mModelName = "qwen2_5-1_5b-instruct-int4";
     private String mConfigName = "/config.json";
     private String mModelDir = mSearchPath + mModelName + mConfigName;
     // LLM model end>
@@ -141,6 +146,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // initialize all variables with their layout items.
+        mEngineSelectSpinner = findViewById(R.id.EngineSelect);
+        mModelSelectSpinner = findViewById(R.id.modelPath);
+        configNameTV = findViewById(R.id.configName);
         mLoadButton = findViewById(R.id.load_button);
         statusTV = findViewById(R.id.idTVstatus);
         prefillSpeedTV = findViewById(R.id.PrefillSpeed);
@@ -150,8 +158,6 @@ public class MainActivity extends AppCompatActivity {
         decodeBatteryTV = findViewById(R.id.DecodeCapacity);
         decodeEnergyTV = findViewById(R.id.DecodeEnergy);
         testButton = findViewById(R.id.startTest);
-        modelPathTV = findViewById(R.id.modelPath);
-        configNameTV = findViewById(R.id.configName);
         prefillThreadNumTV = findViewById(R.id.PrefillThreadNum);
         decodeThreadNumTV = findViewById(R.id.DecodeThreadNum);
         prefillPowerModeTV = findViewById(R.id.PrefillPowerMode);
@@ -162,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
         prefillLenTV = findViewById(R.id.prefillLen);
         decodeLenTV = findViewById(R.id.decodeLen);
         decodeCorePlanTV = findViewById(R.id.DecodeCorePlanDisplay);
-        modelPathTV.setText(mModelName);
         configNameTV.setText(mConfigName);
         prefillSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         prefillEnergyTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
@@ -170,6 +175,10 @@ public class MainActivity extends AppCompatActivity {
         decodeEnergyTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
         testButton.setClickable(false);
+        populateEngineSpinner();
+        populateModelSpinner();
+
+
         recordDir = getExternalFilesDir("Recordings");
         if (!recordDir.exists()) {
             recordDir.mkdirs();
@@ -245,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
     private void onCheckModels() {
         boolean modelReady = checkModelsReady();
 
-        mModelName = modelPathTV.getText().toString();
+        mModelName = mModelSelectSpinner.getSelectedItem().toString();
         statusTV.setText(String.format("%s加载中", mModelName));
         mLoadButton.setText("模型加载中");
 
@@ -257,8 +266,7 @@ public class MainActivity extends AppCompatActivity {
         mLoadButton.setBackgroundColor(Color.parseColor("#2454e4"));
         mLoadButton.setText("模型加载中 ...");
 
-        mModelName = modelPathTV.getText().toString();
-        mConfigName = configNameTV.getText().toString();
+        mModelName = mModelSelectSpinner.getSelectedItem().toString();
         mModelDir = mSearchPath + mModelName + mConfigName;
         Log.i("LLM Model Path", mModelDir);
 
@@ -348,6 +356,33 @@ public class MainActivity extends AppCompatActivity {
         String reply = new String(ret);
     }
 
+    private ArrayList<String> getFileList(String path) {
+        File directory = new File(path);
+        File[] files = directory.listFiles();
+        ArrayList<String> fileList = new ArrayList<String>();
+        if (files != null) {
+            for (File file : files) {
+                fileList.add(file.getName());
+            }
+        }
+        return fileList;
+    }
+
+    private void populateModelSpinner() {
+        ArrayList<String> models = getFileList(mSearchPath);
+        models.add(0, "select model");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, models);
+        mModelSelectSpinner.setAdapter(adapter);
+    }
+
+    private void populateEngineSpinner() {
+        ArrayList<String> engines = new ArrayList<String>();
+        engines.add("select engine");
+        engines.add("MNN");
+        engines.add("llama.cpp");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, engines);
+        mEngineSelectSpinner.setAdapter(adapter);
+    }
 
     public float avgIntArray(ArrayList<Integer> arrayList) {
         int res = 0;
