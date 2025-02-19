@@ -41,8 +41,7 @@ include_directories(
                     )
 
 # jni file
-set(SRCS "")
-list(APPEND SRCS "${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/iot_audio_jni.cpp")
+file(GLOB SRCS "${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/*.cpp")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 # compile dynamic so, support Linux/Mac
