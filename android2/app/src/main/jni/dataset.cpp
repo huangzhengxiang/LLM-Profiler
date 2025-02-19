@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <vector>
 #include <cmath>
-#include <llm/llm.hpp>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -13,8 +12,6 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
-namespace MNN {
-namespace Transformer {
 
 
 // parse file
@@ -218,6 +215,3 @@ std::vector<std::vector<std::vector<PromptItem>>> shareGPT(std::string prompt_fi
     return dialogs;
 }
 
-
-} // Transformer
-} // MNN

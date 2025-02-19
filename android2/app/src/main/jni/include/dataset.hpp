@@ -9,15 +9,12 @@
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
-#include "llm/llm.hpp"
-
-#include <MNN/MNNDefine.h>
 
 // <role, content>
 using PromptItem = std::pair<std::string, std::string>; // <role, content>
 
 // parse csv
-MNN_PUBLIC std::vector<std::vector<std::string>> parse_csv(const std::vector<std::string>& lines);
+std::vector<std::vector<std::string>> parse_csv(const std::vector<std::string>& lines);
 void parse_jsonl(std::string prompt_file, std::vector<std::vector<std::vector<PromptItem>>>& dialogs);
 
 std::string getPPLType(std::string dataset_name);
