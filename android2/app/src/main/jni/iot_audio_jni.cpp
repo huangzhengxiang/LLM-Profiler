@@ -1,14 +1,23 @@
+// Android headers
 #include <android/asset_manager_jni.h>
 #include <android/bitmap.h>
 #include <android/log.h>
-
+// system headers
 #include <jni.h>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <thread>
 
+// MNN headers
 #include "llm/llm.hpp"
+// llama.cpp headers
+#include "arg.h"
+#include "common.h"
+#include "log.h"
+#include "sampling.h"
+#include "llama.h"
+
 using namespace MNN;
 using namespace MNN::Express;
 using namespace MNN::Transformer;
