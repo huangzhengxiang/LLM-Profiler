@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
     // media record end>
 
     // <view begin
-    private ArrayList<String> mEngineSelections;
     private Spinner mEngineSelectSpinner, mModelSelectSpinner;
     private EditText configNameTV, prefillThreadNumTV, decodeThreadNumTV, prefillPowerModeTV, decodePowerModeTV, decodeCorePlanInputTV,  prefillLenTV, decodeLenTV;
     private EditText tuneTimesTV, toleranceTV;
@@ -83,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
     // <LLM model begin
     private Chat mChat;
+    private String mEngineName;
     private final String mSearchPath = "/data/local/tmp/llm/model/";
     private String mModelName = "qwen2_5-1_5b-instruct-int4";
     private String mConfigName = "/config.json";
@@ -199,9 +199,9 @@ public class MainActivity extends AppCompatActivity {
                     decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
                     decodeBatteryTV.setText(String.format("decode battery use:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
                     decodeEnergyTV.setText(String.format("decode energy:\n %.4f mJ/tok", message.getData().getFloat("decode_energy")));
-                    decodeCorePlanTV.setText("decode core plan: " + message.getData().getString("decode_core_plan"));
                     statusTV.setText("Test Finished!");
                 } else if (message.getData().getString("call").equals("loadModel")) {
+                    decodeCorePlanTV.setText("decode core plan: " + message.getData().getString("decode_core_plan"));
                     statusTV.setText("模型加载完成！");
                     mLoadButton.setText("模型已加载");
                     testButton.setClickable(true);
@@ -267,20 +267,39 @@ public class MainActivity extends AppCompatActivity {
         mLoadButton.setText("模型加载中 ...");
 
         mModelName = mModelSelectSpinner.getSelectedItem().toString();
-        mModelDir = mSearchPath + mModelName + mConfigName;
+        mEngineName = mEngineSelectSpinner.getSelectedItem().toString();
+        if (mEngineName.equals("MNN")) {
+            mModelDir = mSearchPath + mModelName + mConfigName;
+        } else {
+            mModelDir = mSearchPath + mModelName;
+        }
         Log.i("LLM Model Path", mModelDir);
 
         new Thread(() -> {
             mChat = new Chat();
-            mChat.Init(mModelDir, tmpDir.getPath(),
+            mChat.Init(mEngineName, mModelDir, tmpDir.getPath(),
                        prefillThreadNumTV.getText().toString(),
                        decodeThreadNumTV.getText().toString(),
                        prefillPowerModeTV.getText().toString(),
                        decodePowerModeTV.getText().toString(),
                        decodeCorePlanInputTV.getText().toString(),
                        tuneTimesTV.getText().toString());
+            if (prefillPowerModeTV.getText().toString().equals("tune_prefill")) {
+                mChat.tunePrefill();
+            }
+            decodeTune();
+            String decode_core_plan = "";
+            if (decodeCorePlan!=null) {
+                for (int i = 0; i<decodeCorePlan.size(); ++i) {
+                    decode_core_plan += String.format("%d ", decodeCorePlan.get(i));
+                }
+            }
+            if (!decode_core_plan.isEmpty()) {
+                decode_core_plan = decode_core_plan.substring(0, decode_core_plan.length() - 1); // remove the last ' '
+            }
             Message message=new Message();
             Bundle data=new Bundle();
+            data.putString("decode_core_plan", decode_core_plan);
             data.putString("call", "loadModel");
             message.setData(data);
             mHandler.sendMessage(message);
@@ -463,8 +482,6 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             // tracing
-            mChat.Trace();
-            decodeTune();
             ArrayList<Integer> uAPrefillList = new ArrayList<Integer>(); // in uA
             ArrayList<Integer> uADecodeList = new ArrayList<Integer>(); // in uA
             ArrayList<Float> timePrefillList = new ArrayList<Float>(); // in s
@@ -507,22 +524,12 @@ public class MainActivity extends AppCompatActivity {
             Log.i("decode", String.format("decode energy: %.4f mJ/tok", decode_energy));
             Message message=new Message();
             Bundle data=new Bundle();
-            String decode_core_plan = "";
-            if (decodeCorePlan!=null) {
-                for (int i = 0; i<decodeCorePlan.size(); ++i) {
-                    decode_core_plan += String.format("%d ", decodeCorePlan.get(i));
-                }
-            }
-            if (!decode_core_plan.isEmpty()) {
-                decode_core_plan = decode_core_plan.substring(0, decode_core_plan.length() - 1); // remove the last ' '
-            }
             data.putFloat("prefill_token_speed", prefill_token_speed);
             data.putFloat("prefill_capacity", prefill_capacity);
             data.putFloat("prefill_energy", prefill_energy);
             data.putFloat("decode_token_speed", decode_token_speed);
             data.putFloat("decode_capacity", decode_capacity);
             data.putFloat("decode_energy", decode_energy);
-            data.putString("decode_core_plan", decode_core_plan);
             data.putString("call", "testRun");
             message.setData(data);
             mHandler.sendMessage(message);

@@ -43,7 +43,7 @@ Then, open project in `Android Studio` and build.
 
 ### 4. Multi-Threading Options for MNN-Habst
 Internal: `Power_Normal`, `Power_High`, `Power_MemoryBound`, `Power_SelectCore`. ("normal", "high", "memory", "select")
-External Additional Option: "exhaustive", (requires an additional list of selective core group size. e.g., 8Gen3 [1,3,2,2], big->small, and the results are stored in a local file.)
+External Additional Option: "exhaustive", (requires an additional list of selective core group size. e.g., 8Gen3 [1,3,2,2], big->small, and the results are stored in a local file.), "tune_prefill" (tune prefill).
 
 
 ### 5. Datasets

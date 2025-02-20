@@ -21,9 +21,6 @@ set(MNN_OPENCL ON CACHE BOOL "Open MNN_OPENCL" FORCE)
 # compile llama.cpp
 set(LLAMA_BUILD_COMMON ON CACHE BOOL "Open LLAMA_BUILD_COMMON" FORCE)
 
-# padd source directory
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/MNN)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/llama.cpp)
 
 # include dir
 include_directories(
@@ -34,11 +31,16 @@ include_directories(
                     ${CMAKE_CURRENT_LIST_DIR}/llama.cpp/include
                     ${CMAKE_CURRENT_LIST_DIR}/llama.cpp/common
                     # MNN include
+                    ${CMAKE_CURRENT_LIST_DIR}//MNN/tools/audio/include/
         `           ${CMAKE_CURRENT_LIST_DIR}/MNN/transformers/llm/engine/include/
                     ${CMAKE_CURRENT_LIST_DIR}/MNN/include/
                     ${CMAKE_CURRENT_LIST_DIR}/MNN/tools/cv/include/
                     ${CMAKE_CURRENT_LIST_DIR}/MNN/3rd_party/
                     )
+
+# padd source directory
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/MNN)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/llama.cpp)
 
 # jni file
 file(GLOB SRCS "${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/*.cpp")

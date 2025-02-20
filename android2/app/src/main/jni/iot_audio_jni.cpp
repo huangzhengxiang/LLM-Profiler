@@ -24,6 +24,10 @@ using namespace MNN::Transformer;
 
 static std::unique_ptr<Llm> llm(nullptr);
 static std::stringstream response_buffer;
+static std::string engine_name;
+
+static std::unique_ptr<common_params> llama_params;
+static std::unique_ptr<common_init_result> llama_model;
 
 extern "C" {
 
@@ -36,7 +40,29 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "JNI_OnUnload");
 }
 
+void trace() {
+    __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Trace");
+    if (engine_name=="MNN") {
+        if (!llm.get()) {
+            __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm not ready!");
+            return;
+        } else {
+            __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm is ready!");
+        }
+        llm->trace(true);
+        std::vector<int> test_prompt(30, 200);
+        llm->switchMode(Llm::Prefill);
+        llm->setKVCacheInfo(test_prompt.size(), 0);
+        llm->forward(test_prompt);
+        llm->trace(false);
+        // reset
+        llm->reset();
+        llm->setKVCacheInfo(0, llm->getCurrentHistory());
+    }
+}
+
 JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv* env, jobject thiz,
+                                                        jstring engineName,
                                                         jstring modelDir,
                                                         jstring tmpFile,
                                                         jstring prefillThreadNum,
@@ -46,6 +72,7 @@ JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv* env, jobject thi
                                                         jstring decodeCorePlan,
                                                         jstring tuneTimes) {
     const char* model_dir = env->GetStringUTFChars(modelDir, 0);
+    engine_name = std::string(env->GetStringUTFChars(engineName, 0));
     std::string tmp_path = std::string(env->GetStringUTFChars(tmpFile, 0));
     std::string prefill_thread_num = std::string(env->GetStringUTFChars(prefillThreadNum, 0));
     std::string decode_thread_num = std::string(env->GetStringUTFChars(decodeThreadNum, 0));
@@ -53,16 +80,23 @@ JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv* env, jobject thi
     std::string decode_power_mode = std::string(env->GetStringUTFChars(decodePowerMode, 0));
     std::string decode_cores = std::string(env->GetStringUTFChars(decodeCorePlan, 0));
     std::string decode_tune_times = std::string(env->GetStringUTFChars(tuneTimes, 0));
-    if (!llm.get()) {
-        llm.reset(Llm::createLLM(model_dir));
-        llm->set_config("{\"tmp_path\":\"" + tmp_path + "\"}"); // tmp_path (string, need quotation marks)
-        if (!prefill_thread_num.empty()) { llm->set_config("{\"prefill_thread_num\":" + prefill_thread_num + "}"); } // thread_num (int, no quotation marks)
-        if (!decode_thread_num.empty()) { llm->set_config("{\"decode_thread_num\":" + decode_thread_num + "}"); } // thread_num (int, no quotation marks)
-        if (!prefill_power_mode.empty()) { llm->set_config("{\"prefill_power\":\"" + prefill_power_mode + "\"}"); } // power (string: need quotation marks)
-        if (!decode_power_mode.empty()) { llm->set_config("{\"decode_power\":\"" + decode_power_mode + "\"}"); } // power (string: need quotation marks)
-        if (!decode_cores.empty()) { llm->set_config("{\"decode_cores\":\"" + decode_cores + "\"}"); } // power (string: need quotation marks)
-        if (!decode_tune_times.empty()) { llm->set_config("{\"decode_tune_times\":" + decode_tune_times + "}"); } // power (string: need quotation marks)
-        llm->load();
+    if (prefill_power_mode=="tune_prefill") prefill_power_mode="high";
+    if (engine_name=="MNN") {
+        if (!llm.get()) {
+            llm.reset(Llm::createLLM(model_dir));
+            llm->set_config("{\"tmp_path\":\"" + tmp_path + "\"}"); // tmp_path (string, need quotation marks)
+            if (!prefill_thread_num.empty()) { llm->set_config("{\"prefill_thread_num\":" + prefill_thread_num + "}"); } // thread_num (int, no quotation marks)
+            if (!decode_thread_num.empty()) { llm->set_config("{\"decode_thread_num\":" + decode_thread_num + "}"); } // thread_num (int, no quotation marks)
+            if (!prefill_power_mode.empty()) { llm->set_config("{\"prefill_power\":\"" + prefill_power_mode + "\"}"); } // power (string: need quotation marks)
+            if (!decode_power_mode.empty()) { llm->set_config("{\"decode_power\":\"" + decode_power_mode + "\"}"); } // power (string: need quotation marks)
+            if (!decode_cores.empty()) { llm->set_config("{\"decode_cores\":\"" + decode_cores + "\"}"); } // power (string: need quotation marks)
+            if (!decode_tune_times.empty()) { llm->set_config("{\"decode_tune_times\":" + decode_tune_times + "}"); } // power (string: need quotation marks)
+            llm->load();
+            trace();
+        }
+    }
+    if (engine_name=="llama.cpp") {
+        
     }
     return JNI_TRUE;
 }
@@ -73,24 +107,18 @@ JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Ready(JNIEnv* env, jobject th
     }
     return JNI_FALSE;
 }
-
 JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Trace(JNIEnv* env, jobject thiz) {
-    __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Trace");
+    trace();
+}
+JNIEXPORT void JNICALL Java_com_iot_audio_Chat_tunePrefill(JNIEnv* env, jobject thiz) {
+    __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "tunePrefill");
     if (!llm.get()) {
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm not ready!");
         return;
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "llm is ready!");
     }
-    llm->trace(true);
-    std::vector<int> test_prompt(30, 200);
-    llm->switchMode(Llm::Prefill);
-    llm->setKVCacheInfo(test_prompt.size(), 0);
-    llm->forward(test_prompt);
-    llm->trace(false);
-    // reset
-    llm->reset();
-    llm->setKVCacheInfo(0, llm->getCurrentHistory());
+    llm->tuning(PREFILL_BIGLITTLE_CORE, {});
 }
 JNIEXPORT void JNICALL Java_com_iot_audio_Chat_startDecodeTune(JNIEnv* env, jobject thiz, jint tolerance) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Trace");
@@ -192,8 +220,10 @@ JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Done(JNIEnv* env, jobject thiz) {
 }
 
 JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Reset(JNIEnv* env, jobject thiz) {
-    llm->setKVCacheInfo(0, llm->getCurrentHistory());
-    llm->reset();
+    if (engine_name=="MNN") {
+        llm->setKVCacheInfo(0, llm->getCurrentHistory());
+        llm->reset();
+    }
 }
 
 } // extern "C"
