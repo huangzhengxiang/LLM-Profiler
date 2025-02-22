@@ -217,27 +217,6 @@ public class MainActivity extends AppCompatActivity {
 //        mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 //        mAlarmIntent = new Intent(this, EnergyMonitor.class);
 
-//        startTV.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v)  {
-//                // start recording method will
-//                // start the recording of audio.
-//                try {
-//                    startRecording();
-//                } catch (Exception e){
-//                    Log.e("recording didn't start!", e.getMessage());
-//                }
-//            }
-//        });
-//        stopTV.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // pause Recording method will
-//                // pause the recording of audio.
-//                pauseRecording();
-//
-//            }
-//        });
     }
     private boolean checkModelsReady() {
         File dir = new File(mModelDir);
@@ -306,30 +285,6 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-//    private void startRecording() throws IOException {
-//        // check permission method is used to check
-//        // that the user has granted permission
-//        // to record and store the audio.
-//        if (CheckPermissions()) {
-//
-//            // setbackgroundcolor method will change
-//            // the background color of text view.
-//            stopTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-//            startTV.setBackgroundColor(getResources().getColor(R.color.gray));
-//
-//
-//            mRecorder = new wavClass(recordDir);
-//            recordFilePath = mRecorder.getWavFilePath();
-//            mRecorder.startRecording();
-//            statusTV.setText("Recording Started");
-//        } else {
-//            // if audio recording permissions are
-//            // not granted by user below method will
-//            // ask for runtime permission for mic and storage.
-//            RequestPermissions();
-//        }
-//    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // this method is called when user will
@@ -360,19 +315,6 @@ public class MainActivity extends AppCompatActivity {
         // this method is used to request the
         // permission for audio recording and storage.
         ActivityCompat.requestPermissions(MainActivity.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
-    }
-
-    public void pauseRecording() {
-        // below method will stop
-        // the audio recording.
-        mRecorder.stopRecording();
-        mRecorder = null;
-        statusTV.setText("Recording Stopped");
-
-        mChat.Submit("");
-        byte[] ret = mChat.Response();
-        Log.i("LLM", String.format("response len: %d, response content: %s", ret.length, new String(ret)));
-        String reply = new String(ret);
     }
 
     private ArrayList<String> getFileList(String path) {
@@ -508,7 +450,6 @@ public class MainActivity extends AppCompatActivity {
                 timeDecodeList.add(getTime());
 
                 mChat.Reset();
-                mChat.Done();
             }
             prefill_token_speed = prefill_len / avgFloatArray(timePrefillList);
             decode_token_speed = decode_len / avgFloatArray(timeDecodeList);
