@@ -54,14 +54,14 @@
             android:prompt="@string/model"
             android:spinnerMode="dropdown"/>
 
-        <EditText
-            android:id="@+id/configName"
+        <Spinner
+            android:id="@+id/backendSelect"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="config name"
-            android:textAlignment="center"
-            android:textSize="16sp" />
+            android:layout_gravity="center"
+            android:padding="8pt"
+            android:prompt="@string/backend"
+            android:spinnerMode="dropdown"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -100,25 +100,25 @@
             android:padding="8dp"
             android:weightSum="2">
 
-            <EditText
+            <Spinner
                 android:id="@+id/PrefillPowerMode"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
+                android:layout_gravity="center"
+                android:layout_margin="0dp"
                 android:layout_weight="1"
-                android:text="prefill power"
-                android:textAlignment="center"
-                android:textSize="16sp" />
+                android:prompt="@string/prefill_power"
+                android:spinnerMode="dropdown"/>
 
-            <EditText
+            <Spinner
                 android:id="@+id/DecodePowerMode"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
+                android:layout_gravity="center"
+                android:layout_margin="0dp"
                 android:layout_weight="1"
-                android:text="decode power"
-                android:textAlignment="center"
-                android:textSize="16sp" />
+                android:prompt="@string/decode_power"
+                android:spinnerMode="dropdown"/>
         </LinearLayout>
 
         <LinearLayout

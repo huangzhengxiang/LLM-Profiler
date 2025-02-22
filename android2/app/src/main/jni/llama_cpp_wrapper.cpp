@@ -17,6 +17,7 @@ std::string llamacppWrapper::chat_add_and_format(const std::string & role, const
 }
 
 llamacppWrapper::llamacppWrapper(const char* model_dir,
+                                 std::string backend_name,
                                  std::string tmp_path,
                                  std::string prefill_thread_num,
                                  std::string decode_thread_num,

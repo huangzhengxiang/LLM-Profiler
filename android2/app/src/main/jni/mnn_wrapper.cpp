@@ -9,6 +9,7 @@ using namespace MNN::Express;
 using namespace MNN::Transformer;
 
 MNNWrapper::MNNWrapper(const char* model_dir,
+                       std::string backend_name,
                        std::string tmp_path,
                        std::string prefill_thread_num,
                        std::string decode_thread_num,
@@ -19,6 +20,7 @@ MNNWrapper::MNNWrapper(const char* model_dir,
     if (!llm.get()) {
         llm.reset(Llm::createLLM(model_dir));
         llm->set_config("{\"tmp_path\":\"" + tmp_path + "\"}"); // tmp_path (string, need quotation marks)
+        if (!backend_name.empty()) { llm->set_config("{\"backend_type\":\"" + backend_name + "\"}"); }
         if (!prefill_thread_num.empty()) { llm->set_config("{\"prefill_thread_num\":" + prefill_thread_num + "}"); } // thread_num (int, no quotation marks)
         if (!decode_thread_num.empty()) { llm->set_config("{\"decode_thread_num\":" + decode_thread_num + "}"); } // thread_num (int, no quotation marks)
         if (!prefill_power_mode.empty()) { llm->set_config("{\"prefill_power\":\"" + prefill_power_mode + "\"}"); } // power (string: need quotation marks)

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 public class Chat implements Serializable {
     public native boolean Init(String engineName, 
                                String modelDir,
+                               String backendName,
                                String tmpFile,
                                String prefillThreadNum,
                                String decodeThreadNum,

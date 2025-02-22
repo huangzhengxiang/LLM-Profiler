@@ -29,6 +29,7 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
 JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv *env, jobject thiz,
                                                         jstring engineName,
                                                         jstring modelDir,
+                                                        jstring backendName,
                                                         jstring tmpFile,
                                                         jstring prefillThreadNum,
                                                         jstring decodeThreadNum,
@@ -38,6 +39,7 @@ JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv *env, jobject thi
                                                         jstring tuneTimes) {
     const char *model_dir = env->GetStringUTFChars(modelDir, 0);
     std::string engine_name = std::string(env->GetStringUTFChars(engineName, 0));
+    std::string backend_name = std::string (env->GetStringUTFChars(backendName, 0));
     std::string tmp_path = std::string(env->GetStringUTFChars(tmpFile, 0));
     std::string prefill_thread_num = std::string(env->GetStringUTFChars(prefillThreadNum, 0));
     std::string decode_thread_num = std::string(env->GetStringUTFChars(decodeThreadNum, 0));
@@ -46,7 +48,10 @@ JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv *env, jobject thi
     std::string decode_cores = std::string(env->GetStringUTFChars(decodeCorePlan, 0));
     std::string decode_tune_times = std::string(env->GetStringUTFChars(tuneTimes, 0));
     if (prefill_power_mode == "tune_prefill") prefill_power_mode = "high";
+    if (prefill_power_mode == "(default)") prefill_power_mode = "";
+    if (decode_power_mode == "(default)") decode_power_mode = "";
     model.reset(LLMWrapper::createWrapper(model_dir,
+                                          backend_name,
                                           tmp_path,
                                           engine_name,
                                           prefill_thread_num,

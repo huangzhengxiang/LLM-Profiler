@@ -34,6 +34,7 @@ using namespace MNN::Transformer;
 class LLMWrapper {
 public:
     static LLMWrapper* createWrapper(const char* model_dir,
+                                     std::string backend_name,
                                      std::string tmp_path,
                                      std::string engine_name,
                                      std::string prefill_thread_num,
@@ -60,6 +61,7 @@ protected:
     std::unique_ptr<Llm> llm;
 public:
     MNNWrapper(const char* model_dir,
+               std::string backend_name,
                std::string tmp_path,
                std::string prefill_thread_num,
                std::string decode_thread_num,
@@ -91,6 +93,7 @@ protected:
     struct ggml_threadpool * threadpool_batch = NULL;
 public:
     llamacppWrapper(const char* model_dir,
+                    std::string backend_name,
                     std::string tmp_path,
                     std::string prefill_thread_num,
                     std::string decode_thread_num,

@@ -72,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
     // media record end>
 
     // <view begin
-    private Spinner mEngineSelectSpinner, mModelSelectSpinner;
-    private EditText configNameTV, prefillThreadNumTV, decodeThreadNumTV, prefillPowerModeTV, decodePowerModeTV, decodeCorePlanInputTV,  prefillLenTV, decodeLenTV;
+    private Spinner mEngineSelectSpinner, mModelSelectSpinner, mBackendSelectSpinner, mPrefillPowerSelectSpinner, mDecodePowerSelectSpinner;
+    private EditText prefillThreadNumTV, decodeThreadNumTV, decodeCorePlanInputTV,  prefillLenTV, decodeLenTV;
     private EditText tuneTimesTV, toleranceTV;
     private TextView prefillSpeedTV, prefillBatteryTV, prefillEnergyTV, decodeSpeedTV, decodeBatteryTV, decodeEnergyTV, statusTV, decodeCorePlanTV;
     private Button mLoadButton, testButton;
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
     // <LLM model begin
     private Chat mChat;
-    private String mEngineName;
+    private String mEngineName, mBackendName, mBackend;
     private final String mSearchPath = "/data/local/tmp/llm/model/";
     private String mModelName = "qwen2_5-1_5b-instruct-int4";
     private String mConfigName = "/config.json";
@@ -148,7 +148,9 @@ public class MainActivity extends AppCompatActivity {
         // initialize all variables with their layout items.
         mEngineSelectSpinner = findViewById(R.id.EngineSelect);
         mModelSelectSpinner = findViewById(R.id.modelPath);
-        configNameTV = findViewById(R.id.configName);
+        mBackendSelectSpinner = findViewById(R.id.backendSelect);
+        mPrefillPowerSelectSpinner = findViewById(R.id.PrefillPowerMode);
+        mDecodePowerSelectSpinner = findViewById(R.id.DecodePowerMode);
         mLoadButton = findViewById(R.id.load_button);
         statusTV = findViewById(R.id.idTVstatus);
         prefillSpeedTV = findViewById(R.id.PrefillSpeed);
@@ -160,15 +162,12 @@ public class MainActivity extends AppCompatActivity {
         testButton = findViewById(R.id.startTest);
         prefillThreadNumTV = findViewById(R.id.PrefillThreadNum);
         decodeThreadNumTV = findViewById(R.id.DecodeThreadNum);
-        prefillPowerModeTV = findViewById(R.id.PrefillPowerMode);
-        decodePowerModeTV = findViewById(R.id.DecodePowerMode);
         decodeCorePlanInputTV = findViewById(R.id.DecodeCorePlan);
         tuneTimesTV = findViewById(R.id.tuneTimes);
         toleranceTV = findViewById(R.id.DecodeTol);
         prefillLenTV = findViewById(R.id.prefillLen);
         decodeLenTV = findViewById(R.id.decodeLen);
         decodeCorePlanTV = findViewById(R.id.DecodeCorePlanDisplay);
-        configNameTV.setText(mConfigName);
         prefillSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         prefillEnergyTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         decodeSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
@@ -177,6 +176,9 @@ public class MainActivity extends AppCompatActivity {
         testButton.setClickable(false);
         populateEngineSpinner();
         populateModelSpinner();
+        populateBackendSpinner();
+        populatePowerSpinner(mPrefillPowerSelectSpinner);
+        populatePowerSpinner(mDecodePowerSelectSpinner);
 
 
         recordDir = getExternalFilesDir("Recordings");
@@ -239,6 +241,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void handleBackendName(View view) {
+        if (mEngineName.equals("MNN")) {
+            if (mBackendName.equals("CPU")) {
+                mBackend = "cpu";
+            } else if (mBackendName.equals("GPU")) {
+                mBackend = "opencl";
+            } else {
+                mBackend = "cpu";
+                statusTV.setText(String.format("Not support MNN+%s, use CPU", mBackend));
+            }
+        }
+        if (mEngineName.equals("llama.cpp")) {
+            if (!mBackendName.equals("CPU")) {
+                statusTV.setText(String.format("Not support llama.cpp+%s, use CPU", mBackendName));
+            }
+        }
+    }
+
     public void loadModel(View view) {
         onCheckModels();
         mLoadButton.setClickable(false);
@@ -247,6 +267,8 @@ public class MainActivity extends AppCompatActivity {
 
         mModelName = mModelSelectSpinner.getSelectedItem().toString();
         mEngineName = mEngineSelectSpinner.getSelectedItem().toString();
+        mBackendName = mBackendSelectSpinner.getSelectedItem().toString();
+        handleBackendName(view);
         if (mEngineName.equals("MNN")) {
             mModelDir = mSearchPath + mModelName + mConfigName;
         } else {
@@ -256,14 +278,15 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             mChat = new Chat();
-            mChat.Init(mEngineName, mModelDir, tmpDir.getPath(),
+            mChat.Init(mEngineName, mModelDir, mBackend,
+                       tmpDir.getPath(),
                        prefillThreadNumTV.getText().toString(),
                        decodeThreadNumTV.getText().toString(),
-                       prefillPowerModeTV.getText().toString(),
-                       decodePowerModeTV.getText().toString(),
+                       mPrefillPowerSelectSpinner.getSelectedItem().toString(),
+                       mDecodePowerSelectSpinner.getSelectedItem().toString(),
                        decodeCorePlanInputTV.getText().toString(),
                        tuneTimesTV.getText().toString());
-            if (prefillPowerModeTV.getText().toString().equals("tune_prefill")) {
+            if (mPrefillPowerSelectSpinner.getSelectedItem().toString().equals("tune_prefill")) {
                 mChat.tunePrefill();
             }
             decodeTune();
@@ -338,11 +361,33 @@ public class MainActivity extends AppCompatActivity {
 
     private void populateEngineSpinner() {
         ArrayList<String> engines = new ArrayList<String>();
-        engines.add("select engine");
+        engines.add(0, "select engine");
         engines.add("MNN");
         engines.add("llama.cpp");
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, engines);
         mEngineSelectSpinner.setAdapter(adapter);
+    }
+
+    private void populateBackendSpinner() {
+        ArrayList<String> backends = new ArrayList<String>();
+        backends.add(0, "select backend");
+        backends.add("CPU");
+        backends.add("GPU");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, backends);
+        mBackendSelectSpinner.setAdapter(adapter);
+    }
+
+    private void populatePowerSpinner(Spinner spinner) {
+        ArrayList<String> powers = new ArrayList<String>();
+        powers.add(0, spinner.getPrompt().toString());
+        powers.add("(default)");
+        powers.add("normal");
+        powers.add("high");
+        powers.add("memory");
+        powers.add("tune_prefill");
+        powers.add("exhaustive");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, powers);
+        spinner.setAdapter(adapter);
     }
 
     public float avgIntArray(ArrayList<Integer> arrayList) {
