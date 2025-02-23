@@ -77,7 +77,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:text="prefill thread"
+                android:text=""
+                android:hint="prefill thread"
                 android:textAlignment="center"
                 android:textSize="16sp" />
 
@@ -87,7 +88,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:text="decode thread"
+                android:text=""
+                android:hint="decode thread"
                 android:textAlignment="center"
                 android:textSize="16sp" />
         </LinearLayout>
@@ -135,7 +137,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:text="prefill cores"
+                android:text=""
+                android:hint="prefill cores"
                 android:textAlignment="center"
                 android:textSize="16sp" />
 
@@ -145,7 +148,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:text="decode cores"
+                android:text=""
+                android:hint="decode cores"
                 android:textAlignment="center"
                 android:textSize="16sp" />
         </LinearLayout>
@@ -164,7 +168,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:text="tune times"
+                android:text=""
+                android:hint="tune times"
                 android:textAlignment="center"
                 android:textSize="16sp" />
 
@@ -174,7 +179,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:text="decode tol"
+                android:text=""
+                android:hint="decode tol"
                 android:textAlignment="center"
                 android:textSize="16sp" />
         </LinearLayout>
@@ -194,7 +200,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:text="prefill len"
+                android:text=""
+                android:hint="prefill len"
                 android:textAlignment="center"
                 android:textSize="16sp" />
 
@@ -204,7 +211,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:text="decode len"
+                android:text=""
+                android:hint="decode len"
                 android:textAlignment="center"
                 android:textSize="16sp" />
         </LinearLayout>
