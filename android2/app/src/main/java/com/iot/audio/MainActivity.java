@@ -10,6 +10,7 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.BatteryManager;
+import android.os.HardwarePropertiesManager;
 import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
@@ -34,7 +35,9 @@ import android.content.ContentValues;
 import android.provider.MediaStore;
 
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
@@ -103,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Integer> decodeCorePlan;
     private int decode_tune_tolerance = 5;
     private float mBatteryVoltage = 0;
+    private int mChargeNow = 0;
     // model profiling config end>
 
     private void startEnergyTracing() {
@@ -110,6 +114,27 @@ public class MainActivity extends AppCompatActivity {
         energyMonitor = new EnergyMonitor(this);
         energyMonitor.resetInfo();
         energyTimer.scheduleAtFixedRate(energyMonitor, 0, energySampleInterval);
+    }
+
+    private float getCPUTemperature() {
+        float tempInCelsius = 0;
+        try {
+            for (int i=0; i<30; ++i) {
+                BufferedReader reader = new BufferedReader(new FileReader(String.format("/sys/class/thermal/thermal_zone%d/type", i)));
+                String type = reader.readLine();
+                reader = new BufferedReader(new FileReader(String.format("/sys/class/thermal/thermal_zone%d/temp", i)));
+                String temperature = reader.readLine(); // Read the first line of the file
+                // Convert the temperature from millidegrees Celsius to degrees Celsius
+                tempInCelsius = (float) Integer.parseInt(temperature) / 1000.0f;
+                if (type.contains("cpu-")) {
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            Log.e("Error", "Bad Read");
+        }
+        Log.i("Temperature", "CPU Temperature: " + tempInCelsius + "°C");
+        return tempInCelsius;
     }
 
     private void endEnergyTracing() {
@@ -139,6 +164,8 @@ public class MainActivity extends AppCompatActivity {
     public float getVoltage() {
         return mBatteryVoltage;
     }
+
+    public int getChargeLevel() { return mChargeNow; }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
         populateBackendSpinner();
         populatePowerSpinner(mPrefillPowerSelectSpinner);
         populatePowerSpinner(mDecodePowerSelectSpinner);
+
 
 
         recordDir = getExternalFilesDir("Recordings");
@@ -229,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             mBatteryVoltage = (float) (intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE,0)) / 1000f; // mV -> V
+            mChargeNow = (int) (intent.getIntExtra(BatteryManager.EXTRA_LEVEL,0)); // charge level
         }
     };
 
@@ -440,6 +469,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void testRun(View v) {
+        Log.i("Charge",String.format("Charge Level: %d", getChargeLevel()));
+        if (getChargeLevel()<50) {
+            statusTV.setText(String.format("Current Charge Level: %d %s, Please plug in and charge!", getChargeLevel(), "%"));
+            return;
+        }
+        if (getCPUTemperature()>40) {
+            statusTV.setText(String.format("Current CPU Temperature: %.1f °C, Please cool down!", getCPUTemperature()));
+            return;
+        }
         testButton.setBackgroundColor(getResources().getColor(R.color.gray));
         testButton.setClickable(false);
         statusTV.setText("Testing...");
