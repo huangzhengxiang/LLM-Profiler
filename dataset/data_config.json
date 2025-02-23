@@ -1,0 +1,10 @@
+{
+    "data_root": "data",
+    "sample_root": "samples",
+    "data_path": {
+        "ShareGPT": "ShareGPT",
+        "RoleBench": "RoleBench",
+        "math_qa": "math_qa",
+        "truthful_qa": "truthful_qa"
+    }
+}
