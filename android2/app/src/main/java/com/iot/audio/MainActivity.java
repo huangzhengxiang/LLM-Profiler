@@ -109,13 +109,6 @@ public class MainActivity extends AppCompatActivity {
     private int mChargeNow = 0;
     // model profiling config end>
 
-    private void startEnergyTracing() {
-        energyTimer = new Timer();
-        energyMonitor = new EnergyMonitor(this);
-        energyMonitor.resetInfo();
-        energyTimer.scheduleAtFixedRate(energyMonitor, 0, energySampleInterval);
-    }
-
     private float getCPUTemperature() {
         float tempInCelsius = 0;
         try {
@@ -138,6 +131,13 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.i("Temperature", "CPU Temperature: " + tempInCelsius + "°C");
         return tempInCelsius;
+    }
+
+    private void startEnergyTracing() {
+        energyTimer = new Timer();
+        energyMonitor = new EnergyMonitor(this);
+        energyMonitor.resetInfo();
+        energyTimer.scheduleAtFixedRate(energyMonitor, 0, energySampleInterval);
     }
 
     private void endEnergyTracing() {
@@ -243,12 +243,6 @@ public class MainActivity extends AppCompatActivity {
         };
         IntentFilter intentfilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = this.registerReceiver(broadcastreceiver, intentfilter);
-
-//        int level = batteryStatus.getIntExtra(, -1);
-//        Log.i("Battery", String.format("System Battery: %d", level));
-//        Log.i("Current", String.format( "Battery Current: %d", ((BatteryManager) getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)));
-//        mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//        mAlarmIntent = new Intent(this, EnergyMonitor.class);
 
     }
     private boolean checkModelsReady() {
