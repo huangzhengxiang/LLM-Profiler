@@ -125,8 +125,11 @@ public class MainActivity extends AppCompatActivity {
                 reader = new BufferedReader(new FileReader(String.format("/sys/class/thermal/thermal_zone%d/temp", i)));
                 String temperature = reader.readLine(); // Read the first line of the file
                 // Convert the temperature from millidegrees Celsius to degrees Celsius
-                tempInCelsius = (float) Integer.parseInt(temperature) / 1000.0f;
-                if (type.contains("cpu-")) {
+                tempInCelsius = (float) Integer.parseInt(temperature);
+                if (tempInCelsius>1000)  {
+                    tempInCelsius = tempInCelsius/ 1000.0f;
+                }
+                if (type.contains("cpu-") || type.contains("cluster")) {
                     break;
                 }
             }
