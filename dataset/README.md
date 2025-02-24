@@ -18,4 +18,5 @@ git clone https://huggingface.co/datasets/truthfulqa/truthful_qa truthful_qa
 The sampling and profiling (the dataset statistics) can be done by executing the python script, while config can be modified in `data_config.json`.
 ```bash
 python token-fetcher.py --stats --sample
+cd .. && cp -r dataset/samples/ android2/app/src/main/assets/samples
 ```
