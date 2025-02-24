@@ -1,4 +1,5 @@
 model/
 records/
 build
-dataset/data
+dataset/data/
+!dataset/data/data_stats.json

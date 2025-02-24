@@ -1,7 +1,8 @@
 {
     "data_root": "data",
     "sample_root": "samples",
-    "data_path": {
+    "sample_num": 200,
+    "data_paths": {
         "ShareGPT": "ShareGPT",
         "RoleBench": "RoleBench",
         "math_qa": "math_qa",

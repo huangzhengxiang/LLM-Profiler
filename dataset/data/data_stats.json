@@ -1,0 +1,26 @@
+{
+    "ShareGPT": {
+        "entry": 79107,
+        "prefill/entry": 232.4190400343838,
+        "turns": 3.070398321261077,
+        "decode/entry": 918.8210145751956,
+        "prefill/turn": 106.84568462879419,
+        "decode/turn": 349.3265540381446
+    },
+    "RoleBench": {
+        "entry": 2534,
+        "prefill/entry": 39.357142857142854,
+        "turns": 1.0,
+        "decode/entry": 82.85240726124704
+    },
+    "math_qa": {
+        "entry": 2985,
+        "prefill/entry": 64.57319932998325,
+        "turns": 1.0
+    },
+    "truthful_qa": {
+        "entry": 817,
+        "prefill/entry": 31.89718482252142,
+        "turns": 1.0
+    }
+}
