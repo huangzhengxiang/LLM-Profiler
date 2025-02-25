@@ -43,6 +43,10 @@ void MNNWrapper::trace() {
     llm->switchMode(Llm::Prefill);
     llm->setKVCacheInfo(test_prompt.size(), 0);
     llm->forward(test_prompt);
+    // decode tracing
+    llm->switchMode(Llm::Decode);
+    llm->setKVCacheInfo(1, 0);
+    llm->forward({200});
     llm->trace(false);
     // reset
     llm->reset();

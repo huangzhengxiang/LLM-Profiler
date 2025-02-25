@@ -3,6 +3,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.graphics.Interpolator;
 import android.media.AudioFormat;
 import android.media.MediaPlayer;
@@ -19,8 +20,10 @@ import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -42,6 +45,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.nio.file.Paths;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -76,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
 
     // <view begin
     private Spinner mEngineSelectSpinner, mModelSelectSpinner, mBackendSelectSpinner, mPrefillPowerSelectSpinner, mDecodePowerSelectSpinner;
+    private Spinner mTestModeSpinner, mDatasetSpinner;
+    private LinearLayout FixedLengthTestLayout, DatasetTestLayout;
     private EditText prefillThreadNumTV, decodeThreadNumTV, decodeCorePlanInputTV,  prefillLenTV, decodeLenTV;
     private EditText tuneTimesTV, toleranceTV;
     private TextView prefillSpeedTV, prefillBatteryTV, prefillEnergyTV, decodeSpeedTV, decodeBatteryTV, decodeEnergyTV, statusTV, decodeCorePlanTV;
@@ -189,6 +195,10 @@ public class MainActivity extends AppCompatActivity {
         decodeSpeedTV = findViewById(R.id.DecodeSpeed);
         decodeBatteryTV = findViewById(R.id.DecodeCapacity);
         decodeEnergyTV = findViewById(R.id.DecodeEnergy);
+        mTestModeSpinner = findViewById(R.id.TestMode);
+        mDatasetSpinner = findViewById(R.id.DatasetSelect);
+        FixedLengthTestLayout = findViewById(R.id.FixedLengthTest);
+        DatasetTestLayout = findViewById(R.id.DatasetTest);
         testButton = findViewById(R.id.startTest);
         prefillThreadNumTV = findViewById(R.id.PrefillThreadNum);
         decodeThreadNumTV = findViewById(R.id.DecodeThreadNum);
@@ -209,7 +219,8 @@ public class MainActivity extends AppCompatActivity {
         populateBackendSpinner();
         populatePowerSpinner(mPrefillPowerSelectSpinner);
         populatePowerSpinner(mDecodePowerSelectSpinner);
-
+        populateTestSpinner();
+        populateDatasetSpinner();
 
 
         recordDir = getExternalFilesDir("Recordings");
@@ -414,6 +425,59 @@ public class MainActivity extends AppCompatActivity {
         powers.add("exhaustive");
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, powers);
         spinner.setAdapter(adapter);
+    }
+
+    private void populateDatasetSpinner() {
+        String[] paths;
+        AssetManager assetManager=this.getAssets();
+        try {
+            paths = assetManager.list("samples");
+        } catch (IOException e) {
+            return;
+        }
+        if (paths==null) {
+            return;
+        }
+        ArrayList<String> datasets = new ArrayList<String>();
+        for (String path: paths) {
+            try {
+                String[] dirs = assetManager.list(Paths.get("samples", path).toString());
+                if (dirs!=null && dirs.length!=0) {
+                    datasets.add(path);
+                }
+            } catch (IOException e) {
+                continue;
+            }
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, datasets);
+        mDatasetSpinner.setAdapter(adapter);
+    }
+
+    private void populateTestSpinner() {
+        ArrayList<String> tests = new ArrayList<String>();
+        tests.add("Fixed Length Test");
+        tests.add("Dataset Test");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, tests);
+        mTestModeSpinner.setAdapter(adapter);
+        // Set the OnItemSelectedListener
+        mTestModeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Get the selected item
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                if (selectedItem=="Fixed Length Test") {
+                    DatasetTestLayout.setVisibility(View.GONE);
+                    FixedLengthTestLayout.setVisibility(View.VISIBLE);
+                } else if (selectedItem=="Dataset Test") {
+                    FixedLengthTestLayout.setVisibility(View.GONE);
+                    DatasetTestLayout.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Another interface callback
+            }
+        });
     }
 
     public float avgIntArray(ArrayList<Integer> arrayList) {

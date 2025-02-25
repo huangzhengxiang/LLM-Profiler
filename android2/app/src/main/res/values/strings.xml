@@ -5,6 +5,7 @@
     <string name="backend">select backend</string>
     <string name="prefill_power">prefill power</string>
     <string name="decode_power">decode power</string>
+    <string name="test">select test mode</string>
     <string name="toggle_flash">Toggle Flash</string>
     <string name="action_settings">Settings</string>
     <string name="scanned_data">Scanned Data</string>

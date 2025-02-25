@@ -33,10 +33,14 @@
             android:textColor="@color/white"
             android:textSize="30sp" />
 
-        <!--This will display the status of our app when 
-            we will record some audio and play that audio-->
+        <!-- Horizontal Line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="10dp"
+            android:background="#000000" />
 
-       <Spinner
+        <Spinner
             android:id="@+id/EngineSelect"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -185,6 +189,102 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
+        <!-- Horizontal Line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="10dp"
+            android:background="#000000" />
+
+        <Spinner
+            android:id="@+id/TestMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="8pt"
+            android:prompt="@string/test"
+            android:spinnerMode="dropdown" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:id="@+id/FixedLengthTest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:padding="8dp"
+                android:visibility="visible"
+                android:weightSum="2">
+
+                <EditText
+                    android:id="@+id/prefillLen"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:hint="prefill len"
+                    android:text=""
+                    android:textAlignment="center"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/decodeLen"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:hint="decode len"
+                    android:text=""
+                    android:textAlignment="center"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/DatasetTest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <Spinner
+                    android:id="@+id/DatasetSelect"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="8pt"
+                    android:prompt="@string/test"
+                    android:spinnerMode="dropdown" />
+
+                <Button
+                    android:id="@+id/Continue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="#3bb5ee"
+                    android:onClick="testRun"
+                    android:layout_margin="5dp"
+                    android:text="Continue"></Button>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Horizontal Line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="#000000" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -192,46 +292,6 @@
             android:layout_gravity="center"
             android:orientation="horizontal"
             android:padding="8dp"
-            android:weightSum="2">
-
-            <EditText
-                android:id="@+id/prefillLen"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:text=""
-                android:hint="prefill len"
-                android:textAlignment="center"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/decodeLen"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_weight="1"
-                android:text=""
-                android:hint="decode len"
-                android:textAlignment="center"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/idTVstatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:text="@string/status"
-            android:textAlignment="center"
-            android:textSize="16sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal"
-            android:padding="15dp"
             android:weightSum="2">
 
             <Button
@@ -257,6 +317,17 @@
                 android:text="start test"></Button>
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/idTVstatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:padding="15dp"
+            android:text="@string/status"
+            android:textAlignment="center"
+            android:textSize="16sp" />
+
+
         <!--Linear Layout for adding textviews
             in horizontal manner-->
         <LinearLayout
@@ -264,7 +335,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="horizontal"
-            android:padding="15dp"
+            android:padding="8dp"
             android:weightSum="4">
             <!--Textview to start audio recording
                 drawableTop will add above mic image-->
