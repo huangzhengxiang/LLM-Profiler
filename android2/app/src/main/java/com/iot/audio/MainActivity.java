@@ -694,30 +694,18 @@ public class MainActivity extends AppCompatActivity {
 
                     timePrefillList.add(prefill_time/prefill_tokens);
                     timeDecodeList.add(decode_time/decode_tokens);
-                    uAPrefillList.add(prefill_capacity/prefill_tokens);
-                    uADecodeList.add(decode_capacity/decode_tokens);
-                    powerPrefillList.add(prefill_energy/prefill_tokens);
-                    powerDecodeList.add(decode_energy/decode_tokens);
+                    uAPrefillList.add(prefill_capacity);
+                    uADecodeList.add(decode_capacity);
+                    powerPrefillList.add(prefill_energy);
+                    powerDecodeList.add(decode_energy);
 
                     mChat.datasetNext();
                     mChat.Reset();
                 }
 
 
-                prefill_token_speed = 1 / avgFloatArray(timePrefillList);
-                decode_token_speed = 1 / avgFloatArray(timeDecodeList);
-                prefill_capacity = -getAvgCapacityInuAh(uAPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
-                decode_capacity = -getAvgCapacityInuAh(uADecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
-                prefill_energy = -getAvgEnergyInmJ(powerPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
-                decode_energy = -getAvgEnergyInmJ(powerDecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
                 message=new Message();
                 bundle=new Bundle();
-                bundle.putFloat("prefill_token_speed", prefill_token_speed);
-                bundle.putFloat("prefill_capacity", prefill_capacity);
-                bundle.putFloat("prefill_energy", prefill_energy);
-                bundle.putFloat("decode_token_speed", decode_token_speed);
-                bundle.putFloat("decode_capacity", decode_capacity);
-                bundle.putFloat("decode_energy", decode_energy);
                 bundle.putString("message", String.format("%s Testing... %d%s", mDatasetSpinner.getSelectedItem().toString(), (i+1)*100/test_size, "%"));
                 Log.i("test times", String.format("%d", i+1));
                 bundle.putString("call", "DatasetTestRun");
@@ -728,6 +716,18 @@ public class MainActivity extends AppCompatActivity {
             mChat.resetDataset();
             message=new Message();
             bundle=new Bundle();
+            prefill_token_speed = 1 / avgFloatArray(timePrefillList);
+            decode_token_speed = 1 / avgFloatArray(timeDecodeList);
+            prefill_capacity = -getAvgCapacityInuAh(uAPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
+            decode_capacity = -getAvgCapacityInuAh(uADecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
+            prefill_energy = -getAvgEnergyInmJ(powerPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
+            decode_energy = -getAvgEnergyInmJ(powerDecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
+            bundle.putFloat("prefill_token_speed", prefill_token_speed);
+            bundle.putFloat("prefill_capacity", prefill_capacity);
+            bundle.putFloat("prefill_energy", prefill_energy);
+            bundle.putFloat("decode_token_speed", decode_token_speed);
+            bundle.putFloat("decode_capacity", decode_capacity);
+            bundle.putFloat("decode_energy", decode_energy);
             bundle.putString("action", "Finished");
             bundle.putString("message", "Test Finished!");
             bundle.putString("call", "DatasetTestRun");
