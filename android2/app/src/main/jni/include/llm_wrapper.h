@@ -51,7 +51,10 @@ public:
     virtual int forward(const std::vector<int>& tokens, bool is_prefill, bool is_first_prefill) { return 0; }
     virtual void reset() {}
     virtual bool isStop(int id)=0;
-    virtual std::vector<int> tokenizer_encode(const std::string& inputStr, bool use_template = true, bool need_antiprompt = false)=0;
+    virtual std::vector<int> tokenizer_encode(const std::string& inputStr,
+                                              bool use_template = true,
+                                              bool need_antiprompt = false,
+                                              std::string system_prompt = "")=0;
     virtual std::string tokenizer_decode(const std::vector<int>& tokens)=0;
     virtual ~LLMWrapper() {}
 };
@@ -59,6 +62,7 @@ public:
 class MNNWrapper : public LLMWrapper {
 protected:
     std::unique_ptr<Llm> llm;
+    std::string model_name;
 public:
     MNNWrapper(const char* model_dir,
                std::string backend_name,
@@ -77,7 +81,10 @@ public:
     virtual int forward(const std::vector<int>& tokens, bool is_prefill, bool is_first_prefill) override;
     virtual void reset() override;
     virtual bool isStop(int id) override;
-    virtual std::vector<int> tokenizer_encode(const std::string& inputStr, bool use_template = true, bool need_antiprompt = false) override;
+    virtual std::vector<int> tokenizer_encode(const std::string& inputStr,
+                                              bool use_template = true,
+                                              bool need_antiprompt = false,
+                                              std::string system_prompt = "") override;
     virtual std::string tokenizer_decode(const std::vector<int>& tokens) override;
     virtual ~MNNWrapper() override;
 };
@@ -110,7 +117,10 @@ public:
     virtual int forward(const std::vector<int>& tokens, bool is_prefill, bool is_first_prefill) override;
     virtual void reset() override;
     virtual bool isStop(int id) override;
-    virtual std::vector<int> tokenizer_encode(const std::string& inputStr, bool use_template = true, bool need_antiprompt = false) override;
+    virtual std::vector<int> tokenizer_encode(const std::string& inputStr,
+                                              bool use_template = true,
+                                              bool need_antiprompt = false,
+                                              std::string system_prompt = "") override;
     virtual std::string tokenizer_decode(const std::vector<int>& tokens) override;
     virtual ~llamacppWrapper() override;
 };

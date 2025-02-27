@@ -7,7 +7,7 @@ We pick 4 datasets from 4 mainstream task domains:
 
 Downloading can be done as follows:
 ```bash
-cd data
+cd dataset/data
 git lfs install
 git clone https://huggingface.co/datasets/shareAI/ShareGPT-Chinese-English-90k ShareGPT
 git clone https://huggingface.co/datasets/ZenMoore/RoleBench RoleBench

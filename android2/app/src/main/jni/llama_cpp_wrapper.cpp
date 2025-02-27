@@ -111,7 +111,10 @@ bool llamacppWrapper::isStop(int id) {
     const llama_vocab * vocab = llama_model_get_vocab(model);
     return llama_vocab_is_eog(vocab, (llama_token)id);
 }
-std::vector<int> llamacppWrapper::tokenizer_encode(const std::string& inputStr, bool use_template, bool need_antiprompt) {
+std::vector<int> llamacppWrapper::tokenizer_encode(const std::string& inputStr,
+                                                   bool use_template,
+                                                   bool need_antiprompt,
+                                                   std::string system_prompt) {
     std::vector<llama_token> tokens;
     llama_context * ctx = llm.context.get();
     std::string user_inp = chat_add_and_format("user", inputStr);
@@ -120,7 +123,11 @@ std::vector<int> llamacppWrapper::tokenizer_encode(const std::string& inputStr, 
     if (use_template) {
         const auto line_pfx = common_tokenize(ctx, params.input_prefix, false, true);
         const auto line_sfx = common_tokenize(ctx, params.input_suffix, false, true);
-        tokens.insert(tokens.begin(), line_inp.begin(), line_inp.end());
+        if (!system_prompt.empty()) {
+            const auto sys = common_tokenize(ctx, chat_add_and_format("system", system_prompt), true, true);
+            tokens.insert(tokens.end(), sys.begin(), sys.end());
+        }
+        tokens.insert(tokens.begin(), line_pfx.begin(), line_pfx.end());
         tokens.insert(tokens.end(), line_sfx.begin(), line_sfx.end());
         if (need_antiprompt && !params.antiprompt.empty()) {
             const auto first_antiprompt = common_tokenize(ctx, params.antiprompt.front(), false, true);

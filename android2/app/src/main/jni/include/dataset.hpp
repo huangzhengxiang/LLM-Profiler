@@ -15,6 +15,7 @@ using PromptItem = std::pair<std::string, std::string>; // <role, content>
 
 // parse csv
 std::vector<std::vector<std::string>> parse_csv(const std::vector<std::string>& lines);
+void parse_json(std::string& data, std::vector<std::vector<std::vector<PromptItem>>>& dialogs);
 void parse_jsonl(std::string prompt_file, std::vector<std::vector<std::vector<PromptItem>>>& dialogs);
 
 std::string getPPLType(std::string dataset_name);

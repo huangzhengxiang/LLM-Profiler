@@ -12,7 +12,31 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
+#include <iostream>
+#include <map>
+#include <string>
 
+// Define the static map with an initializer list
+static std::map<std::string, std::string> roleMap = {
+    {"Problem", "user"},
+    {"problem", "user"},
+    {"Question", "user"},
+    {"question", "user"},
+    {"human", "user"},
+    {"user", "user"},
+    {"assistant", "assistant"},
+    {"generated", "assistant"},
+};
+
+// mapRole
+std::string mapRole(std::string role) {
+    std::string interpreted_role=role;
+    auto it = roleMap.find(role);
+    if (it!=roleMap.end()) {
+        interpreted_role = it->second;
+    }
+    return interpreted_role;
+}
 
 // parse file
 // csv json
@@ -62,6 +86,54 @@ std::vector<std::vector<std::string>> parse_csv(const std::vector<std::string>& 
 }
 
 // dialog, turn, 
+void parse_json(std::string& data, std::vector<std::vector<std::vector<PromptItem>>>& dialogs) {
+    rapidjson::Document document;
+    document.Parse(data.c_str());
+    if (!document.IsArray()) {
+        // error! not supported!
+        return;
+    }
+
+    for (int i=0; i<document.Size(); ++i) {
+        std::vector<std::vector<PromptItem>> cnv; 
+        if(document[i].HasMember("conversation")) {
+            // multi-turn
+            auto& value = document[i]["conversation"];
+            if (value.IsArray()) {
+                for (auto& v : value.GetArray()) {
+                    if (v.IsObject()) {
+                        std::vector<PromptItem> result;
+                        for (auto itr = v.MemberBegin(); itr != v.MemberEnd(); ++itr) {
+                            // {"human"/"user": , "assistant": }
+                            result.push_back(std::make_pair(mapRole(itr->name.GetString()), itr->value.GetString()));
+                        }
+                        cnv.push_back(result);
+                    }
+                }
+            }
+        } else {
+            // not multi-turn conversations, single turn
+            std::vector<PromptItem> result;
+            // find valid QA role name and push back to the cnv list.
+            for (auto it=roleMap.begin(); it!=roleMap.end(); ++it) {
+                if (document[i].HasMember(it->first.c_str())) {
+                    auto& value = document[i][it->first.c_str()];
+                    if (value.IsString()) {
+                        result.push_back(std::make_pair(it->second, value.GetString()));
+                    }
+                    // for RoleBench like dataset interpretation.
+                    if (value.IsArray()) {
+                        result.push_back(std::make_pair(it->second, value[0].GetString()));
+                    }
+                }
+            }
+            if (!result.empty()) { cnv.push_back(result); }
+        }
+        dialogs.push_back(cnv);
+    }
+}
+
+// dialog, turn, 
 void parse_jsonl(std::string prompt_file, std::vector<std::vector<std::vector<PromptItem>>>& dialogs) {
     std::ifstream prompt_fs(prompt_file);
     std::string prompt;
@@ -77,7 +149,7 @@ void parse_jsonl(std::string prompt_file, std::vector<std::vector<std::vector<Pr
                         std::vector<PromptItem> result;
                         for (auto itr = v.MemberBegin(); itr != v.MemberEnd(); ++itr) {
                             // {"human"/"user": , "assistant": }
-                            result.push_back(std::make_pair(itr->name.GetString(), itr->value.GetString()));
+                            result.push_back(std::make_pair(mapRole(itr->name.GetString()), itr->value.GetString()));
                         }
                         cnv.push_back(result);
                     }

@@ -18,6 +18,7 @@ MNNWrapper::MNNWrapper(const char* model_dir,
                        std::string decode_cores,
                        std::string decode_tune_times) {
     if (!llm.get()) {
+        model_name = std::string(model_dir);
         llm.reset(Llm::createLLM(model_dir));
         llm->set_config("{\"tmp_path\":\"" + tmp_path + "\"}"); // tmp_path (string, need quotation marks)
         if (!backend_name.empty()) { llm->set_config("{\"backend_type\":\"" + backend_name + "\"}"); }
@@ -36,6 +37,19 @@ bool MNNWrapper::isReady() {
         return true;
     }
     return false;
+}
+std::string getAntiPrompt(std::string model_name) {
+    if (model_name.find("qwen")!=std::string::npos) {
+        return "<|im_end|>\n";
+    } else if (model_name.find("llama")!=std::string::npos) {
+        return "<|eot_id|>";
+    } else if (model_name.find("gemma")!=std::string::npos) {
+        return "<end_of_turn>\n";
+    } else if (model_name.find("phi")!=std::string::npos) {
+        return "\n";
+    } else {
+        return "";
+    }
 }
 void MNNWrapper::trace() {
     llm->trace(true);
@@ -84,8 +98,20 @@ void MNNWrapper::reset() {
     llm->setKVCacheInfo(0, llm->getCurrentHistory());
     llm->reset();
 }
-std::vector<int> MNNWrapper::tokenizer_encode(const std::string& inputStr, bool use_template, bool need_antiprompt) {
-    return llm->tokenizer_encode(inputStr, use_template);
+std::vector<int> MNNWrapper::tokenizer_encode(const std::string& inputStr,
+                                              bool use_template,
+                                              bool need_antiprompt,
+                                              std::string system_prompt) {
+    std::vector<int> tokens = llm->tokenizer_encode(inputStr, use_template);
+    if (!system_prompt.empty()) {
+        auto sys = llm->tokenizer_encode(llm->apply_chat_template({std::make_pair(std::string("system"), system_prompt)}), false);
+        tokens.insert(tokens.begin(), sys.begin(), sys.end());
+    }
+    if (need_antiprompt && !getAntiPrompt(model_name).empty()) {
+        auto antiprompt = llm->tokenizer_encode(getAntiPrompt(model_name), false);
+        tokens.insert(tokens.begin(), antiprompt.begin(), antiprompt.end());
+    }
+    return tokens;
 }
 std::string MNNWrapper::tokenizer_decode(const std::vector<int>& tokens) {
     std::string output_str;

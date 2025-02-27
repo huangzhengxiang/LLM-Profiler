@@ -9,8 +9,13 @@
 #include <sstream>
 #include <thread>
 
+#include "dataset.hpp"
 #include "llm_wrapper.h"
 
+static int dataset_itr=0;
+static int cnv_itr=0;
+static std::vector<int> input_prompt;
+static std::vector<std::vector<std::vector<PromptItem>>> test_dataset;
 static std::unique_ptr<LLMWrapper> model(nullptr);
 
 #define TEST_TOKEN 200
@@ -152,8 +157,136 @@ Java_com_iot_audio_Chat_Forward(JNIEnv *env, jobject thiz, jint length, jboolean
     return;
 }
 
+JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_DatasetResponse(JNIEnv *env, jobject thiz, jboolean is_prefill,
+                                                               jboolean is_first_prefill) {
+    __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Forward");
+    if (!model->isReady()) {
+        __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "model not ready!");
+        return 0;
+    }
+    int res = TEST_TOKEN;
+    if ((bool) is_prefill) {
+        // test prefill
+        res = model->forward(input_prompt, is_prefill, is_first_prefill);
+    } else {
+        // test decode, decode for length times
+        for (int i = 0; i < (int) input_prompt.size(); ++i) {
+            res = model->forward({input_prompt[i]}, is_prefill, is_first_prefill);
+            __android_log_print(ANDROID_LOG_DEBUG, "MNN_PROFILE", "res: %d", res);
+        }
+    }
+    __android_log_print(ANDROID_LOG_INFO, "MNN_PROFILE", "res: %d", res);
+    __android_log_print(ANDROID_LOG_INFO, "MNN_DEBUG", "After Response!");
+    return input_prompt.size();
+}
+
+JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_Response(JNIEnv *env, jobject thiz, jstring input, jboolean is_first_prefill) {
+    __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Forward");
+    if (!model->isReady()) {
+        __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "model not ready!");
+        return env->NewStringUTF("");
+    }
+    int res = TEST_TOKEN;
+    std::string system_prompt = "";
+    bool need_antiprompt = false;
+    if (is_first_prefill) {
+        system_prompt = "You're a helpful assistant."; // first time need system prompt
+    } else {
+        need_antiprompt = true; // followings need antiprompt
+    }
+    std::string inputStr = std::string(env->GetStringUTFChars(input, 0));
+    if (!inputStr.empty()) {
+        // test prefill
+        res = model->forward(model->tokenizer_encode(inputStr, true, need_antiprompt, system_prompt), true, is_first_prefill);
+    }
+
+    // test decode, decode for length times
+    std::vector<int> outStr = {res};
+    while (!model->isStop(res)) {
+        res = model->forward({res}, false, is_first_prefill);
+        outStr.push_back(res);
+    }
+
+    __android_log_print(ANDROID_LOG_INFO, "MNN_PROFILE", "res: %d", res);
+    __android_log_print(ANDROID_LOG_INFO, "MNN_DEBUG", "After Response!");
+    return env->NewStringUTF(model->tokenizer_decode(outStr).c_str());
+}
+
 JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Reset(JNIEnv *env, jobject thiz) {
     model->reset();
+}
+
+
+JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_StringTokenSize(JNIEnv *env, jobject thiz, jstring input) {
+    return (jint)model->tokenizer_encode(std::string(env->GetStringUTFChars(input, 0)), false, false, "").size();
+}
+
+JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_loadDataset(JNIEnv *env, jobject thiz, jstring data) {
+    dataset_itr=0; cnv_itr=0;
+    std::string dataset_string = std::string(env->GetStringUTFChars(data, 0));
+    parse_json(dataset_string, test_dataset);
+    return (jint)test_dataset.size();
+}
+
+JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_getDatasetSize(JNIEnv *env, jobject thiz) {
+    return (jint)test_dataset.size();
+}
+
+JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_getDialogUser(JNIEnv *env, jobject thiz) {
+    auto& cnv = test_dataset[dataset_itr];
+    if (cnv.size()<=cnv_itr) {
+        return false;
+    }
+    auto& dialog = cnv[cnv_itr];
+    std::string system_prompt = "";
+    bool need_antiprompt = false;
+    bool gotData = false;
+    if (cnv_itr==0) {
+        system_prompt = "You're a helpful assistant."; // first time need system prompt
+    } else {
+        need_antiprompt = true; // followings need antiprompt
+    }
+    for (auto& item : dialog) {
+        if (item.first=="user") {
+            input_prompt = model->tokenizer_encode(item.second, true, need_antiprompt, system_prompt);
+            gotData = true;
+            break;
+        }
+    }
+    return (jboolean)gotData;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_getDialogAssistant(JNIEnv *env, jobject thiz) {
+    auto& cnv = test_dataset[dataset_itr];
+    if (cnv.size()<=cnv_itr) {
+        return false;
+    }
+    auto& dialog = cnv[cnv_itr];
+    bool gotData = false;
+    for (auto& item : dialog) {
+        if (item.first=="assistant") {
+            input_prompt = model->tokenizer_encode(item.second, false, false, "");
+            gotData = true;
+            break;
+        }
+    }
+    cnv_itr++;
+    return (jboolean)gotData;
+}
+
+
+
+JNIEXPORT void JNICALL Java_com_iot_audio_Chat_datasetNext(JNIEnv *env, jobject thiz) {
+    dataset_itr++;
+    cnv_itr=0;
+    return;
+}
+
+
+JNIEXPORT void JNICALL Java_com_iot_audio_Chat_resetDataset(JNIEnv *env, jobject thiz) {
+    dataset_itr=0;
+    cnv_itr=0;
+    return;
 }
 
 } // extern "C"

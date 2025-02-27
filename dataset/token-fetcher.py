@@ -144,7 +144,7 @@ def calc_stats(tokenizer, config: dict, is_data=True) -> dict:
             stats_dict[name]["decode/turn"] = decode_per_turn
     return
     
-
+# convert and save as json
 def sample_cnv(input_file, output_file, config: dict):
     json_arr = read_file(input_file)
     idx_list = random.sample(range(0, len(json_arr)), config["sample_num"])

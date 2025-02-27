@@ -21,6 +21,17 @@ public class Chat implements Serializable {
     public native void Forward(int length, boolean is_prefill, boolean is_first_prefill);
     public native void Reset();
 
+    public native int loadDataset(String data);
+    public native int getDatasetSize();
+    public native boolean getDialogUser();
+    public native boolean getDialogAssistant();
+    public native void datasetNext();
+    public native void resetDataset();
+    public native int DatasetResponse(boolean is_prefill, boolean is_first_prefill);
+    public native int StringTokenSize(String input);
+
+    public native String Response(String input, boolean is_first_prefill);
+
     static {
         System.loadLibrary("iot");
     }

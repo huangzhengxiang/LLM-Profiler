@@ -270,7 +270,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="#3bb5ee"
-                    android:onClick="testRun"
+                    android:onClick="continueTest"
                     android:layout_margin="5dp"
                     android:text="Continue"></Button>
 
