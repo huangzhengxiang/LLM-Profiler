@@ -1,10 +1,39 @@
 ## LLM-Profiler
 
-Android demo of ***Qwen2-Audio-7B-Instruct*** local deployment. https://huggingface.co/Qwen/Qwen2-Audio-7B-Instruct.
+***Android LLM Inference Engine Profiler***
 
-The DNN inference engine on the phone is powered by [MNN](https://github.com/alibaba/MNN). MNN supports for Qwen2-Audio-7B-Instruct is newly ready this week. Current demo shows on-device inference for MNN Qwen2-Audio-7B-Instruct.
+*Key features*: 
+- Unplugged testing wrapped in app, no adb needed, better in simulating real-world unplugged use. 
+- Temperature is kept below $40^\circ \mathbf{C}$ before each test, and wait the app for a while to cool down automatically to avoid severe CPU&GPU throttling. 
+- Charge level is kept to be above 50% to avoid phones from some vendors automatically activating power-saving.
+- Support most of phones with Android API Level $\geq 30$.
 
-The anroid demo is located in `android2`.
+*Currently Supported Engines*:
+- [x] [MNN](https://github.com/Embedded-AI-Systems/MNN-Habst.git) (Our Modified Version of MNN-3.0.4) 
+- [x] [llama.cpp](https://github.com/ggml-org/llama.cpp/tree/73e2ed3ce3492d3ed70193dd09ae8aa44779651d) (Version b4735)
+- [ ] MediaPipe
+- [ ] MLC-LLM
+- [ ] ExecuteTorch
+- [ ] mllm
+
+*Currently Supported Metrics*:
+- [x] speed (tok/s)
+- [x] capacity consumption (uAh/tok)
+- [x] energy consumption (mJ/tok)
+- [ ] perplexity
+- [ ] accuracy
+
+*Currently Supported Models*:
+- [x] Qwen Series (text-generation)
+- [x] Llama Series (text-generation)
+- [x] Gemma Series
+- [x] Phi-2
+
+*Currently Supported Test Mode*:
+- [x] json/jsonl/parquet file stored dataset subset testing (subset because of high time/energy cost for large dataset testing on phone)
+- [x] designated/fixed length input test
+
+The anroid demo is located in `./android2` directory.
 
 ### 1. Git clone
 You needs all the submoudles. add `--recursive` for your `git clone`.
@@ -14,23 +43,26 @@ git clone --recursive https://github.com/huangzhengxiang/LLM-Profiler.git
 
 ### 2. Quick Start
 
-#### model preparation
-The Qwen model (approx 6.2GB) shall first be downloaded from jbox and uploaded to phone.
+#### 2.1 model preparation
+1. Convert model to mnn/gguf/tflite... format. (for model converting methods, please refer to each format's repository)
 
+2. Push your model to `/data/local/tmp/llm/model` directory.
 ```bash
+# example
 adb shell mkdir /data/local/tmp/llm
 adb shell mkdir /data/local/tmp/llm/model/
-adb push model/qwen2-audio-7b-mnn/ /data/local/tmp/llm/model/
+adb push model/qwen2_5-1_5b-int4-mnn/ /data/local/tmp/llm/model/
 ```
 
-#### release version
-The release version is ready to use at `android2\app\release\app-release.apk`.
+#### 2.2 release version installation
+The release version is ready to use at `android2\app\release\app-release.apk` or in GitHub Release. Install it on your cell phone.
 
-#### use
+
+#### 2.3 APP use
 After model and apk uploading. Install the apk and use it. Click `加载模型` first and then record your voice after you see it finished `模型加载完成`.
 
 
-### 3. build from source
+### 3. Build from source
 Several LLM inference engines are contained in this app: MNN-Habst (Ours), llama.cpp,  
 
 MNN-Habst is up-to-date with MNN master branch at commit: 5bd7ffc22a54f6436e387ec2a5cfde7e207feba1 (Version 3.0.4).
@@ -46,7 +78,7 @@ Internal: `Power_Normal`, `Power_High`, `Power_MemoryBound`, `Power_SelectCore`.
 External Additional Option: "exhaustive", (requires an additional list of selective core group size. e.g., 8Gen3 [1,3,2,2], big->small, and the results are stored in a local file.), "tune_prefill" (tune prefill).
 
 
-### 5. Datasets
+### 5. Datasets Supports
 1. multi-turn conversation dataset (ShareGPT-en): https://huggingface.co/datasets/shareAI/ShareGPT-Chinese-English-90k (./sharegpt_jsonl/common_en_70k.jsonl) (input prefill controlled decode)
 2. role play (RoleLLM): https://huggingface.co/datasets/ZenMoore/RoleBench (./rolebench-eng/role-generalization/role_specific/test.jsonl) (input prefill, controlled decode)
 3. math problem  QA (math_qa): https://huggingface.co/datasets/allenai/math_qa (input prefill, free talk decode)
