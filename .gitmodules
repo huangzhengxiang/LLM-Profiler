@@ -4,3 +4,6 @@
 [submodule "llama.cpp"]
 	path = llama.cpp
 	url = https://github.com/ggml-org/llama.cpp.git
+[submodule "executorch"]
+	path = executorch
+	url = https://github.com/pytorch/executorch.git
