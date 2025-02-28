@@ -3,6 +3,61 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../MNN" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/arm/third-party/ethos-u-core-driver" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/arm/third-party/serialization_lib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/cadence/utils/FACTO" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/vulkan/third-party/Vulkan-Headers" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/vulkan/third-party/VulkanMemoryAllocator" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/vulkan/third-party/volk" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/xnnpack/third-party/FP16" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/xnnpack/third-party/FXdiv" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/xnnpack/third-party/XNNPACK" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/xnnpack/third-party/cpuinfo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/backends/xnnpack/third-party/pthreadpool" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/extension/llm/third-party/abseil-cpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/extension/llm/third-party/re2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/extension/llm/third-party/sentencepiece" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/kernels/optimized/third-party/eigen" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/shim" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/third-party/ao" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/third-party/flatbuffers" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/third-party/flatcc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/third-party/gflags" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/third-party/googletest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/third-party/ios-cmake" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/third-party/pocketfft" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/third-party/prelude" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../executorch/third-party/pybind11" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../llama.cpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/argparse" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/googletest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/stb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tokenizers-cpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tokenizers-cpp/msgpack" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tokenizers-cpp/sentencepiece" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/OpenCL-Headers" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/cnpy" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/cutlass" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/cutlass_fpA_intB_gemm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/cutlass_fpA_intB_gemm/cutlass" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/dlpack" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/dmlc-core" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/flashinfer" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/flashinfer/3rdparty/composable_kernels" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/flashinfer/3rdparty/cutlass" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/flashinfer/3rdparty/googletest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/flashinfer/3rdparty/mscclpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/flashinfer/3rdparty/nvbench" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/flashinfer/3rdparty/spdlog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/libbacktrace" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/libflash_attn" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/libflash_attn/cutlass" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/rang" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/tvm/3rdparty/zlib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/xgrammar" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/xgrammar/3rdparty/dlpack" vcs="Git" />
   </component>
 </project>

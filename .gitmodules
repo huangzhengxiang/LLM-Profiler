@@ -7,3 +7,6 @@
 [submodule "executorch"]
 	path = executorch
 	url = https://github.com/pytorch/executorch.git
+[submodule "mlc-llm"]
+	path = mlc-llm
+	url = https://github.com/mlc-ai/mlc-llm.git

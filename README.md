@@ -12,7 +12,7 @@
 - [x] [MNN](https://github.com/Embedded-AI-Systems/MNN-Habst.git) (Our Modified Version of MNN-3.0.4) (CPU/OpenCL)
 - [x] [llama.cpp](https://github.com/ggml-org/llama.cpp/tree/73e2ed3ce3492d3ed70193dd09ae8aa44779651d) (Version b4735) (CPU)
 - [ ] MediaPipe
-- [ ] MLC-LLM
+- [ ] [MLC-LLM](https://github.com/mlc-ai/mlc-llm/tree/b636b2ac5e0c8bac6cf2a5427c3380fff856447e) (Version v0.19.0) (GPU)
 - [ ] ExecuteTorch
 - [ ] mllm
 
