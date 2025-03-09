@@ -10,3 +10,6 @@
 [submodule "mlc-llm"]
 	path = mlc-llm
 	url = https://github.com/mlc-ai/mlc-llm.git
+[submodule "mllm"]
+	path = mllm
+	url = https://github.com/UbiquitousLearning/mllm.git

@@ -9,17 +9,20 @@
 - Support most of phones with Android API Level $\geq 30$.
 
 *Currently Supported Engines*:
-- [x] [MNN](https://github.com/Embedded-AI-Systems/MNN-Habst.git) (Our Modified Version of MNN-3.0.4) (CPU/OpenCL)
+- [x] [MNN](https://github.com/Embedded-AI-Systems/MNN-Habst.git) (Our Modified Version of MNN-3.0.4) (CPU/GPU-OpenCL)
 - [x] [llama.cpp](https://github.com/ggml-org/llama.cpp/tree/73e2ed3ce3492d3ed70193dd09ae8aa44779651d) (Version b4735) (CPU)
-- [ ] MediaPipe
-- [ ] [MLC-LLM](https://github.com/mlc-ai/mlc-llm/tree/b636b2ac5e0c8bac6cf2a5427c3380fff856447e) (Version v0.19.0) (GPU)
-- [ ] ExecuteTorch
-- [ ] mllm
-
+- [x] [mllm](https://github.com/UbiquitousLearning/mllm/tree/bbf87ffb8cb47860cdc2118c06ccad5b4ab84227) (hash bbf87ff) (CPU-XNNPack/NPU-QNN-Htp)
+- [x] [MediaPipe]() (Version ) (CPU/GPU-OpenCL)
+- [ ] [MLC-LLM](https://github.com/mlc-ai/mlc-llm/tree/b636b2ac5e0c8bac6cf2a5427c3380fff856447e) (Version v0.19.0) (GPU-OpenCL)
+- [ ] [executorch]() (Version ) (CPU-XNNPack/NPU-QNN-Htp)
+ 
 *Currently Supported Metrics*:
-- [x] speed (tok/s)
+- [x] prefill/decode speed (tok/s)
 - [x] capacity consumption (uAh/tok)
 - [x] energy consumption (mJ/tok)
+- [ ] temperature (peak+average) (measured but not reported yet)
+- [ ] external file size (model disk occupation)
+- [ ] runtime memory size (RSS size)
 - [ ] perplexity
 - [ ] accuracy
 
@@ -28,10 +31,12 @@
 - [x] Llama Series (text-generation)
 - [x] Gemma Series
 - [x] Phi-2
+- [ ] Phi-3-mini
 
 *Currently Supported Test Mode*:
 - [x] json/jsonl/parquet file stored dataset subset testing (subset because of high time/energy cost for large dataset testing on phone)
 - [x] designated/fixed length input test
+- [ ] user input string (interactive testing mode)
 
 The anroid demo is located in `./android2` directory.
 
@@ -72,6 +77,9 @@ llama.cpp is added at commit: 73e2ed3ce3492d3ed70193dd09ae8aa44779651d (Version 
 
 Then, open project in `Android Studio` and build.
 
+- gradle-8.9
+- JDK: corretto-18
+- ndk version: 27.0.12077973
 
 ### 4. Multi-Threading Options for MNN-Habst
 Internal: `Power_Normal`, `Power_High`, `Power_MemoryBound`, `Power_SelectCore`. ("normal", "high", "memory", "select")
