@@ -1,12 +1,13 @@
 ## LLM-Profiler
 
-***Android LLM Inference Engine Profiler***
+***LLM Inference Engine Profiler (Android/iOS)***
 
 *Key features*: 
 - Unplugged testing wrapped in app, no adb needed, better in simulating real-world unplugged use. 
 - Temperature is kept below $40^\circ \mathbf{C}$ before each test, and wait the app for a while to cool down automatically to avoid severe CPU&GPU throttling. 
 - Charge level is kept to be above 50% to avoid phones from some vendors automatically activating power-saving.
-- Support most of phones with Android API Level $\geq 30$.
+- Support most of phones with Android API Level $\geq 30$, iOS level $\geq 16$.
+- android app locates in `android2` folder, and iOS app locates in `ios` folder.
 
 *Currently Supported Engines*:
 - [x] [MNN](https://github.com/Embedded-AI-Systems/MNN-Habst.git) (Our Modified Version of MNN-3.0.4) (CPU/OpenCL)
