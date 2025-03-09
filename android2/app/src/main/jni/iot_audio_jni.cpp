@@ -31,17 +31,17 @@ JNIEXPORT void JNI_OnUnload(JavaVM *vm, void *reserved) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "JNI_OnUnload");
 }
 
-JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Init(JNIEnv *env, jobject thiz,
-                                                        jstring engineName,
-                                                        jstring modelDir,
-                                                        jstring backendName,
-                                                        jstring tmpFile,
-                                                        jstring prefillThreadNum,
-                                                        jstring decodeThreadNum,
-                                                        jstring prefillPowerMode,
-                                                        jstring decodePowerMode,
-                                                        jstring decodeCorePlan,
-                                                        jstring tuneTimes) {
+JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_InitNative(JNIEnv *env, jobject thiz,
+                                                              jstring engineName,
+                                                              jstring modelDir,
+                                                              jstring backendName,
+                                                              jstring tmpFile,
+                                                              jstring prefillThreadNum,
+                                                              jstring decodeThreadNum,
+                                                              jstring prefillPowerMode,
+                                                              jstring decodePowerMode,
+                                                              jstring decodeCorePlan,
+                                                              jstring tuneTimes) {
     const char *model_dir = env->GetStringUTFChars(modelDir, 0);
     std::string engine_name = std::string(env->GetStringUTFChars(engineName, 0));
     std::string backend_name = std::string (env->GetStringUTFChars(backendName, 0));
