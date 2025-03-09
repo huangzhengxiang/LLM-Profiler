@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
                 mBackend = "opencl";
             } else {
                 mBackend = "cpu";
-                statusTV.setText(String.format("Not support MNN+%s, use CPU", mBackend));
+                statusTV.setText(String.format("Not support MNN+%s, use CPU", mBackendName));
             }
         }
         if (mEngineName.equals("llama.cpp")) {
@@ -319,6 +319,26 @@ public class MainActivity extends AppCompatActivity {
                 statusTV.setText(String.format("Not support llama.cpp+%s, use CPU", mBackendName));
             }
             mBackend = "cpu";
+        }
+        if (mEngineName.equals("mediapipe (LiteRT)")) {
+            if (mBackendName.equals("CPU")) {
+                mBackend = "cpu";
+            } else if (mBackendName.equals("GPU")) {
+                mBackend = "gpu";
+            } else {
+                mBackend = "cpu";
+                statusTV.setText(String.format("Not support mediapipe+%s, use CPU", mBackendName));
+            }
+        }
+        if (mEngineName.equals("mllm")) {
+            if (mBackendName.equals("CPU")) {
+                mBackend = "cpu";
+            } else if (mBackendName.equals("NPU")) {
+                mBackend = "qnn";
+            } else {
+                mBackend = "cpu";
+                statusTV.setText(String.format("Not support mllm+%s, use CPU", mBackendName));
+            }
         }
     }
 
@@ -341,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             mChat = new Chat();
-            mChat.Init(mEngineName, mModelDir, mBackend,
+            mChat.Init(getApplicationContext(), mEngineName, mModelDir, mBackend,
                        tmpDir.getPath(),
                        prefillThreadNumTV.getText().toString(),
                        decodeThreadNumTV.getText().toString(),
@@ -427,6 +447,9 @@ public class MainActivity extends AppCompatActivity {
         engines.add(0, "select engine");
         engines.add("MNN");
         engines.add("llama.cpp");
+        engines.add("mediapipe");
+        engines.add("mllm");
+        engines.add("executorch");
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, engines);
         mEngineSelectSpinner.setAdapter(adapter);
     }
@@ -436,6 +459,7 @@ public class MainActivity extends AppCompatActivity {
         backends.add(0, "select backend");
         backends.add("CPU");
         backends.add("GPU");
+        backends.add("NPU");
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, backends);
         mBackendSelectSpinner.setAdapter(adapter);
     }

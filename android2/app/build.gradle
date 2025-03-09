@@ -47,6 +47,7 @@ android {
 
 dependencies {
     implementation(fileTree(dir: 'libs', include: ['*.jar']))
+    implementation libs.mediapipe.tasks.genai
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
