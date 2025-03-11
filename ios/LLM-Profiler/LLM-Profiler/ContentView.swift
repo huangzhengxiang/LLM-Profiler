@@ -21,8 +21,7 @@ struct ContentView: View {
     @State private var textField3 = ""
     @State private var textField4 = ""
     
-    // Options for dropdowns
-    let options = ["Option 1", "Option 2", "Option 3", "Option 4"]
+    @State private var modelOptions: [String] = [] // List of files and directories
     
     let engineOptions = ["select engine", "MNN", "llama.cpp", "mediapipe", "mllm", "executorch"]
     
@@ -49,11 +48,13 @@ struct ContentView: View {
                 .pickerStyle(.menu).frame(maxWidth: .infinity).padding(.horizontal, 20)
                 
                 Picker("Select Option 2", selection: $modelSelector) {
-                    ForEach(options, id: \.self) {
+                    ForEach(modelOptions, id: \.self) {
                         Text($0)
                     }
                 }
-                .pickerStyle(.menu).frame(maxWidth: .infinity).padding(.horizontal, 20)
+                .pickerStyle(.menu).frame(maxWidth: .infinity).padding(.horizontal, 20).onAppear {
+                    populateModels()
+                }
                 
                 Picker("Select Option 3", selection: $backendSelector) {
                     ForEach(backendOptions, id: \.self) {
@@ -129,6 +130,23 @@ struct ContentView: View {
             .padding()
         }
         .navigationTitle("Scrollable Form")
+    }
+    
+
+    func populateModels() {
+        // Get the main bundle's resource path
+        if let resourcePath = Bundle.main.resourcePath {
+            do {
+                // Get the contents of the directory
+                let contents = try FileManager.default.contentsOfDirectory(atPath: resourcePath)
+                // Update the options state variable
+                modelOptions = contents
+            } catch {
+                print("Error reading directory contents: \(error)")
+            }
+        } else {
+            print("Resource path not found")
+        }
     }
 }
 
