@@ -4,3 +4,4 @@ build
 dataset/data/
 !dataset/data/data_stats.json
 visualization/tmp/
+model-converter/converted_models

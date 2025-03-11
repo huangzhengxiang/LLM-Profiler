@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.mediapipe.tasks.core.ErrorListener;
 import com.google.mediapipe.tasks.core.OutputHandler;
 import com.google.mediapipe.tasks.genai.llminference.LlmInference;
-import com.google.mediapipe.tasks.genai.llminference.LlmInference.Backend;
+import com.google.mediapipe.tasks.genai.llminference.LlmInferenceSession;
 import com.google.mediapipe.tasks.genai.llminference.VisionModelOptions;
 
 import java.io.File;
@@ -69,24 +69,17 @@ public class MediaPipeWrapper implements Serializable {
             }
 
             @Override
-            public Optional<LlmInference.Backend> preferredBackend() {
-                if (mBackend.equals("gpu")) {
-                    return Optional.of(Backend.GPU);
-                } else {
-                    // default as cpu
-                    return Optional.of(Backend.CPU);
-                }
-            }
-
-            @Override
             public Builder toBuilder() {
                 return null;
             }
         };
         try {
             model = LlmInference.createFromOptions(mContext, options);
+            String res = model.generateResponse("Hello! What's GPU?");
+            Log.i("MediaPipe response:", res);
         } catch (Exception e) {
             Log.i("mediapipe failure", String.format("createFromOptions failed: %s", e.toString()));
+            e.printStackTrace();
         }
         return true;
     }

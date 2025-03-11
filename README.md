@@ -13,7 +13,7 @@
 - [x] [MNN](https://github.com/Embedded-AI-Systems/MNN-Habst.git) (Our Modified Version of MNN-3.0.4) (Android: CPU/GPU-OpenCL) (iOS: )
 - [x] [llama.cpp](https://github.com/ggml-org/llama.cpp/tree/73e2ed3ce3492d3ed70193dd09ae8aa44779651d) (Version b4735) (Android: CPU) (iOS: )
 - [ ] [mllm](https://github.com/UbiquitousLearning/mllm/tree/bbf87ffb8cb47860cdc2118c06ccad5b4ab84227) (hash bbf87ff) (Android: CPU/NPU-QNN-Htp) (iOS: )
-- [ ] [MediaPipe](https://github.com/google-ai-edge/mediapipe-samples) (Version 0.10.21) (Android: CPU/GPU-OpenCL) (iOS: )
+- [x] [MediaPipe](https://github.com/google-ai-edge/mediapipe-samples) (Version 0.10.20) (Android: CPU/GPU-OpenCL) (iOS: )
 - [ ] [MLC-LLM](https://github.com/mlc-ai/mlc-llm/tree/b636b2ac5e0c8bac6cf2a5427c3380fff856447e) (Version v0.19.0) (Android: GPU-OpenCL) (iOS: )
 - [ ] [executorch]() (Version ) (Android: CPU-XNNPack/NPU-QNN-Htp/NPU-MTK) (iOS: )
  
