@@ -7,7 +7,7 @@
         <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="$PROJECT_DIR$/../../../../../Android/Jdk/gradle-8.9-bin/gradle-8.9" />
+        <option name="gradleHome" value="$USER_HOME$/Android/Jdk/gradle-8.9" />
         <option name="gradleJvm" value="corretto-18" />
         <option name="modules">
           <set>

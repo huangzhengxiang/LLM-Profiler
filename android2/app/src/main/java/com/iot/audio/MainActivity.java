@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
             }
             mBackend = "cpu";
         }
-        if (mEngineName.equals("mediapipe (LiteRT)")) {
+        if (mEngineName.equals("mediapipe")) {
             if (mBackendName.equals("CPU")) {
                 mBackend = "cpu";
             } else if (mBackendName.equals("GPU")) {

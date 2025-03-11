@@ -4,3 +4,12 @@
 [submodule "llama.cpp"]
 	path = llama.cpp
 	url = https://github.com/ggml-org/llama.cpp.git
+[submodule "executorch"]
+	path = executorch
+	url = https://github.com/pytorch/executorch.git
+[submodule "mlc-llm"]
+	path = mlc-llm
+	url = https://github.com/mlc-ai/mlc-llm.git
+[submodule "mllm"]
+	path = mllm
+	url = https://github.com/UbiquitousLearning/mllm.git
