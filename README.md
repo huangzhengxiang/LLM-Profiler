@@ -1,5 +1,9 @@
 ## LLM-Profiler
 
+<div align="center">
+<img src="./icon/1024.png" width="25%">
+</div>
+
 ***LLM Inference Engine Profiler (Android/iOS)***
 
 *Key features*: 
