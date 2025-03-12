@@ -1,7 +1,7 @@
 ## LLM-Profiler
 
 <div align="center">
-<img src="./icon/1024.png" width="25%">
+<img src="./icon/1024.png" width="15%">
 </div>
 
 ***LLM Inference Engine Profiler (Android/iOS)***
