@@ -24,6 +24,7 @@
 *Currently Supported Metrics*:
 - [x] prefill/decode speed (tok/s)
 - [x] capacity consumption (uAh/tok)
+- [ ] capacity consumption in percentage (%)
 - [x] energy consumption (mJ/tok)
 - [ ] temperature (peak+average) (measured but not reported yet)
 - [ ] external file size (model disk occupation)

@@ -136,11 +136,15 @@ struct ContentView: View {
     func populateModels() {
         // Get the main bundle's resource path
         if let resourcePath = Bundle.main.resourcePath {
+            
+            let localModelPath = URL(fileURLWithPath: resourcePath).appendingPathComponent("LocalModel").path
+            
             do {
                 // Get the contents of the directory
-                let contents = try FileManager.default.contentsOfDirectory(atPath: resourcePath)
-                // Update the options state variable
+                let contents = try FileManager.default.contentsOfDirectory(atPath: localModelPath)
+                // Update the options state variables
                 modelOptions = contents
+                modelOptions.insert("select model", at: 0)
             } catch {
                 print("Error reading directory contents: \(error)")
             }

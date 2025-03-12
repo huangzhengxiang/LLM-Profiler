@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		63E972E32D80515D00F4A788 /* MNN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63E972E22D80515D00F4A788 /* MNN.framework */; };
+		63E972E62D8057BE00F4A788 /* MNN.framework in Resources */ = {isa = PBXBuildFile; fileRef = 63E972E22D80515D00F4A788 /* MNN.framework */; };
+		63E972E82D805D2800F4A788 /* LocalModel in Resources */ = {isa = PBXBuildFile; fileRef = 63E972E72D805D2800F4A788 /* LocalModel */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		63E972172D7D8E2700F4A788 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +33,8 @@
 		63E972052D7D8E2600F4A788 /* LLM-Profiler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LLM-Profiler.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		63E972162D7D8E2700F4A788 /* LLM-ProfilerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "LLM-ProfilerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		63E972202D7D8E2700F4A788 /* LLM-ProfilerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "LLM-ProfilerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		63E972E22D80515D00F4A788 /* MNN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MNN.framework; sourceTree = "<group>"; };
+		63E972E72D805D2800F4A788 /* LocalModel */ = {isa = PBXFileReference; lastKnownFileType = folder; path = LocalModel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63E972E32D80515D00F4A788 /* MNN.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,9 +84,11 @@
 		63E971FC2D7D8E2600F4A788 = {
 			isa = PBXGroup;
 			children = (
+				63E972E72D805D2800F4A788 /* LocalModel */,
 				63E972072D7D8E2600F4A788 /* LLM-Profiler */,
 				63E972192D7D8E2700F4A788 /* LLM-ProfilerTests */,
 				63E972232D7D8E2700F4A788 /* LLM-ProfilerUITests */,
+				63E972E12D80515C00F4A788 /* Frameworks */,
 				63E972062D7D8E2600F4A788 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +101,14 @@
 				63E972202D7D8E2700F4A788 /* LLM-ProfilerUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		63E972E12D80515C00F4A788 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				63E972E22D80515D00F4A788 /* MNN.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -213,6 +232,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63E972E82D805D2800F4A788 /* LocalModel in Resources */,
+				63E972E62D8057BE00F4A788 /* MNN.framework in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,8 +269,8 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncd ${SRCROOT}/\nmkdir -p build_native && cd build_native\ncmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../../MNN/cmake/ios.toolchain.cmake -DARCHS=\"arm64\" -DENABLE_BITCODE=0\nmake MNN -j8\ncp MNN.framework ../MNN.framework\n";
+			shellPath = /bin/zsh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport PATH=${PATH}:/opt/homebrew/bin\ncd ${SRCROOT}/\nmkdir -p build_native\ncd build_native\ncmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../../MNN/cmake/ios.toolchain.cmake -DARCHS=\"arm64\" -DENABLE_BITCODE=0 -DBUILD_ANDROID=OFF -DBUILD_IOS=ON\nmake MNN -j8\ncp -rf MNN/MNN.framework ../MNN.framework\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -328,7 +349,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -389,7 +410,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -417,7 +438,14 @@
 				DEVELOPMENT_TEAM = 4XLA8Q6R8T;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"${SRCROOT}/",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "${SRCROOT}/MNN.framework/Headers";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -457,7 +485,14 @@
 				DEVELOPMENT_TEAM = 4XLA8Q6R8T;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"${SRCROOT}/",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "${SRCROOT}/MNN.framework/Headers";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

@@ -73,8 +73,8 @@ include_directories(
                     ${CMAKE_CURRENT_LIST_DIR}/mllm/third_party
                     ${CMAKE_CURRENT_LIST_DIR}/mllm/third_party/fmt/include
                     # MNN include
-                    ${CMAKE_CURRENT_LIST_DIR}//MNN/tools/audio/include/
-        `           ${CMAKE_CURRENT_LIST_DIR}/MNN/transformers/llm/engine/include/
+                    ${CMAKE_CURRENT_LIST_DIR}/MNN/tools/audio/include/
+                    ${CMAKE_CURRENT_LIST_DIR}/MNN/transformers/llm/engine/include/
                     ${CMAKE_CURRENT_LIST_DIR}/MNN/include/
                     ${CMAKE_CURRENT_LIST_DIR}/MNN/tools/cv/include/
                     ${CMAKE_CURRENT_LIST_DIR}/MNN/3rd_party/
@@ -130,6 +130,7 @@ endif()
 
 
 if(BUILD_IOS)
-
+# add source directory
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/MNN)
 
 endif()
