@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.nio.file.Paths;
+import java.util.concurrent.CountDownLatch;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -157,9 +158,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private int getAvgCurrent() { return energyMonitor.getAvgCurrent(); } // in uA
+    public int getAvgCurrent() { return energyMonitor.getAvgCurrent(); } // in uA
 
-    private float getAvgPower() { return energyMonitor.getAvgPower(); } // in uW
+    public float getAvgPower() { return energyMonitor.getAvgPower(); } // in uW
 
     private void startTimeTracing() {
         mElapsedBegin = elapsedRealtime();
@@ -169,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
         mElapsedEnd = elapsedRealtime();
     }
 
-    private float getTime() {
+    public float getTime() {
         return ((float)(mElapsedEnd-mElapsedBegin))/1000f; // convert from ms to s.
     }
 
@@ -178,6 +179,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public int getChargeLevel() { return mChargeNow; }
+
+    public void startTracing() {
+        startEnergyTracing();
+        startTimeTracing();
+    }
+
+    public void endTracing() {
+        endTimeTracing();
+        endEnergyTracing();
+    }
+
+    public void warning(String text) {
+        statusTV.setText(text);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -361,7 +376,8 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             mChat = new Chat();
-            mChat.Init(getApplicationContext(), mEngineName, mModelDir, mBackend,
+            mChat.Init(this, getApplicationContext(),
+                       mEngineName, mModelDir, mBackend,
                        tmpDir.getPath(),
                        prefillThreadNumTV.getText().toString(),
                        decodeThreadNumTV.getText().toString(),
@@ -806,24 +822,13 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<Float> powerPrefillList = new ArrayList<Float>(); // in mW
             ArrayList<Float> powerDecodeList = new ArrayList<Float>(); // in mW
             for (int i = 0; i < test_times; ++i) {
-                startEnergyTracing();
-                startTimeTracing();
-                mChat.Forward(prefill_len, true, true);
-                endTimeTracing();
-                endEnergyTracing();
-                uAPrefillList.add(getAvgCurrent());
-                powerPrefillList.add(getAvgPower());
-                timePrefillList.add(getTime());
-
-                startEnergyTracing();
-                startTimeTracing();
-                mChat.Forward(decode_len, false, false);
-                endTimeTracing();
-                endEnergyTracing();
-                uADecodeList.add(getAvgCurrent());
-                powerDecodeList.add(getAvgPower());
-                timeDecodeList.add(getTime());
-
+                Bundle profile = mChat.Forward(this, prefill_len, decode_len);
+                uAPrefillList.add(profile.getInt("prefill_current"));
+                powerPrefillList.add(profile.getFloat("prefill_power"));
+                timePrefillList.add(profile.getFloat("prefill_time"));
+                uADecodeList.add(profile.getInt("decode_current"));
+                powerDecodeList.add(profile.getFloat("decode_power"));
+                timeDecodeList.add(profile.getFloat("decode_time"));
                 mChat.Reset();
             }
             prefill_token_speed = prefill_len / avgFloatArray(timePrefillList);
