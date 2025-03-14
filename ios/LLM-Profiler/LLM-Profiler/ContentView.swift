@@ -106,7 +106,7 @@ struct ContentView: View {
                         // Action for Button 1
                         print("Button 1 tapped")
                     }) {
-                        Text("加载模型")
+                        Text("Load Model")
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.purple).font(.headline)

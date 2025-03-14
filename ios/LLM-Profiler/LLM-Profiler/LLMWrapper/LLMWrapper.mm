@@ -22,9 +22,8 @@ using namespace MNN::Transformer;
     self = [super init];
     if (self) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            // BOOL success = [self loadModelFromPath:modelPath];
             // MARK: Test Local Model
-            BOOL success = [self loadModel];
+            BOOL success = [self loadModel:modelPath];
 
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion(success);
@@ -34,10 +33,9 @@ using namespace MNN::Transformer;
     return self;
 }
 
-- (BOOL)loadModel {
+- (BOOL)loadModel:(NSString *)modelPath {
     if (!llm) {
-        NSString *bundleDirectory = [[NSBundle mainBundle] bundlePath];
-        std::string model_dir = [bundleDirectory UTF8String];
+        std::string model_dir = [modelPath UTF8String];
         std::string config_path = model_dir + "/config.json";
         llm.reset(Llm::createLLM(config_path));
         NSString *tempDirectory = NSTemporaryDirectory();
