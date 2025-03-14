@@ -77,7 +77,7 @@ JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_Ready(JNIEnv *env, jobject th
     }
     return JNI_FALSE;
 }
-JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Trace(JNIEnv *env, jobject thiz) {
+JNIEXPORT void JNICALL Java_com_iot_audio_Chat_TraceNative(JNIEnv *env, jobject thiz) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Trace");
     if (!model->isReady()) {
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "model not ready!");
@@ -85,7 +85,7 @@ JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Trace(JNIEnv *env, jobject thiz) 
     }
     model->trace();
 }
-JNIEXPORT void JNICALL Java_com_iot_audio_Chat_tunePrefill(JNIEnv *env, jobject thiz) {
+JNIEXPORT void JNICALL Java_com_iot_audio_Chat_tunePrefillNative(JNIEnv *env, jobject thiz) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "tunePrefill");
     if (!model->isReady()) {
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "model not ready!");
@@ -94,7 +94,7 @@ JNIEXPORT void JNICALL Java_com_iot_audio_Chat_tunePrefill(JNIEnv *env, jobject 
     model->tunePrefill();
 }
 JNIEXPORT void JNICALL
-Java_com_iot_audio_Chat_startDecodeTune(JNIEnv *env, jobject thiz, jint tolerance) {
+Java_com_iot_audio_Chat_startDecodeTuneNative(JNIEnv *env, jobject thiz, jint tolerance) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "startDecodeTune");
     if (!model->isReady()) {
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "model not ready!");
@@ -104,7 +104,7 @@ Java_com_iot_audio_Chat_startDecodeTune(JNIEnv *env, jobject thiz, jint toleranc
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_iot_audio_Chat_endDecodeTune(JNIEnv *env, jobject thiz, jobject arrayList, jfloat energy,
+Java_com_iot_audio_Chat_endDecodeTuneNative(JNIEnv *env, jobject thiz, jobject arrayList, jfloat energy,
                                       jint tolerance) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Trace");
     if (!model->isReady()) {
@@ -132,7 +132,7 @@ Java_com_iot_audio_Chat_endDecodeTune(JNIEnv *env, jobject thiz, jobject arrayLi
 
 
 JNIEXPORT void JNICALL
-Java_com_iot_audio_Chat_Forward(JNIEnv *env, jobject thiz, jint length, jboolean is_prefill,
+Java_com_iot_audio_Chat_ForwardNative(JNIEnv *env, jobject thiz, jint length, jboolean is_prefill,
                                 jboolean is_first_prefill) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Forward");
     if (!model->isReady()) {
@@ -180,7 +180,7 @@ JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_DatasetResponse(JNIEnv *env, jobj
     return input_prompt.size();
 }
 
-JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_Response(JNIEnv *env, jobject thiz, jstring input, jboolean is_first_prefill) {
+JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_ResponseNative(JNIEnv *env, jobject thiz, jstring input, jboolean is_first_prefill) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Forward");
     if (!model->isReady()) {
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "model not ready!");
@@ -212,12 +212,12 @@ JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_Response(JNIEnv *env, jobject 
     return env->NewStringUTF(model->tokenizer_decode(outStr).c_str());
 }
 
-JNIEXPORT void JNICALL Java_com_iot_audio_Chat_Reset(JNIEnv *env, jobject thiz) {
+JNIEXPORT void JNICALL Java_com_iot_audio_Chat_ResetNative(JNIEnv *env, jobject thiz) {
     model->reset();
 }
 
 
-JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_StringTokenSize(JNIEnv *env, jobject thiz, jstring input) {
+JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_StringTokenSizeNative(JNIEnv *env, jobject thiz, jstring input) {
     return (jint)model->tokenizer_encode(std::string(env->GetStringUTFChars(input, 0)), false, false, "").size();
 }
 
