@@ -36,4 +36,15 @@ LLMWrapper* LLMWrapper::createWrapper(const char* model_dir,
                                    decode_cores,
                                    decode_tune_times);
     }
+    if (engine_name=="mllm") {
+        return new mllmWrapper(model_dir,
+                               backend_name,
+                               tmp_path,
+                               prefill_thread_num,
+                               decode_thread_num,
+                               prefill_power_mode,
+                               decode_power_mode,
+                               decode_cores,
+                               decode_tune_times);
+    }
 }
