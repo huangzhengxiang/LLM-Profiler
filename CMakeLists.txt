@@ -94,6 +94,8 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/mllm)
 
 # jni file
 file(GLOB SRCS "${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/*.cpp")
+# mllm forgotten files
+list(APPEND SRCS "mllm/src/tokenizers/Tiktoken/tiktoken.cpp")
 
 # compile dynamic so, support Linux/Mac
 add_library(iot SHARED ${SRCS})
