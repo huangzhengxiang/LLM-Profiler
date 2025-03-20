@@ -30,6 +30,7 @@
     <mapping directory="$PROJECT_DIR$/../executorch/third-party/prelude" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../executorch/third-party/pybind11" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../llama.cpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../llama.cpp/ggml/src/ggml-kompute/kompute" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../mlc-llm" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/argparse" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../mlc-llm/3rdparty/googletest" vcs="Git" />

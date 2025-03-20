@@ -90,7 +90,7 @@ include_directories(
 # add source directory
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/MNN)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/llama.cpp)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/mllm)
+# add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/mllm)
 
 # jni file
 file(GLOB SRCS "${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/*.cpp")
@@ -105,7 +105,7 @@ target_link_libraries(iot MNN_CL)
 # llama.cpp
 target_link_libraries(iot common llama ggml ggml-base ggml-cpu ${CMAKE_THREAD_LIBS_INIT})
 # mllm
-target_link_libraries(iot mllm_lib)
+# target_link_libraries(iot mllm_lib)
 
 set(LLM_LIBS "")
 # MNN

@@ -30,6 +30,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
 import android.graphics.Color;
+import android.content.pm.ActivityInfo;
+import android.os.Bundle;
+import android.provider.Settings;
+import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -87,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout FixedLengthTestLayout, DatasetTestLayout;
     private EditText prefillThreadNumTV, decodeThreadNumTV, decodeCorePlanInputTV,  prefillLenTV, decodeLenTV;
     private EditText tuneTimesTV, toleranceTV;
-    private TextView prefillSpeedTV, prefillBatteryTV, prefillEnergyTV, decodeSpeedTV, decodeBatteryTV, decodeEnergyTV, statusTV, decodeCorePlanTV;
+    private TextView avgPrefillLenTV,avgDecodeLenTV,prefillSpeedTV, prefillBatteryTV, prefillEnergyTV, decodeSpeedTV, decodeBatteryTV, decodeEnergyTV, statusTV, decodeCorePlanTV;
     private Button mLoadButton, testButton, continueButton;
     private Handler mHandler;
     // view end>
@@ -104,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
     // <model profiling config begin
     private int prefill_len = 100;
     private int decode_len = 200;
+    private float average_prefill_len = -1f;// tok
+    private float average_decode_len = -1f;// tok
     private float prefill_token_speed = -1f; // tok/s
     private float decode_token_speed = -1f; // tok/s
     private float prefill_capacity = -1f; // uAh/tok
@@ -207,9 +213,11 @@ public class MainActivity extends AppCompatActivity {
         mDecodePowerSelectSpinner = findViewById(R.id.DecodePowerMode);
         mLoadButton = findViewById(R.id.load_button);
         statusTV = findViewById(R.id.idTVstatus);
+        avgPrefillLenTV = findViewById(R.id.AvgPrefillLength);
         prefillSpeedTV = findViewById(R.id.PrefillSpeed);
         prefillBatteryTV = findViewById(R.id.PrefillCapacity);
         prefillEnergyTV = findViewById(R.id.PrefillEnergy);
+        avgDecodeLenTV = findViewById(R.id.AvgDecodeLength);
         decodeSpeedTV = findViewById(R.id.DecodeSpeed);
         decodeBatteryTV = findViewById(R.id.DecodeCapacity);
         decodeEnergyTV = findViewById(R.id.DecodeEnergy);
@@ -227,6 +235,8 @@ public class MainActivity extends AppCompatActivity {
         decodeLenTV = findViewById(R.id.decodeLen);
         decodeCorePlanTV = findViewById(R.id.DecodeCorePlanDisplay);
         continueButton = findViewById(R.id.Continue);
+        avgPrefillLenTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        avgDecodeLenTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         prefillSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         prefillEnergyTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         decodeSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
@@ -258,9 +268,11 @@ public class MainActivity extends AppCompatActivity {
                 if (message.getData().getString("call").equals("FixedLengthTestRun")) {
                     testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
                     testButton.setClickable(true);
+                    avgPrefillLenTV.setText(String.format("average prefill length:\n %.4f tok", message.getData().getFloat("average_prefill_len")));
                     prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", message.getData().getFloat("prefill_token_speed")));
                     prefillBatteryTV.setText(String.format("prefill battery use:\n %.4f uAh/tok", message.getData().getFloat("prefill_capacity")));
                     prefillEnergyTV.setText(String.format("prefill energy:\n %.4f mJ/tok", message.getData().getFloat("prefill_energy")));
+                    avgDecodeLenTV.setText(String.format("average decode length:\n %.4f tok", message.getData().getFloat("average_decode_len")));
                     decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
                     decodeBatteryTV.setText(String.format("decode battery use:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
                     decodeEnergyTV.setText(String.format("decode energy:\n %.4f mJ/tok", message.getData().getFloat("decode_energy")));
@@ -273,9 +285,11 @@ public class MainActivity extends AppCompatActivity {
                             continueButton.setClickable(false);
                         } else if (message.getData().getString("action").equals("Finished")) {
                             testButton.setClickable(true);
+                            avgPrefillLenTV.setText(String.format("average prefill length:\n %.4f tok", message.getData().getFloat("average_prefill_len")));
                             prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", message.getData().getFloat("prefill_token_speed")));
                             prefillBatteryTV.setText(String.format("prefill battery use:\n %.4f uAh/tok", message.getData().getFloat("prefill_capacity")));
                             prefillEnergyTV.setText(String.format("prefill energy:\n %.4f mJ/tok", message.getData().getFloat("prefill_energy")));
+                            avgDecodeLenTV.setText(String.format("average decode length:\n %.4f tok", message.getData().getFloat("average_decode_len")));
                             decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
                             decodeBatteryTV.setText(String.format("decode battery use:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
                             decodeEnergyTV.setText(String.format("decode energy:\n %.4f mJ/tok", message.getData().getFloat("decode_energy")));
@@ -643,6 +657,9 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<Float> timeDecodeList = new ArrayList<Float>(); // in s
             ArrayList<Float> powerPrefillList = new ArrayList<Float>(); // in mW
             ArrayList<Float> powerDecodeList = new ArrayList<Float>(); // in mW
+            ArrayList<Integer> prefillLenList = new ArrayList<Integer>(); // 用于存储 prefill_len
+            ArrayList<Integer> decodeLenList = new ArrayList<Integer>();  // 用于存储 decode_len
+
             for (int i=0; i<test_size; ++i) {
                 // check temperature and charge before test, wait til condition fulfilled.
                 Log.i("Charge", String.format("Charge Level: %d", getChargeLevel()));
@@ -732,6 +749,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
+                    prefillLenList.add(prefill_tokens);
+                    decodeLenList.add(decode_tokens);
                     timePrefillList.add(prefill_time/prefill_tokens);
                     timeDecodeList.add(decode_time/decode_tokens);
                     uAPrefillList.add(prefill_capacity);
@@ -756,18 +775,22 @@ public class MainActivity extends AppCompatActivity {
             mChat.resetDataset();
             message=new Message();
             bundle=new Bundle();
+            average_prefill_len = avgIntArray(prefillLenList);
+            average_decode_len = avgIntArray(decodeLenList);
             prefill_token_speed = 1 / avgFloatArray(timePrefillList);
             decode_token_speed = 1 / avgFloatArray(timeDecodeList);
-            prefill_capacity = -getAvgCapacityInuAh(uAPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
-            decode_capacity = -getAvgCapacityInuAh(uADecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
-            prefill_energy = -getAvgEnergyInmJ(powerPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
-            decode_energy = -getAvgEnergyInmJ(powerDecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
+            prefill_capacity = getAvgCapacityInuAh(uAPrefillList, timePrefillList);
+            decode_capacity = getAvgCapacityInuAh(uADecodeList, timeDecodeList);
+            prefill_energy = getAvgEnergyInmJ(powerPrefillList, timePrefillList);
+            decode_energy = getAvgEnergyInmJ(powerDecodeList, timeDecodeList);
+            bundle.putFloat("average_prefill_len", average_prefill_len);
+            bundle.putFloat("average_decode_len", average_decode_len);
             bundle.putFloat("prefill_token_speed", prefill_token_speed);
-            bundle.putFloat("prefill_capacity", prefill_capacity);
-            bundle.putFloat("prefill_energy", prefill_energy);
+            bundle.putFloat("prefill_capacity", (prefill_capacity));
+            bundle.putFloat("prefill_energy", (prefill_energy));
             bundle.putFloat("decode_token_speed", decode_token_speed);
-            bundle.putFloat("decode_capacity", decode_capacity);
-            bundle.putFloat("decode_energy", decode_energy);
+            bundle.putFloat("decode_capacity", (decode_capacity));
+            bundle.putFloat("decode_energy", (decode_energy));
             bundle.putString("action", "Finished");
             bundle.putString("message", "Test Finished!");
             bundle.putString("call", "DatasetTestRun");
@@ -815,6 +838,8 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             // tracing
+            ArrayList<Integer> prefillLen = new ArrayList<Integer>();
+            ArrayList<Integer> decodeLen = new ArrayList<Integer>();
             ArrayList<Integer> uAPrefillList = new ArrayList<Integer>(); // in uA
             ArrayList<Integer> uADecodeList = new ArrayList<Integer>(); // in uA
             ArrayList<Float> timePrefillList = new ArrayList<Float>(); // in s
@@ -823,34 +848,42 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<Float> powerDecodeList = new ArrayList<Float>(); // in mW
             for (int i = 0; i < test_times; ++i) {
                 Bundle profile = mChat.Forward(this, prefill_len, decode_len);
+                prefillLen.add(profile.getInt("prefill_len"));
                 uAPrefillList.add(profile.getInt("prefill_current"));
                 powerPrefillList.add(profile.getFloat("prefill_power"));
                 timePrefillList.add(profile.getFloat("prefill_time"));
+                decodeLen.add(profile.getInt("decode_len"));
                 uADecodeList.add(profile.getInt("decode_current"));
                 powerDecodeList.add(profile.getFloat("decode_power"));
                 timeDecodeList.add(profile.getFloat("decode_time"));
                 mChat.Reset();
             }
+            average_prefill_len = avgIntArray(prefillLen);
+            average_decode_len = avgIntArray(decodeLen);
             prefill_token_speed = prefill_len / avgFloatArray(timePrefillList);
             decode_token_speed = decode_len / avgFloatArray(timeDecodeList);
-            prefill_capacity = -getAvgCapacityInuAh(uAPrefillList, timePrefillList) / prefill_len; // negate it, because it's doomed to be negative.
-            decode_capacity = -getAvgCapacityInuAh(uADecodeList, timeDecodeList) / decode_len; // negate it, because it's doomed to be negative.
-            prefill_energy = -getAvgEnergyInmJ(powerPrefillList, timePrefillList) / prefill_len; // negate it, because it's doomed to be negative.
-            decode_energy = -getAvgEnergyInmJ(powerDecodeList, timeDecodeList) / decode_len; // negate it, because it's doomed to be negative.
+            prefill_capacity = getAvgCapacityInuAh(uAPrefillList, timePrefillList) / prefill_len;
+            decode_capacity = getAvgCapacityInuAh(uADecodeList, timeDecodeList) / decode_len;
+            prefill_energy = getAvgEnergyInmJ(powerPrefillList, timePrefillList) / prefill_len;
+            decode_energy = getAvgEnergyInmJ(powerDecodeList, timeDecodeList) / decode_len;
+            Log.i("prefill", String.format("average prefill length: %.4f tok", average_prefill_len));
             Log.i("prefill", String.format("prefill speed: %.4f tok/s", prefill_token_speed));
             Log.i("prefill", String.format("prefill battery use: %.4f uAh/tok", prefill_capacity));
             Log.i("prefill", String.format("prefill energy: %.4f mJ/tok", prefill_energy));
+            Log.i("decode", String.format("average decode length: %.4f tok", average_decode_len));
             Log.i("decode", String.format("decode speed: %.4f tok/s", decode_token_speed));
             Log.i("decode", String.format("decode battery use: %.4f uAh/tok", decode_capacity));
             Log.i("decode", String.format("decode energy: %.4f mJ/tok", decode_energy));
             Message message=new Message();
             Bundle data=new Bundle();
+            data.putFloat("average_prefill_len", average_prefill_len);
+            data.putFloat("average_decode_len", average_decode_len);
             data.putFloat("prefill_token_speed", prefill_token_speed);
-            data.putFloat("prefill_capacity", prefill_capacity);
-            data.putFloat("prefill_energy", prefill_energy);
+            data.putFloat("prefill_capacity", (prefill_capacity));
+            data.putFloat("prefill_energy", (prefill_energy));
             data.putFloat("decode_token_speed", decode_token_speed);
-            data.putFloat("decode_capacity", decode_capacity);
-            data.putFloat("decode_energy", decode_energy);
+            data.putFloat("decode_capacity", (decode_capacity));
+            data.putFloat("decode_energy", (decode_energy));
             data.putString("call", "FixedLengthTestRun");
             message.setData(data);
             mHandler.sendMessage(message);

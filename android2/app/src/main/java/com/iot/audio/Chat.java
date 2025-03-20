@@ -108,6 +108,7 @@ public class Chat implements Serializable {
             activity.startTracing();
             ForwardNative(prefill_length, true, true);
             activity.endTracing();
+            data.putInt("prefill_len", prefill_length);
             data.putInt("prefill_current", activity.getAvgCurrent());
             data.putFloat("prefill_power", activity.getAvgPower());
             data.putFloat("prefill_time", activity.getTime());
@@ -115,6 +116,7 @@ public class Chat implements Serializable {
             activity.startTracing();
             ForwardNative(decode_length, false, false);
             activity.endTracing();
+            data.putInt("decode_len", decode_length);
             data.putInt("decode_current", activity.getAvgCurrent());
             data.putFloat("decode_power", activity.getAvgPower());
             data.putFloat("decode_time", activity.getTime());

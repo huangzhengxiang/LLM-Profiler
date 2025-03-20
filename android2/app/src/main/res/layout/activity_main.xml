@@ -397,7 +397,33 @@
             android:layout_gravity="center"
             android:orientation="horizontal"
             android:padding="8dp"
-            android:weightSum="2">
+            android:weightSum="4">
+
+            <!-- TextView 用于显示 avg_prefill_length -->
+            <TextView
+                android:id="@+id/AvgPrefillLength"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="avg prefill len:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+            <!-- TextView 用于显示 avg_decode_length -->
+            <TextView
+                android:id="@+id/AvgDecodeLength"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="avg decode len:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
 
             <TextView
                 android:id="@+id/PrefillEnergy"

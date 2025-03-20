@@ -56,7 +56,10 @@ public class JavaLLMWrapper implements Serializable {
             if (mediaPipeWrapper.decodedTokens()<decode_length) {
                 Log.i("Mediapipe Warning", String.format("Warning: decode only %d tokens", mediaPipeWrapper.decodedTokens()));
             }
-            return mediaPipeWrapper.getTestProfile();
+            Bundle data = mediaPipeWrapper.getTestProfile();
+            data.putInt("prefill_len", prefill_length);
+            data.putInt("decode_len", mediaPipeWrapper.decodedTokens());
+            return data;
         }
         return null;
     }
