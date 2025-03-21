@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
+    // Chat
+    @StateObject private var chat = Chat()
+    
     // State variables for dropdown selections
     @State private var engineSelector = "select engine"
     @State private var modelSelector = "select model"
@@ -20,17 +23,17 @@ struct ContentView: View {
     @State private var textField2 = ""
     @State private var textField3 = ""
     @State private var textField4 = ""
-    
     @State private var modelOptions: [String] = [] // List of files and directories
     
     let engineOptions = ["select engine", "MNN", "llama.cpp", "mediapipe", "mllm", "executorch"]
-    
-    let backendOptions = ["select backend", "CPU", "GPU", "NPU"]
-    
+    let backendOptions = ["select backend", "CPU", "GPU", "NPU"]  
     let prefillPowerOptions = ["prefill power", "(default)", "normal", "high", "memory", "tune_prefill", "exhaustive"]
-
     let decodePowerOptions = ["decode power", "(default)", "normal", "high", "memory", "tune_prefill", "exhaustive"]
     
+    // Text displays
+    @State private var statusText: String = "Status"
+    @State private var warningText: String = "Warning"
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -40,14 +43,14 @@ struct ContentView: View {
                 Rectangle().fill(Color.black).frame(height:  1).padding(.vertical, 5)
                 
                 // Dropdown Selection Boxes
-                Picker("Select Option 1", selection: $engineSelector) {
+                Picker("Select Engine", selection: $engineSelector) {
                     ForEach(engineOptions, id: \.self) {
                         Text($0)
                     }
                 }
                 .pickerStyle(.menu).frame(maxWidth: .infinity).padding(.horizontal, 20)
                 
-                Picker("Select Option 2", selection: $modelSelector) {
+                Picker("Select Model", selection: $modelSelector) {
                     ForEach(modelOptions, id: \.self) {
                         Text($0)
                     }
@@ -56,7 +59,7 @@ struct ContentView: View {
                     populateModels()
                 }
                 
-                Picker("Select Option 3", selection: $backendSelector) {
+                Picker("Select Backend", selection: $backendSelector) {
                     ForEach(backendOptions, id: \.self) {
                         Text($0)
                     }
@@ -73,14 +76,14 @@ struct ContentView: View {
                 }
                 
                 HStack {
-                    Picker("Select Option 2", selection: $prefillPowerMode) {
+                    Picker("Select Prefill Power", selection: $prefillPowerMode) {
                         ForEach(prefillPowerOptions, id: \.self) {
                             Text($0)
                         }
                     }
                     .pickerStyle(.menu).frame(maxWidth: .infinity)
                     
-                    Picker("Select Option 3", selection: $decodePowerMode) {
+                    Picker("Select Decode Power", selection: $decodePowerMode) {
                         ForEach(decodePowerOptions
                                 , id: \.self) {
                             Text($0)
@@ -104,7 +107,8 @@ struct ContentView: View {
                     // Buttons
                     Button(action: {
                         // Action for Button 1
-                        print("Button 1 tapped")
+                        print("LoadModel tapped")
+                        loadModel();
                     }) {
                         Text("Load Model")
                             .frame(maxWidth: .infinity)
@@ -126,19 +130,40 @@ struct ContentView: View {
                             .cornerRadius(10)
                     }
                 }
+
+                Text(statusText).frame(maxWidth: .infinity).padding(.horizontal, 10)
+
+                Text(warningText).frame(maxWidth: .infinity).padding(.horizontal, 10)
             }
             .padding()
         }
         .navigationTitle("Scrollable Form")
+    }
+
+    func setStatus(text: String) {
+        statusText = "Status: " + text;
+    }
+
+    func setWarning(text: String) {
+        warningText = "Warning: " + text;
+    }
+
+    func loadModel() {
+        // Get the main bundle's resource path
+        if let resourcePath = Bundle.main.resourcePath {
+            let localModelPath = URL(fileURLWithPath: resourcePath).appendingPathComponent("LocalModel").appendingPathComponent(modelSelector).path()
+            // Call setupLLM on the chat instance
+            chat.setupLLM(modelPath: localModelPath, completion: setStatus)
+        } else {
+            print("Resource path not found")
+        }
     }
     
 
     func populateModels() {
         // Get the main bundle's resource path
         if let resourcePath = Bundle.main.resourcePath {
-            
             let localModelPath = URL(fileURLWithPath: resourcePath).appendingPathComponent("LocalModel").path
-            
             do {
                 // Get the contents of the directory
                 let contents = try FileManager.default.contentsOfDirectory(atPath: localModelPath)
