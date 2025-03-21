@@ -18,7 +18,7 @@
 - [x] [llama.cpp](https://github.com/ggml-org/llama.cpp/tree/73e2ed3ce3492d3ed70193dd09ae8aa44779651d) (Version b4735) (Android: CPU) (iOS: CPU)
 - [x] [mllm](https://github.com/UbiquitousLearning/mllm/tree/bbf87ffb8cb47860cdc2118c06ccad5b4ab84227) (hash bbf87ff) (Android: CPU/NPU-QNN-Htp)
 - [x] [MediaPipe](https://github.com/google-ai-edge/mediapipe-samples) (Version 0.10.20) (Android: CPU-XNNPack/GPU-OpenCL) (iOS: )
-- [ ] [executorch]() (Version ) (Android: CPU-XNNPack/NPU-QNN-Htp/NPU-MTK) (iOS: )
+- [x] [executorch](https://github.com/pytorch/executorch/tree/e433e6100700fb42e315b889f6fa7983390733a4) (Version 0.5.0) (Android: CPU-XNNPack/NPU-QNN-Htp/NPU-MTK) (iOS: )
 - [ ] [MLC-LLM](https://github.com/mlc-ai/mlc-llm/tree/b636b2ac5e0c8bac6cf2a5427c3380fff856447e) (Version v0.19.0) (Android: GPU-OpenCL) (iOS: )
  
 *Currently Supported Metrics*:
@@ -81,11 +81,19 @@ Then, heterogeneity-aware backend selection and tuning (Habst algorithm) is adde
 
 llama.cpp is added at commit: 73e2ed3ce3492d3ed70193dd09ae8aa44779651d (Version b4735), being the submodule.
 
-Then, open project in `Android Studio` and build.
+First, execute build script for executorch build.
+```bash
+export ANDROID_NDK=<path-to-your-ndk>
+sh build_executorch.sh
+```
 
+Then, open project in `Android Studio` and build the app.
+compiler dependencies:
 - gradle-8.9
 - JDK: corretto-18
 - ndk version: 27.0.12077973
+
+(`dataset/` and `wrapper/` resides under the root, so that both android and iOS can utilize.)
 
 ### 4. Multi-Threading Options for MNN-Habst
 Internal: `Power_Normal`, `Power_High`, `Power_MemoryBound`, `Power_SelectCore`. ("normal", "high", "memory", "select")

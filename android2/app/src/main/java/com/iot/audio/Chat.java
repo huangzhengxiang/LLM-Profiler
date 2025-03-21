@@ -46,6 +46,15 @@ public class Chat implements Serializable {
             // merge such reinit into Forward.
             return true;
         } else {
+            if (engineName.equals("MNN")) {
+                System.loadLibrary("mnn_jni");
+            } else if (engineName.equals("llama.cpp")) {
+                System.loadLibrary("llama_cpp_jni");
+            } else if (engineName.equals("mllm")) {
+                System.loadLibrary("mllm_jni");
+            } else if (engineName.equals("executorch")) {
+                System.loadLibrary("et_jni");
+            }
             // the rests goes to native init
             return InitNative(engineName,
                     modelDir,
@@ -157,8 +166,4 @@ public class Chat implements Serializable {
         }
     }
     public native String ResponseNative(String input, boolean is_first_prefill);
-
-    static {
-        System.loadLibrary("iot");
-    }
 }

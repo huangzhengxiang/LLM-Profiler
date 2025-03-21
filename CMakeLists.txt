@@ -62,6 +62,8 @@ set(MLLM_BUILD_XNNPACK_BACKEND OFF CACHE BOOL "Close mllm xnnpack, use its own o
 
 # include dir
 include_directories(
+                    ${CMAKE_CURRENT_LIST_DIR}/dataset/include
+                    ${CMAKE_CURRENT_LIST_DIR}/wrapper/include
                     # llama.cpp include
                     ${CMAKE_CURRENT_LIST_DIR}/llama.cpp/ggml/include
                     ${CMAKE_CURRENT_LIST_DIR}/llama.cpp/include
@@ -87,44 +89,57 @@ include_directories(
     ${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/include/
     )
 
-# add source directory
+# add dataset wrapper
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/dataset)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/wrapper)
+
+# add engine source directory
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/MNN)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/llama.cpp)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/mllm)
+# add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/mllm)
 
 # jni file
 file(GLOB SRCS "${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/*.cpp")
 # mllm forgotten files
-list(APPEND SRCS "mllm/src/tokenizers/Tiktoken/tiktoken.cpp")
+# list(APPEND SRCS "mllm/src/tokenizers/Tiktoken/tiktoken.cpp")
 
 # compile dynamic so, support Linux/Mac
-add_library(iot SHARED ${SRCS})
-set_target_properties(iot PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-target_link_libraries(iot MNN MNN_Express)
-target_link_libraries(iot MNNOpenCV)
-target_link_libraries(iot llm)
-target_link_libraries(iot MNN_CL)
+add_library(mnn_jni SHARED ${SRCS})
+target_link_libraries(mnn_jni dataset mnn_wrapper)
 # llama.cpp
-target_link_libraries(iot common llama ggml ggml-base ggml-cpu ${CMAKE_THREAD_LIBS_INIT})
+add_library(llama_cpp_jni SHARED ${SRCS})
+target_link_libraries(llama_cpp_jni dataset llama_cpp_wrapper)
 # mllm
-target_link_libraries(iot mllm_lib)
+# add_library(mllm_jni SHARED ${SRCS})
+# target_link_libraries(mllm_jni dataset mllm_wrapper)
+# executorch
+add_library(et_jni SHARED ${SRCS})
+target_link_libraries(et_jni dataset et_wrapper)
+
 
 set(LLM_LIBS "")
+list(APPEND LLM_LIBS $<TARGET_FILE:dataset>)
 # MNN
 list(APPEND LLM_LIBS $<TARGET_FILE:MNN>)
 list(APPEND LLM_LIBS $<TARGET_FILE:MNN_Express>)
 list(APPEND LLM_LIBS $<TARGET_FILE:MNNOpenCV>)
 list(APPEND LLM_LIBS $<TARGET_FILE:MNN_CL>)
 list(APPEND LLM_LIBS $<TARGET_FILE:MNNAudio>)
+list(APPEND LLM_LIBS $<TARGET_FILE:mnn_wrapper>)
 # llama.cpp
 list(APPEND LLM_LIBS $<TARGET_FILE:llm>)
 list(APPEND LLM_LIBS $<TARGET_FILE:llama>)
 list(APPEND LLM_LIBS $<TARGET_FILE:ggml>)
 list(APPEND LLM_LIBS $<TARGET_FILE:ggml-base>)
 list(APPEND LLM_LIBS $<TARGET_FILE:ggml-cpu>)
+list(APPEND LLM_LIBS $<TARGET_FILE:llama_cpp_wrapper>)
 # mllm
+# list(APPEND LLM_LIBS $<TARGET_FILE:mllm_wrapper>)
+# executorch
+list(APPEND LLM_LIBS $<TARGET_FILE:et_wrapper>)
 
-add_custom_command(TARGET iot POST_BUILD
+# after the last one finished
+add_custom_command(TARGET et_jni POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
             ${LLM_LIBS}
             ${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/libs/arm64-v8a)
