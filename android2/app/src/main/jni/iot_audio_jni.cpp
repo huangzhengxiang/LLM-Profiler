@@ -55,6 +55,7 @@ JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_InitNative(JNIEnv *env, jobje
     if (prefill_power_mode == "tune_prefill") prefill_power_mode = "high";
     if (prefill_power_mode == "(default)") prefill_power_mode = "";
     if (decode_power_mode == "(default)") decode_power_mode = "";
+    __android_log_print(ANDROID_LOG_INFO, "MNN_DEBUG", "Loading engine: %s\n", engine_name.c_str());
     model.reset(LLMWrapper::createWrapper(model_dir,
                                           backend_name,
                                           tmp_path,

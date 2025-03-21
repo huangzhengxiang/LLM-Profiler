@@ -355,6 +355,14 @@ public class MainActivity extends AppCompatActivity {
                 statusTV.setText(String.format("Not support mllm+%s, use CPU", mBackendName));
             }
         }
+        if (mEngineName.equals("executorch")) {
+            if (mBackendName.equals("CPU")) {
+                mBackend = "cpu";
+            } else {
+                mBackend = "cpu";
+                statusTV.setText(String.format("Not support executorch+%s, use CPU", mBackendName));
+            }
+        }
     }
 
     public void loadModel(View view) {

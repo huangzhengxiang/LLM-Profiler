@@ -85,12 +85,12 @@ ETWrapper::ETWrapper(const char* model_dir,
                         {kUseKVCache, true},
                         {kUseSDPAWithKVCache, false},
                      }) {
-    module_ = std::make_unique<Module>(std::string(model_dir) + "model.pte", Module::LoadMode::File);
+    module_ = std::make_unique<Module>(std::string(model_dir) + "/model.pte", Module::LoadMode::File);
     module_->load_method("forward");
     // load tokenizer. Assuming tiktoken is the default tokenizer
     tokenizer_ = nullptr;
     tokenizer_ = example::get_tiktoken_for_llama();
-    tokenizer_->load(std::string(model_dir) + "tokenizer.bin");
+    tokenizer_->load(std::string(model_dir) + "/tokenizer.bin");
 
     metadata_[kBosId] = tokenizer_->bos_tok();
     eos_ids = std::make_unique<std::unordered_set<uint64_t>>(std::unordered_set<uint64_t>{tokenizer_->eos_tok()});
@@ -122,15 +122,15 @@ ETWrapper::ETWrapper(const char* model_dir,
     }
 
     // runners
-    text_prefiller_ = std::make_unique<llm::TextPrefiller>(
-        text_decoder_runner_.get(),
-        metadata_.at(kUseKVCache),
-        metadata_.at(kEnableDynamicShape));
     text_decoder_runner_ = std::make_unique<llm::TextDecoderRunner>(
         module_.get(),
         metadata_.at(kUseKVCache),
         metadata_.at(kVocabSize),
         0.8f); // temperature 0.8f
+    text_prefiller_ = std::make_unique<llm::TextPrefiller>(
+        text_decoder_runner_.get(),
+        metadata_.at(kUseKVCache),
+        metadata_.at(kEnableDynamicShape));
 }
 bool ETWrapper::isReady() {
     return (module_->is_loaded() && tokenizer_ && text_decoder_runner_ && text_prefiller_);

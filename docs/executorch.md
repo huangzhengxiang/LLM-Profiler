@@ -6,14 +6,14 @@ executorch/examples/demo-apps/android/LlamaDemo/docs/delegates/xnnpack_README.md
 executorch/examples/demo-apps/android/LlamaDemo/docs/delegates/mediatek_README.md
 executorch/examples/demo-apps/android/LlamaDemo/docs/delegates/qualcomm_README.md
 
-### Install executorch
+### 1. Install executorch
 `executorch` for model conversion can only be installed on computer with Nvidia GPU. For buck2 file watcher issue: https://stackoverflow.com/questions/53930305/nodemon-error-system-limit-for-number-of-file-watchers-reached/
 ```bash
 conda create -n executorch python=3.10
 ./install_executorch.sh --pybind xnnpack
 ```
 
-### Get models
+### 2. Get models
 You can request and download model weights for Llama through Meta official [website](https://llama.meta.com/).
 
 Download `Llama-3.2-1B-Instruct-SpinQuant_INT4_EO8` and `Llama-3.2-3B-Instruct-SpinQuant_INT4_EO8` and optionally `Llama-3.2-1B-Instruct` and `Llama-3.2-3B-Instruct` with their instructions.
@@ -26,7 +26,7 @@ mv ~/.llama/checkpoints/Llama3.2-1B-Instruct executorch/.model
 mv ~/.llama/checkpoints/Llama3.2-3B-Instruct executorch/.model
 ```
 
-### convert model with our scripts
+### 3. Convert model with our scripts
 Convert downloaded pre-quantized model to pte file.
 ```bash
 cd executorch
@@ -41,7 +41,7 @@ python -m examples.models.llama.export_llama --model "llama3_2" --checkpoint .mo
 python -m examples.models.llama.export_llama --model "llama3_2" --checkpoint .model/Llama3.2-3B-Instruct/consolidated.00.pth --params .model/Llama3.2-3B-Instruct/params.json -kv --use_sdpa_with_kv_cache -X -d fp32 --xnnpack-extended-ops --pt2e_quantize xnnpack_dynamic_qc4 --embedding-quantize 8,0 --max_seq_length 2048 --max_context_length 2048 --metadata '{"get_bos_id":128000, "get_eos_ids":[128009, 128001]}' --output-dir .model/ --output_name "llama3_2-3b-Q4.pte"
 ``` 
 
-### compilation for XNNPack
+### 4. Test compilation for XNNPack
 test build and test run
 ```bash
 conda activate executorch
