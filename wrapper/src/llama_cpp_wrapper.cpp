@@ -70,7 +70,7 @@ llamacppWrapper::llamacppWrapper(const char* model_dir,
     llama_model * model = llm.model.get();
     llama_context * ctx = llm.context.get();
     const llama_vocab * vocab = llama_model_get_vocab(model);
-    auto chat_templates = common_chat_templates_from_model(model, params.chat_template);
+    chat_templates = common_chat_templates_from_model(model, params.chat_template);
     const int n_ctx_train = llama_model_n_ctx_train(model);
     const int n_ctx = llama_n_ctx(ctx);
     const bool has_chat_template = chat_templates.has_explicit_template && chat_templates.template_default;

@@ -117,31 +117,49 @@ add_library(et_jni SHARED ${SRCS})
 target_link_libraries(et_jni dataset et_wrapper)
 
 
-set(LLM_LIBS "")
-list(APPEND LLM_LIBS $<TARGET_FILE:dataset>)
+set(MNN_LLM_LIBS "")
+set(LLAMA_CPP_LLM_LIBS "")
+# set(MLLM_LLM_LIBS "")
+set(ET_LLM_LIBS "")
+list(APPEND MNN_LLM_LIBS $<TARGET_FILE:dataset>)
+list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:dataset>)
+# list(APPEND MLLM_LLM_LIBS $<TARGET_FILE:dataset>)
+list(APPEND ET_LLM_LIBS $<TARGET_FILE:dataset>)
 # MNN
-list(APPEND LLM_LIBS $<TARGET_FILE:MNN>)
-list(APPEND LLM_LIBS $<TARGET_FILE:MNN_Express>)
-list(APPEND LLM_LIBS $<TARGET_FILE:MNNOpenCV>)
-list(APPEND LLM_LIBS $<TARGET_FILE:MNN_CL>)
-list(APPEND LLM_LIBS $<TARGET_FILE:MNNAudio>)
-list(APPEND LLM_LIBS $<TARGET_FILE:mnn_wrapper>)
+list(APPEND MNN_LLM_LIBS $<TARGET_FILE:MNN>)
+list(APPEND MNN_LLM_LIBS $<TARGET_FILE:MNN_Express>)
+list(APPEND MNN_LLM_LIBS $<TARGET_FILE:MNNOpenCV>)
+list(APPEND MNN_LLM_LIBS $<TARGET_FILE:MNN_CL>)
+list(APPEND MNN_LLM_LIBS $<TARGET_FILE:MNNAudio>)
+list(APPEND MNN_LLM_LIBS $<TARGET_FILE:mnn_wrapper>)
 # llama.cpp
-list(APPEND LLM_LIBS $<TARGET_FILE:llm>)
-list(APPEND LLM_LIBS $<TARGET_FILE:llama>)
-list(APPEND LLM_LIBS $<TARGET_FILE:ggml>)
-list(APPEND LLM_LIBS $<TARGET_FILE:ggml-base>)
-list(APPEND LLM_LIBS $<TARGET_FILE:ggml-cpu>)
-list(APPEND LLM_LIBS $<TARGET_FILE:llama_cpp_wrapper>)
+list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:llm>)
+list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:llama>)
+list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:ggml>)
+list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:ggml-base>)
+list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:ggml-cpu>)
+list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:llama_cpp_wrapper>)
 # mllm
-# list(APPEND LLM_LIBS $<TARGET_FILE:mllm_wrapper>)
+# list(APPEND MLLM_LLM_LIBS $<TARGET_FILE:mllm_wrapper>)
 # executorch
-list(APPEND LLM_LIBS $<TARGET_FILE:et_wrapper>)
+list(APPEND ET_LLM_LIBS $<TARGET_FILE:et_wrapper>)
 
 # after the last one finished
+add_custom_command(TARGET mnn_jni POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${MNN_LLM_LIBS}
+            ${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/libs/arm64-v8a)
+add_custom_command(TARGET llama_cpp_jni POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${LLAMA_CPP_LLM_LIBS}
+            ${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/libs/arm64-v8a)
+# add_custom_command(TARGET mllm_jni POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy
+#             ${MLLM_LLM_LIBS}
+#             ${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/libs/arm64-v8a)
 add_custom_command(TARGET et_jni POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-            ${LLM_LIBS}
+            ${ET_LLM_LIBS}
             ${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/libs/arm64-v8a)
 endif()
 
