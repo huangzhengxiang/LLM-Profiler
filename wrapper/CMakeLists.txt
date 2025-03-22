@@ -20,3 +20,15 @@ target_link_libraries(mnn_wrapper MNN_CL)
 target_link_libraries(llama_cpp_wrapper common llama ggml ggml-base ggml-cpu ${CMAKE_THREAD_LIBS_INIT})
 # mllm
 # target_link_libraries(mllm_wrapper mllm_lib)
+
+if (BUILD_IOS)
+set_target_properties(mnn_wrapper PROPERTIES FRAMEWORK TRUE)
+set_target_properties(mnn_wrapper PROPERTIES
+    MACOSX_FRAMEWORK_IDENTIFIER com.hzx.llm
+    MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${PACKAGE_VERSION}
+    MACOSX_FRAMEWORK_BUNDLE_VERSION ${PACKAGE_VERSION}
+    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+)
+set_target_properties(MNN PROPERTIES MACOSX_FRAMEWORK_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/MNN/project/ios/MNN/Info.plist)
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_LIST_DIR}/include/llm_wrapper.h PROPERTIES MACOSX_PACKAGE_LOCATION Headers/)
+endif()

@@ -168,4 +168,7 @@ if(BUILD_IOS)
 # add source directory
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/MNN)
 
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/dataset)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/wrapper)
+
 endif()
