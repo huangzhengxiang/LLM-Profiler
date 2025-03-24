@@ -10,9 +10,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^CompletionHandler)(BOOL success);
 
-@interface LLMWrapper : NSObject
+@interface SwiftLLMWrapper : NSObject
 
-- (instancetype)initWithModelPath:(NSString *)modelPath completion:(CompletionHandler)completion;
+- (instancetype)initEngine:(NSString *)engineName modelPath:(NSString *)modelPath backendName:(NSString *)backendName tmpFile:(NSString *)tmpFile prefillThreadNum:(NSString *)prefillThreadNum decodeThreadNum:(NSString *)decodeThreadNum prefillPowerMode:(NSString *)prefillPowerMode decodePowerMode:(NSString *)decodePowerMode decodeCorePlan:(NSString *)decodeCorePlan tuneTimes:(NSString *)tuneTimes completion:(CompletionHandler)completion;
 
 // - (void)processInput:(NSString *)input withOutput:(OutputHandler)output;
 

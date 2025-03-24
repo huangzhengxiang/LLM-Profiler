@@ -5,20 +5,14 @@
 #ifndef LLM_WRAPPER_H
 #define LLM_WRAPPER_H
 
-// Android headers
-#include <android/asset_manager_jni.h>
-#include <android/bitmap.h>
-#include <android/log.h>
-
 // system headers
-#include <jni.h>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <thread>
 
-
-class LLMWrapper {
+// only need to support Android & iOS, this symbol is enough
+class __attribute__((visibility("default"))) LLMWrapper {
 public:
     enum ModelType {
         Qwen2,
@@ -37,6 +31,46 @@ public:
                                      std::string decode_power_mode,
                                      std::string decode_cores,
                                      std::string decode_tune_times);
+    static LLMWrapper* createMNNWrapper(const char* model_dir,
+                                        std::string backend_name,
+                                        std::string tmp_path,
+                                        std::string engine_name,
+                                        std::string prefill_thread_num,
+                                        std::string decode_thread_num,
+                                        std::string prefill_power_mode,
+                                        std::string decode_power_mode,
+                                        std::string decode_cores,
+                                        std::string decode_tune_times);
+    static LLMWrapper* createLLAMACPPWrapper(const char* model_dir,
+                                        std::string backend_name,
+                                        std::string tmp_path,
+                                        std::string engine_name,
+                                        std::string prefill_thread_num,
+                                        std::string decode_thread_num,
+                                        std::string prefill_power_mode,
+                                        std::string decode_power_mode,
+                                        std::string decode_cores,
+                                        std::string decode_tune_times);
+    static LLMWrapper* createMLLMWrapper(const char* model_dir,
+                                        std::string backend_name,
+                                        std::string tmp_path,
+                                        std::string engine_name,
+                                        std::string prefill_thread_num,
+                                        std::string decode_thread_num,
+                                        std::string prefill_power_mode,
+                                        std::string decode_power_mode,
+                                        std::string decode_cores,
+                                        std::string decode_tune_times);
+    static LLMWrapper* createETWrapper(const char* model_dir,
+                                        std::string backend_name,
+                                        std::string tmp_path,
+                                        std::string engine_name,
+                                        std::string prefill_thread_num,
+                                        std::string decode_thread_num,
+                                        std::string prefill_power_mode,
+                                        std::string decode_power_mode,
+                                        std::string decode_cores,
+                                        std::string decode_tune_times);
     virtual bool isReady() { return true; }
     virtual void trace() {}
     virtual void tunePrefill() {}

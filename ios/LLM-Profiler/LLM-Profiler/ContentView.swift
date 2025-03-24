@@ -19,10 +19,12 @@ struct ContentView: View {
     @State private var decodePowerMode = "decode power"
     
     // State variables for text fields
-    @State private var textField1 = ""
-    @State private var textField2 = ""
-    @State private var textField3 = ""
-    @State private var textField4 = ""
+    @State private var prefillThreadNum = ""
+    @State private var decodeThreadNum = ""
+    @State private var prefillCorePlan = ""
+    @State private var decodeCorePlan = ""
+    @State private var tuneTimes = ""
+    @State private var decodeTol = ""
     @State private var modelOptions: [String] = [] // List of files and directories
     
     let engineOptions = ["select engine", "MNN", "llama.cpp", "mediapipe", "mllm", "executorch"]
@@ -68,10 +70,10 @@ struct ContentView: View {
                 
                 // Fill-in Blanks
                 HStack {
-                    TextField("prefill thread", text: $textField1)
+                    TextField("prefill thread", text: $prefillThreadNum)
                         .textFieldStyle(.roundedBorder)
                     
-                    TextField("decode thread", text: $textField2)
+                    TextField("decode thread", text: $decodeThreadNum)
                         .textFieldStyle(.roundedBorder)
                 }
                 
@@ -94,10 +96,18 @@ struct ContentView: View {
                 
                 
                 HStack {
-                    TextField("prefill cores", text: $textField3)
+                    TextField("prefill cores", text: $prefillCorePlan)
                         .textFieldStyle(.roundedBorder)
                     
-                    TextField("decode cores", text: $textField4)
+                    TextField("decode cores", text: $decodeCorePlan)
+                        .textFieldStyle(.roundedBorder)
+                }
+                
+                HStack {
+                    TextField("tune times", text: $tuneTimes)
+                        .textFieldStyle(.roundedBorder)
+                    
+                    TextField("decode tol", text: $decodeTol)
                         .textFieldStyle(.roundedBorder)
                 }
                 
@@ -153,7 +163,17 @@ struct ContentView: View {
         if let resourcePath = Bundle.main.resourcePath {
             let localModelPath = URL(fileURLWithPath: resourcePath).appendingPathComponent("LocalModel").appendingPathComponent(modelSelector).path()
             // Call setupLLM on the chat instance
-            chat.setupLLM(modelPath: localModelPath, completion: setStatus)
+            chat.setupLLM(engineName: engineSelector,
+                          modelPath: localModelPath,
+                          backendName: backendSelector,
+                          tmpFile: FileManager.default.temporaryDirectory.path,
+                          prefillThreadNum: prefillThreadNum,
+                          decodeThreadNum: decodeThreadNum,
+                          prefillPowerMode: prefillPowerMode,
+                          decodePowerMode: decodePowerMode,
+                          decodeCorePlan: decodeCorePlan,
+                          tuneTimes: tuneTimes,
+                          completion: setStatus)
         } else {
             print("Resource path not found")
         }

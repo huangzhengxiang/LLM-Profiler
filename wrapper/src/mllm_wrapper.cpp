@@ -8,6 +8,7 @@
 
 using namespace mllm;
 
+#ifdef DYNAMIC_LOAD_SYMBOLS
 LLMWrapper* LLMWrapper::createWrapper(const char* model_dir,
                                       std::string backend_name,
                                       std::string tmp_path,
@@ -30,6 +31,31 @@ LLMWrapper* LLMWrapper::createWrapper(const char* model_dir,
                               decode_tune_times);
    }
 }
+#endif
+
+LLMWrapper* LLMWrapper::createMLLMWrapper(const char* model_dir,
+    std::string backend_name,
+    std::string tmp_path,
+    std::string engine_name,
+    std::string prefill_thread_num,
+    std::string decode_thread_num,
+    std::string prefill_power_mode,
+    std::string decode_power_mode,
+    std::string decode_cores,
+    std::string decode_tune_times) {
+    if (engine_name=="mllm") {
+        return new mllmWrapper(model_dir,
+            backend_name,
+            tmp_path,
+            prefill_thread_num,
+            decode_thread_num,
+            prefill_power_mode,
+            decode_power_mode,
+            decode_cores,
+            decode_tune_times);
+    }
+}
+
 
 std::vector<token_id_t> convert2unsigned(const std::vector<int>& ids) {
     std::vector<token_id_t> token_ids;

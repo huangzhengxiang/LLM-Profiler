@@ -1,4 +1,4 @@
 LocalModel/
 build/
 build_native/
-MNN.framework
+*.framework
