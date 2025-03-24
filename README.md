@@ -101,7 +101,9 @@ External Additional Option: "exhaustive", (requires an additional list of select
 
 
 ### 5. Datasets Supports
-1. multi-turn conversation dataset (ShareGPT-en): https://huggingface.co/datasets/shareAI/ShareGPT-Chinese-English-90k (./sharegpt_jsonl/common_en_70k.jsonl) (input prefill controlled decode)
-2. role play (RoleLLM): https://huggingface.co/datasets/ZenMoore/RoleBench (./rolebench-eng/role-generalization/role_specific/test.jsonl) (input prefill, controlled decode)
+All the datasets are tested with dataset input as prefill, and free decode. (dataset controlled decode is aborted. may be added back in the future if perplexity is needed to be supported)
+
+1. multi-turn conversation dataset (ShareGPT-en): https://huggingface.co/datasets/shareAI/ShareGPT-Chinese-English-90k (./sharegpt_jsonl/common_en_70k.jsonl) (input prefill, free talk decode)
+2. role play (RoleLLM): https://huggingface.co/datasets/ZenMoore/RoleBench (./rolebench-eng/role-generalization/role_specific/test.jsonl) (input prefill, free talk decode)
 3. math problem  QA (math_qa): https://huggingface.co/datasets/allenai/math_qa (input prefill, free talk decode)
 4. Open Domain QA (truthful_qa): https://huggingface.co/datasets/truthfulqa/truthful_qa (input prefill, free talk decode)

@@ -51,7 +51,7 @@ public class MediaPipeWrapper implements Serializable {
         mBackend = backendName;
         mActivity = activity;
         testProfile = new Bundle();
-        Init(1024);
+        Init(2048);
     }
     public boolean Init(int maxToken) {
         LlmInference.LlmInferenceOptions options = new LlmInference.LlmInferenceOptions() {
@@ -94,6 +94,7 @@ public class MediaPipeWrapper implements Serializable {
                             testProfile.putInt("decode_current", mActivity.getAvgCurrent());
                             testProfile.putFloat("decode_power", mActivity.getAvgPower());
                             testProfile.putFloat("decode_time", mActivity.getTime());
+                            testProfile.putInt("decode_len", mDecodeToken);
                         }
                         mDecodeToken += 1;
                         mDecodeResult += partialResult;

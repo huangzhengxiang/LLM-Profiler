@@ -101,12 +101,14 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/llama.cpp)
 # add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/mllm)
 
 # jni file
-file(GLOB SRCS "${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/*.cpp")
+set(SRCS "${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/iot_audio_jni.cpp")
 # mllm forgotten files
 # list(APPEND SRCS "mllm/src/tokenizers/Tiktoken/tiktoken.cpp")
 
 # compile dynamic so, support Linux/Mac
 add_library(mnn_jni SHARED ${SRCS})
+add_library(dataset_jni SHARED "${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/dataset_jni.cpp")
+target_link_libraries(dataset_jni dataset)
 target_link_libraries(mnn_jni dataset mnn_wrapper)
 # llama.cpp
 add_library(llama_cpp_jni SHARED ${SRCS})

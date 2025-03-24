@@ -14,6 +14,7 @@
 
 static int dataset_itr=0;
 static int cnv_itr=0;
+static int last_res=0;
 static std::vector<int> input_prompt;
 static std::vector<std::vector<std::vector<PromptItem>>> test_dataset;
 static std::unique_ptr<LLMWrapper> model(nullptr);
@@ -158,17 +159,18 @@ Java_com_iot_audio_Chat_ForwardNative(JNIEnv *env, jobject thiz, jint length, jb
     return;
 }
 
-JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_DatasetResponse(JNIEnv *env, jobject thiz, jboolean is_prefill,
+JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_DatasetResponseNative(JNIEnv *env, jobject thiz, jboolean is_prefill,
                                                                jboolean is_first_prefill) {
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Forward");
     if (!model->isReady()) {
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "model not ready!");
         return 0;
     }
-    int res = TEST_TOKEN;
+    int res = last_res;
     if ((bool) is_prefill) {
         // test prefill
         res = model->forward(input_prompt, is_prefill, is_first_prefill);
+        last_res = res;
     } else {
         // test decode, decode for length times
         for (int i = 0; i < (int) input_prompt.size(); ++i) {
@@ -187,7 +189,7 @@ JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_ResponseNative(JNIEnv *env, jo
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "model not ready!");
         return env->NewStringUTF("");
     }
-    int res = TEST_TOKEN;
+    int res = last_res;
     std::string system_prompt = "";
     bool need_antiprompt = false;
     if (is_first_prefill) {
@@ -199,6 +201,7 @@ JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_ResponseNative(JNIEnv *env, jo
     if (!inputStr.empty()) {
         // test prefill
         res = model->forward(model->tokenizer_encode(inputStr, true, need_antiprompt, system_prompt), true, is_first_prefill);
+        last_res = res;
     }
 
     // test decode, decode for length times
@@ -265,11 +268,13 @@ JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_getDialogAssistant(JNIEnv *en
     auto& dialog = cnv[cnv_itr];
     bool gotData = false;
     for (auto& item : dialog) {
-        if (item.first=="assistant") {
-            input_prompt = model->tokenizer_encode(item.second, false, false, "");
-            gotData = true;
-            break;
-        }
+        // do not get controlled assistant
+        break;
+        // if (item.first=="assistant") {
+        //     input_prompt = model->tokenizer_encode(item.second, false, false, "");
+        //     gotData = true;
+        //     break;
+        // }
     }
     cnv_itr++;
     return (jboolean)gotData;

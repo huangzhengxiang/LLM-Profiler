@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.file.Paths;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 public class JavaLLMWrapper implements Serializable {
@@ -56,7 +57,25 @@ public class JavaLLMWrapper implements Serializable {
             if (mediaPipeWrapper.decodedTokens()<decode_length) {
                 Log.i("Mediapipe Warning", String.format("Warning: decode only %d tokens", mediaPipeWrapper.decodedTokens()));
             }
-            return mediaPipeWrapper.getTestProfile();
+            Bundle bundle = mediaPipeWrapper.getTestProfile();
+            Log.i("Mediapipe Warning", String.format("prefill time: %.4f", bundle.getFloat("prefill_time")));
+            Log.i("Mediapipe Warning", String.format("decode time: %.4f", bundle.getFloat("decode_time")));
+            bundle.putInt("prefill_len", prefill_length);
+            return bundle;
+        }
+        return null;
+    }
+    public Bundle testResponse(MainActivity activity, String inputStr) {
+        setDecodeLen(1024); // set decode length to max: 1024
+        activity.startTracing();;
+        String res = Response(inputStr);
+        Log.i("java output", res);
+        if (mEngine.equals("mediapipe")) {
+            Bundle bundle = mediaPipeWrapper.getTestProfile();
+            Log.i("Mediapipe Warning", String.format("prefill time: %.4f", bundle.getFloat("prefill_time")));
+            Log.i("Mediapipe Warning", String.format("decode time: %.4f", bundle.getFloat("decode_time")));
+            bundle.putInt("prefill_len", countToken(inputStr));
+            return bundle;
         }
         return null;
     }
@@ -64,7 +83,9 @@ public class JavaLLMWrapper implements Serializable {
     public String getFixedLengthInput(int length) {
         String[] words = test_prompt.split("\\s+");
         StringBuilder result = new StringBuilder();
+        int start = (int)(Math.random()*300);
         for (String word : words) {
+            if (start>0) {start--;continue;}
             // Check if adding the next word would exceed the maximum length
             if (countToken(result.toString()) < length) {
                 // Append the word to the result

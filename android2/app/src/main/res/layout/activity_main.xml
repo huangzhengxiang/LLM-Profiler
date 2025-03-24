@@ -327,6 +327,27 @@
             android:textAlignment="center"
             android:textSize="16sp" />
 
+        <TextView
+            android:id="@+id/idTVwarning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:padding="15dp"
+            android:text="Warning"
+            android:textAlignment="center"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/DecodeCorePlanDisplay"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@color/purple_500"
+            android:padding="15dp"
+            android:text="decode core plan:"
+            android:textAlignment="center"
+            android:textColor="@color/white" />
+
 
         <!--Linear Layout for adding textviews
             in horizontal manner-->
@@ -337,8 +358,7 @@
             android:orientation="horizontal"
             android:padding="8dp"
             android:weightSum="4">
-            <!--Textview to start audio recording
-                drawableTop will add above mic image-->
+
             <TextView
                 android:id="@+id/PrefillSpeed"
                 android:layout_width="0dp"
@@ -350,21 +370,19 @@
                 android:text="prefill speed:"
                 android:textAlignment="center"
                 android:textColor="@color/white" />
-            <!--Textview to stop audio recording
-                drawableTop will add above mic image-->
+
             <TextView
-                android:id="@+id/PrefillCapacity"
+                android:id="@+id/PrefillLenActual"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:background="@color/purple_500"
                 android:padding="5dp"
-                android:text="prefill battery use:"
+                android:text="prefill length:"
                 android:textAlignment="center"
                 android:textColor="@color/white" />
-            <!--Textview to play audio that is recorded
-                drawableTop will add above mic image-->
+
             <TextView
                 android:id="@+id/DecodeSpeed"
                 android:layout_width="0dp"
@@ -376,8 +394,53 @@
                 android:text="decode speed:"
                 android:textAlignment="center"
                 android:textColor="@color/white" />
-            <!--Textview to pause the play of audio recording
-                drawableTop will add above mic image-->
+
+            <TextView
+                android:id="@+id/DecodeLenActual"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="decode length:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+            
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:weightSum="4">
+
+            <TextView
+                android:id="@+id/PrefillCapacity"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="prefill battery use:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/PrefillCapacityPercentage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="prefill battery use (%):"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
             <TextView
                 android:id="@+id/DecodeCapacity"
                 android:layout_width="0dp"
@@ -389,6 +452,19 @@
                 android:text="decode battery use:"
                 android:textAlignment="center"
                 android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/DecodeCapacityPercentage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="decode battery use (%):"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -397,8 +473,66 @@
             android:layout_gravity="center"
             android:orientation="horizontal"
             android:padding="8dp"
-            android:weightSum="2">
+            android:weightSum="4">
 
+            <TextView
+                android:id="@+id/PrefillCapacityTurn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="prefill battery use per turn:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/PrefillCapacityPercentageTurn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="prefill battery use per turn (%):"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/DecodeCapacityTurn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="decode battery use per turn:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/DecodeCapacityPercentageTurn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="decode battery use per turn (%):"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:weightSum="4">
+            
             <TextView
                 android:id="@+id/PrefillEnergy"
                 android:layout_width="0dp"
@@ -408,6 +542,18 @@
                 android:background="@color/purple_500"
                 android:padding="5dp"
                 android:text="prefill energy:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/PrefillEnergyTurn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="prefill energy per turn:"
                 android:textAlignment="center"
                 android:textColor="@color/white" />
 
@@ -422,18 +568,78 @@
                 android:text="decode energy:"
                 android:textAlignment="center"
                 android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/DecodeEnergyTurn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="decode energy per turn:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/DecodeCorePlanDisplay"
-            android:layout_width="300dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:background="@color/purple_500"
-            android:padding="15dp"
-            android:text="decode core plan:"
-            android:textAlignment="center"
-            android:textColor="@color/white" />
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:weightSum="4">
+            
+            <TextView
+                android:id="@+id/PrefillPeakTemp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="prefill peak temp:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/PrefillAvgTemp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="prefill avg temp:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/DecodePeakTemp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="decode peak temp:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:id="@+id/DecodeAvgTemp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/purple_500"
+                android:padding="5dp"
+                android:text="decode avg temp:"
+                android:textAlignment="center"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

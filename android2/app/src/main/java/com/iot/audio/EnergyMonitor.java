@@ -51,7 +51,8 @@ public class EnergyMonitor extends TimerTask {
         int mBatteryCurrent = ((BatteryManager) ctx.getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
         float mBatteryVoltage = (float) ((MainActivity)ctx).getVoltage(); // V
         if (Math.abs(mBatteryCurrent) <= 10000) { mBatteryCurrent *= 1000; } // convert mA -> uA. (device heterogeneity resolution.)
-        uAList.add(mBatteryCurrent);
-        VList.add(mBatteryVoltage);
+        // current is default to be positive now!
+        uAList.add(Math.abs(mBatteryCurrent));
+        VList.add(Math.abs(mBatteryVoltage));
     }
 }

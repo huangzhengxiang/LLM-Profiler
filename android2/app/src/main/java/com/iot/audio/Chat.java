@@ -42,8 +42,7 @@ public class Chat implements Serializable {
                                                 decodePowerMode,
                                                 deocdeCorePlan,
                                                 tuneTimes);
-            // need reinit if the decode length is fixed at another length.
-            // merge such reinit into Forward.
+            System.loadLibrary("dataset_jni");
             return true;
         } else {
             if (engineName.equals("MNN")) {
@@ -111,23 +110,28 @@ public class Chat implements Serializable {
 
     public Bundle Forward(MainActivity activity, int prefill_length, int decode_length) {
         if (javaEngine.contains(mEngine)) {
-            return javaLLMWrapper.Forward(activity, prefill_length, decode_length);
+            Bundle bundle = javaLLMWrapper.Forward(activity, prefill_length, decode_length);
+            bundle.putFloat("prefill_time", bundle.getFloat("prefill_time")/bundle.getInt("prefill_len"));
+            bundle.putFloat("decode_time", bundle.getFloat("decode_time")/bundle.getInt("decode_len"));
+            return bundle;
         } else {
-            Bundle data = new Bundle();
+            Bundle bundle = new Bundle();
             activity.startTracing();
             ForwardNative(prefill_length, true, true);
             activity.endTracing();
-            data.putInt("prefill_current", activity.getAvgCurrent());
-            data.putFloat("prefill_power", activity.getAvgPower());
-            data.putFloat("prefill_time", activity.getTime());
+            bundle.putInt("prefill_len", prefill_length);
+            bundle.putInt("prefill_current", activity.getAvgCurrent());
+            bundle.putFloat("prefill_power", activity.getAvgPower());
+            bundle.putFloat("prefill_time", activity.getTime()/prefill_length);
 
             activity.startTracing();
             ForwardNative(decode_length, false, false);
             activity.endTracing();
-            data.putInt("decode_current", activity.getAvgCurrent());
-            data.putFloat("decode_power", activity.getAvgPower());
-            data.putFloat("decode_time", activity.getTime());
-            return data;
+            bundle.putInt("decode_len", decode_length);
+            bundle.putInt("decode_current", activity.getAvgCurrent());
+            bundle.putFloat("decode_power", activity.getAvgPower());
+            bundle.putFloat("decode_time", activity.getTime()/decode_length);
+            return bundle;
         }
     }
     public native void ForwardNative(int length, boolean is_prefill, boolean is_first_prefill);
@@ -141,13 +145,95 @@ public class Chat implements Serializable {
     }
     public native void ResetNative();
 
+    public Bundle DatasetTestOnce(MainActivity activity) {
+        // init cnv prefill token, time, energy, capacity.
+        int prefill_tokens=0, decode_tokens=0;
+        float prefill_time=0, decode_time=0;
+        float prefill_energy=0, decode_energy=0;
+        int prefill_capacity=0, decode_capacity=0;
+        int turns = 0;
+        boolean is_first_prefill = true;
+        Bundle bundle;
+        while (true) {
+            boolean gotData = getDialogUser();
+            if (!gotData) {
+                break;
+            }
+            turns += 1;
+            if (javaEngine.contains(mEngine)) {
+                bundle = javaLLMWrapper.testResponse(activity, getDatasetCurrentInput());
+                prefill_tokens += bundle.getInt("prefill_len");
+                prefill_capacity += bundle.getInt("prefill_current");
+                prefill_energy += bundle.getFloat("prefill_power");
+                prefill_time += bundle.getFloat("prefill_time");
+                decode_tokens += bundle.getInt("decode_len");
+                decode_capacity += bundle.getInt("decode_current");
+                decode_energy += bundle.getFloat("decode_power");
+                decode_time += bundle.getFloat("decode_time");
+                gotData = getDialogAssistant();
+                if (gotData) {
+                    Log.i("DatasetTest Warning: ", "Java LLM can't control output!");
+                }
+            } else {
+                activity.startTracing();
+                prefill_tokens += DatasetResponse(true, is_first_prefill);
+                activity.endTracing();
+                prefill_capacity += activity.getAvgCurrent();
+                prefill_energy += activity.getAvgPower();
+                prefill_time += activity.getTime();
+
+                is_first_prefill = false;
+
+                gotData = getDialogAssistant();
+                if (!gotData) {
+                    // free response
+                    activity.startTracing();
+                    String output = Response("", false); // decode phase only
+                    decode_tokens += StringTokenSize(output);
+                    activity.endTracing();
+                    Log.i("response output", output);
+                } else {
+                    activity.startTracing();
+                    decode_tokens += DatasetResponse(false, false);
+                    activity.endTracing();
+                }
+                decode_capacity += activity.getAvgCurrent();
+                decode_energy += activity.getAvgPower();
+                decode_time += activity.getTime();
+            }
+        }
+        bundle = new Bundle();
+        bundle.putFloat("prefill_len", (float)prefill_tokens/turns); // tok/turn
+        bundle.putInt("prefill_current", prefill_capacity); // uA
+        bundle.putFloat("prefill_power", prefill_energy); // mW
+        bundle.putFloat("prefill_time", prefill_time/prefill_tokens); // s/tok
+        bundle.putFloat("prefill_time_turn", prefill_time/turns); // s/turn
+        bundle.putFloat("decode_len", (float)decode_tokens/turns); // tok/turn
+        bundle.putInt("decode_current",decode_capacity); // uA
+        bundle.putFloat("decode_power",decode_energy); // mW
+        bundle.putFloat("decode_time", decode_time/decode_tokens); // s/tok
+        bundle.putFloat("decode_time_turn", prefill_time/turns); // s/turn
+        Log.i("Test Debug: ", String.format("prefill speed: %.4f tok/s", prefill_tokens/prefill_time));
+        Log.i("Test Debug: ", String.format("decode speed: %.4f tok/s", decode_tokens/decode_time));
+        return bundle;
+    }
     public native int loadDataset(String data);
     public native int getDatasetSize();
     public native boolean getDialogUser();
     public native boolean getDialogAssistant();
     public native void datasetNext();
     public native void resetDataset();
-    public native int DatasetResponse(boolean is_prefill, boolean is_first_prefill);
+    public int DatasetResponse(boolean is_prefill, boolean is_first_prefill) {
+        if (javaEngine.contains(mEngine)) {
+            String inputStr = getDatasetCurrentInput();
+            javaLLMWrapper.Response(inputStr);
+            return javaLLMWrapper.countToken(inputStr);
+        } else {
+            return DatasetResponseNative(is_prefill, is_first_prefill);
+        }
+    }
+    public native int DatasetResponseNative(boolean is_prefill, boolean is_first_prefill);
+    private native String getDatasetCurrentInput(); // used only for JavaLLMWrapper.
 
     public int StringTokenSize(String input) {
         if (javaEngine.contains(mEngine)) {

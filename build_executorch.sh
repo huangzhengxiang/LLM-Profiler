@@ -10,6 +10,19 @@ else
 fi
 conda activate executorch
 
+if [ $# -gt 0 ]; then
+    if [ "$1" = "android" ]; then
+        target="ANDROID"
+    elif [ "$1" = "ios" ]; then
+        target="IOS"
+    else
+        echo "Invalid argument. Please specify 'android' or 'ios'."
+        exit 1
+    fi
+else
+    target="ANDROID"
+fi
+
 # build main lib
 cd executorch
 cmake . -DCMAKE_INSTALL_PREFIX=cmake-out-android \
@@ -39,6 +52,7 @@ cmake . -DCMAKE_INSTALL_PREFIX=cmake-out-android \
 cmake --build cmake-out-android -j16 --target install --config Release
 
 # build wrapper 
+if [ ${target} = "ANDROID" ]; then
 cmake  -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake \
     -DANDROID_ABI=arm64-v8a \
     -DANDROID_PLATFORM=android-28 \
@@ -50,9 +64,11 @@ cmake  -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
     -DEXECUTORCH_BUILD_KERNELS_QUANTIZED=ON \
     -DEXECUTORCH_BUILD_KERNELS_CUSTOM=ON \
     -DEXECUTORCH_BUILD_LLAMA_JNI=ON \
+    -DBUILD_ANDROID=ON \
     -Bcmake-out-android/wrapper/lib \
     ../wrapper/lib
 cmake --build "cmake-out-android/wrapper/lib/" -j16 --config Release
 
 mkdir -p ../wrapper/lib/android
 cp cmake-out-android/wrapper/lib/libet_wrapper.so ../wrapper/lib/android/libet_wrapper.so
+fi

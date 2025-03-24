@@ -25,6 +25,7 @@ static constexpr auto kUseKVCache = "use_kv_cache";
 static constexpr auto kUseSDPAWithKVCache = "use_sdpa_with_kv_cache";
 } // namespace
 
+#ifdef DYNAMIC_LOAD_SYMBOLS
 LLMWrapper* LLMWrapper::createWrapper(const char* model_dir,
                                       std::string backend_name,
                                       std::string tmp_path,
@@ -47,6 +48,7 @@ LLMWrapper* LLMWrapper::createWrapper(const char* model_dir,
                              decode_tune_times);
     }
 }
+#endif
 
 LLMWrapper* LLMWrapper::createETWrapper(const char* model_dir,
     std::string backend_name,

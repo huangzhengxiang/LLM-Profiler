@@ -87,7 +87,10 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout FixedLengthTestLayout, DatasetTestLayout;
     private EditText prefillThreadNumTV, decodeThreadNumTV, decodeCorePlanInputTV,  prefillLenTV, decodeLenTV;
     private EditText tuneTimesTV, toleranceTV;
-    private TextView prefillSpeedTV, prefillBatteryTV, prefillEnergyTV, decodeSpeedTV, decodeBatteryTV, decodeEnergyTV, statusTV, decodeCorePlanTV;
+    private TextView statusTV, warningTV, decodeCorePlanTV;
+    private TextView prefillSpeedTV, prefillLenActualTV, decodeSpeedTV, decodeLenActualTV;
+    private TextView prefillBatteryTV, decodeBatteryTV;
+    private TextView prefillEnergyTV, decodeEnergyTV;
     private Button mLoadButton, testButton, continueButton;
     private Handler mHandler;
     // view end>
@@ -207,10 +210,13 @@ public class MainActivity extends AppCompatActivity {
         mDecodePowerSelectSpinner = findViewById(R.id.DecodePowerMode);
         mLoadButton = findViewById(R.id.load_button);
         statusTV = findViewById(R.id.idTVstatus);
+        warningTV = findViewById(R.id.idTVwarning);
         prefillSpeedTV = findViewById(R.id.PrefillSpeed);
+        prefillLenActualTV = findViewById(R.id.PrefillLenActual);
         prefillBatteryTV = findViewById(R.id.PrefillCapacity);
         prefillEnergyTV = findViewById(R.id.PrefillEnergy);
         decodeSpeedTV = findViewById(R.id.DecodeSpeed);
+        decodeLenActualTV = findViewById(R.id.DecodeLenActual);
         decodeBatteryTV = findViewById(R.id.DecodeCapacity);
         decodeEnergyTV = findViewById(R.id.DecodeEnergy);
         mTestModeSpinner = findViewById(R.id.TestMode);
@@ -228,7 +234,9 @@ public class MainActivity extends AppCompatActivity {
         decodeCorePlanTV = findViewById(R.id.DecodeCorePlanDisplay);
         continueButton = findViewById(R.id.Continue);
         prefillSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        prefillLenActualTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         prefillEnergyTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        decodeLenActualTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         decodeSpeedTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         decodeEnergyTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
         testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
@@ -258,13 +266,15 @@ public class MainActivity extends AppCompatActivity {
                 if (message.getData().getString("call").equals("FixedLengthTestRun")) {
                     testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
                     testButton.setClickable(true);
+                    prefillLenActualTV.setText(String.format("prefill len:\n %.4f tok/turn", message.getData().getFloat("prefill_len")));
                     prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", message.getData().getFloat("prefill_token_speed")));
                     prefillBatteryTV.setText(String.format("prefill battery use:\n %.4f uAh/tok", message.getData().getFloat("prefill_capacity")));
                     prefillEnergyTV.setText(String.format("prefill energy:\n %.4f mJ/tok", message.getData().getFloat("prefill_energy")));
+                    decodeLenActualTV.setText(String.format("decode len:\n %.4f tok/turn", message.getData().getFloat("decode_len")));
                     decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
                     decodeBatteryTV.setText(String.format("decode battery use:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
                     decodeEnergyTV.setText(String.format("decode energy:\n %.4f mJ/tok", message.getData().getFloat("decode_energy")));
-                    statusTV.setText("Test Finished!");
+                    statusTV.setText("Status: Test Finished!");
                 } else if (message.getData().getString("call").equals("DatasetTestRun")) {
                     if (message.getData().getString("action")!=null){
                         if (message.getData().getString("action").equals("continueButtonTrue")) {
@@ -273,20 +283,22 @@ public class MainActivity extends AppCompatActivity {
                             continueButton.setClickable(false);
                         } else if (message.getData().getString("action").equals("Finished")) {
                             testButton.setClickable(true);
+                            prefillLenActualTV.setText(String.format("prefill len:\n %.4f tok/turn", message.getData().getFloat("prefill_len")));
                             prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", message.getData().getFloat("prefill_token_speed")));
                             prefillBatteryTV.setText(String.format("prefill battery use:\n %.4f uAh/tok", message.getData().getFloat("prefill_capacity")));
                             prefillEnergyTV.setText(String.format("prefill energy:\n %.4f mJ/tok", message.getData().getFloat("prefill_energy")));
+                            decodeLenActualTV.setText(String.format("decode len:\n %.4f tok/turn", message.getData().getFloat("decode_len")));
                             decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
                             decodeBatteryTV.setText(String.format("decode battery use:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
                             decodeEnergyTV.setText(String.format("decode energy:\n %.4f mJ/tok", message.getData().getFloat("decode_energy")));
                         }
                     }
                     if (message.getData().getString("message")!=null) {
-                        statusTV.setText(message.getData().getString("message"));
+                        statusTV.setText("Status: " + message.getData().getString("message"));
                     }
                 } else if (message.getData().getString("call").equals("loadModel")) {
                     decodeCorePlanTV.setText("decode core plan: " + message.getData().getString("decode_core_plan"));
-                    statusTV.setText("模型加载完成！");
+                    statusTV.setText("Status: 模型加载完成！");
                     mLoadButton.setText("模型已加载");
                     testButton.setClickable(true);
                 }
@@ -313,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
         boolean modelReady = checkModelsReady();
 
         mModelName = mModelSelectSpinner.getSelectedItem().toString();
-        statusTV.setText(String.format("%s加载中", mModelName));
+        statusTV.setText(String.format("Status: %s加载中", mModelName));
         mLoadButton.setText("模型加载中");
 
     }
@@ -326,12 +338,12 @@ public class MainActivity extends AppCompatActivity {
                 mBackend = "opencl";
             } else {
                 mBackend = "cpu";
-                statusTV.setText(String.format("Not support MNN+%s, use CPU", mBackendName));
+                warningTV.setText(String.format("Warning: Not support MNN+%s, use CPU", mBackendName));
             }
         }
         if (mEngineName.equals("llama.cpp")) {
             if (!mBackendName.equals("CPU")) {
-                statusTV.setText(String.format("Not support llama.cpp+%s, use CPU", mBackendName));
+                warningTV.setText(String.format("Warning: Not support llama.cpp+%s, use CPU", mBackendName));
             }
             mBackend = "cpu";
         }
@@ -342,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
                 mBackend = "gpu";
             } else {
                 mBackend = "cpu";
-                statusTV.setText(String.format("Not support mediapipe+%s, use CPU", mBackendName));
+                warningTV.setText(String.format("Warning: Not support mediapipe+%s, use CPU", mBackendName));
             }
         }
         if (mEngineName.equals("mllm")) {
@@ -352,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
                 mBackend = "qnn";
             } else {
                 mBackend = "cpu";
-                statusTV.setText(String.format("Not support mllm+%s, use CPU", mBackendName));
+                warningTV.setText(String.format("Warning: Not support mllm+%s, use CPU", mBackendName));
             }
         }
         if (mEngineName.equals("executorch")) {
@@ -360,7 +372,7 @@ public class MainActivity extends AppCompatActivity {
                 mBackend = "cpu";
             } else {
                 mBackend = "cpu";
-                statusTV.setText(String.format("Not support executorch+%s, use CPU", mBackendName));
+                warningTV.setText(String.format("Warning: Not support executorch+%s, use CPU", mBackendName));
             }
         }
     }
@@ -599,7 +611,7 @@ public class MainActivity extends AppCompatActivity {
             mChat.startDecodeTune(decode_tune_tolerance);
             endTimeTracing();
             endEnergyTracing();
-            tune_end = mChat.endDecodeTune(decodeCorePlan, -getAvgPower()/1000f, decode_tune_tolerance); // unit: mW (negated)
+            tune_end = mChat.endDecodeTune(decodeCorePlan, getAvgPower()/1000f, decode_tune_tolerance); // unit: mW
         }
     }
 
@@ -617,8 +629,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void DatasetTestCheck(int i, int test_size) {
+        // check temperature d charge before test, wait til condition fulfilled.
+        Message message;
+        Bundle bundle;
+        Log.i("Charge", String.format("Charge Level: %d", getChargeLevel()));
+        while (getChargeLevel() < 50 && unPowerBlocked) {
+            message=new Message();
+            bundle=new Bundle();
+            bundle.putString("message", String.format("Current Charge Level: %d %s, Please plug in and charge!", getChargeLevel(), "%"));
+            bundle.putString("action", "continueButtonTrue");
+            bundle.putString("call", "DatasetTestRun");
+            message.setData(bundle);
+            mHandler.sendMessage(message);
+            try {
+                Thread.sleep(5000); // sleep for 5s to get charged
+            } catch (InterruptedException e) {
+                // nothing
+            }
+        }
+        message=new Message();
+        bundle=new Bundle();
+        bundle.putString("action", "continueButtonFalse");
+        bundle.putString("call", "DatasetTestRun");
+        message.setData(bundle);
+        mHandler.sendMessage(message);
+        while (getCPUTemperature() > 40.0) {
+            message=new Message();
+            bundle=new Bundle();
+            bundle.putString("message", String.format("%s Testing... %d%s\nCurrent CPU Temperature: %.1f °C, wait for cool down",
+                                                        mDatasetSpinner.getSelectedItem().toString(),
+                                                        (i+1)*100/test_size, "%", getCPUTemperature()));
+            bundle.putString("call", "DatasetTestRun");
+            message.setData(bundle);
+            mHandler.sendMessage(message);
+            try {
+                Thread.sleep(5000); // sleep for 5s  to cool down
+            } catch (InterruptedException e) {
+                // nothing
+            }
+        }
+    }
+
     public void DatasetTestRun(View v) {
-        statusTV.setText(String.format("Loading Dataset..."));
+        statusTV.setText(String.format("Status: Loading Dataset..."));
         try {
             String data_path = this.getAssets().list(Paths.get("samples", mDatasetSpinner.getSelectedItem().toString()).toString())[0];
             data_path = Paths.get("samples", mDatasetSpinner.getSelectedItem().toString(), data_path).toString();
@@ -633,11 +687,11 @@ public class MainActivity extends AppCompatActivity {
             mChat.loadDataset(data);
             stream.close();
         } catch (IOException e) {
-            statusTV.setText(String.format("Dataset Load Fail!"));
+            statusTV.setText(String.format("Status: Dataset Load Fail!"));
             return;
         }
 
-        statusTV.setText(String.format("%s Testing... 0%s", mDatasetSpinner.getSelectedItem().toString(), "%"));
+        statusTV.setText(String.format("Status: %s Testing... 0%s", mDatasetSpinner.getSelectedItem().toString(), "%"));
         testButton.setBackgroundColor(getResources().getColor(R.color.gray));
         testButton.setClickable(false);
 
@@ -645,113 +699,33 @@ public class MainActivity extends AppCompatActivity {
             int test_size = mChat.getDatasetSize();
             Message message;
             Bundle bundle;
+            ArrayList<Float> prefillLenList = new ArrayList<Float>(); // tok/turn
+            ArrayList<Float> decodeLenList = new ArrayList<Float>(); // tok/turn
             ArrayList<Integer> uAPrefillList = new ArrayList<Integer>(); // in uA
             ArrayList<Integer> uADecodeList = new ArrayList<Integer>(); // in uA
             ArrayList<Float> timePrefillList = new ArrayList<Float>(); // in s
             ArrayList<Float> timeDecodeList = new ArrayList<Float>(); // in s
             ArrayList<Float> powerPrefillList = new ArrayList<Float>(); // in mW
             ArrayList<Float> powerDecodeList = new ArrayList<Float>(); // in mW
-            for (int i=0; i<test_size; ++i) {
-                // check temperature and charge before test, wait til condition fulfilled.
-                Log.i("Charge", String.format("Charge Level: %d", getChargeLevel()));
-                while (getChargeLevel() < 50 && unPowerBlocked) {
-                    message=new Message();
-                    bundle=new Bundle();
-                    bundle.putString("message", String.format("Current Charge Level: %d %s, Please plug in and charge!", getChargeLevel(), "%"));
-                    bundle.putString("action", "continueButtonTrue");
-                    bundle.putString("call", "DatasetTestRun");
-                    message.setData(bundle);
-                    mHandler.sendMessage(message);
-                    try {
-                        Thread.sleep(5000); // sleep for 5s to get charged
-                    } catch (InterruptedException e) {
-                        // nothing
-                    }
-                }
-                message=new Message();
-                bundle=new Bundle();
-                bundle.putString("action", "continueButtonFalse");
-                bundle.putString("call", "DatasetTestRun");
-                message.setData(bundle);
-                mHandler.sendMessage(message);
-                while (getCPUTemperature() > 40.0) {
-                    message=new Message();
-                    bundle=new Bundle();
-                    bundle.putString("message", String.format("%s Testing... %d%s\nCurrent CPU Temperature: %.1f °C, wait for cool down",
-                                                                mDatasetSpinner.getSelectedItem().toString(),
-                                                                (i+1)*100/test_size, "%", getCPUTemperature()));
-                    bundle.putString("call", "DatasetTestRun");
-                    message.setData(bundle);
-                    mHandler.sendMessage(message);
-                    try {
-                        Thread.sleep(5000); // sleep for 5s  to cool down
-                    } catch (InterruptedException e) {
-                        // nothing
-                    }
-                }
-
+            for (int i=0; i<10; ++i) {
+                DatasetTestCheck(i, test_size);
                 // test once
                 {
                     // get 1 data
-                    // init cnv prefill token, time, energy, capacity.
-                    int prefill_tokens=0, decode_tokens=0;
-                    float prefill_time=0, decode_time=0;
-                    float prefill_energy=0, decode_energy=0;
-                    int prefill_capacity=0, decode_capacity=0;
-                    boolean is_first_prefill = true;
-                    while (true) {
-                        boolean gotData = mChat.getDialogUser();
-                        if (!gotData) {
-                            break;
-                        }
-                        startEnergyTracing();
-                        startTimeTracing();
-                        prefill_tokens += mChat.DatasetResponse(true, is_first_prefill);
-                        endTimeTracing();
-                        endEnergyTracing();
-                        prefill_capacity += getAvgCurrent();
-                        prefill_energy += getAvgPower();
-                        prefill_time += getTime();
+                    bundle = mChat.DatasetTestOnce(this);
 
-                        is_first_prefill = false;
-
-                        gotData = mChat.getDialogAssistant();
-                        if (!gotData) {
-                            // free response
-                            startEnergyTracing();
-                            startTimeTracing();
-                            String output = mChat.Response("", false);
-                            decode_tokens += mChat.StringTokenSize(output);
-                            endTimeTracing();
-                            endEnergyTracing();
-                            decode_capacity += getAvgCurrent();
-                            decode_energy += getAvgPower();
-                            decode_time += getTime();
-                            Log.i("response output", output);
-                        } else {
-                            startEnergyTracing();
-                            startTimeTracing();
-                            decode_tokens += mChat.DatasetResponse(false, false);
-                            endTimeTracing();
-                            endEnergyTracing();
-                            decode_capacity += getAvgCurrent();
-                            decode_energy += getAvgPower();
-                            decode_time += getTime();
-                        }
-                    }
-
-                    timePrefillList.add(prefill_time/prefill_tokens);
-                    timeDecodeList.add(decode_time/decode_tokens);
-                    uAPrefillList.add(prefill_capacity);
-                    uADecodeList.add(decode_capacity);
-                    powerPrefillList.add(prefill_energy);
-                    powerDecodeList.add(decode_energy);
+                    prefillLenList.add(bundle.getFloat("prefill_len"));
+                    decodeLenList.add(bundle.getFloat("decode_len"));
+                    timePrefillList.add(bundle.getFloat("prefill_time"));
+                    timeDecodeList.add(bundle.getFloat("decode_time"));
+                    uAPrefillList.add(bundle.getInt("prefill_current"));
+                    uADecodeList.add(bundle.getInt("decode_current"));
+                    powerPrefillList.add(bundle.getFloat("prefill_power"));
+                    powerDecodeList.add(bundle.getFloat("decode_power"));
 
                     mChat.datasetNext();
                     mChat.Reset();
                 }
-
-
                 message=new Message();
                 bundle=new Bundle();
                 bundle.putString("message", String.format("%s Testing... %d%s", mDatasetSpinner.getSelectedItem().toString(), (i+1)*100/test_size, "%"));
@@ -766,13 +740,15 @@ public class MainActivity extends AppCompatActivity {
             bundle=new Bundle();
             prefill_token_speed = 1 / avgFloatArray(timePrefillList);
             decode_token_speed = 1 / avgFloatArray(timeDecodeList);
-            prefill_capacity = -getAvgCapacityInuAh(uAPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
-            decode_capacity = -getAvgCapacityInuAh(uADecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
-            prefill_energy = -getAvgEnergyInmJ(powerPrefillList, timePrefillList); // negate it, because it's doomed to be negative.
-            decode_energy = -getAvgEnergyInmJ(powerDecodeList, timeDecodeList); // negate it, because it's doomed to be negative.
+            prefill_capacity = getAvgCapacityInuAh(uAPrefillList, timePrefillList);
+            decode_capacity = getAvgCapacityInuAh(uADecodeList, timeDecodeList);
+            prefill_energy = getAvgEnergyInmJ(powerPrefillList, timePrefillList);
+            decode_energy = getAvgEnergyInmJ(powerDecodeList, timeDecodeList);
+            bundle.putFloat("prefill_len", avgFloatArray(prefillLenList));
             bundle.putFloat("prefill_token_speed", prefill_token_speed);
             bundle.putFloat("prefill_capacity", prefill_capacity);
             bundle.putFloat("prefill_energy", prefill_energy);
+            bundle.putFloat("decode_len", avgFloatArray(decodeLenList));
             bundle.putFloat("decode_token_speed", decode_token_speed);
             bundle.putFloat("decode_capacity", decode_capacity);
             bundle.putFloat("decode_energy", decode_energy);
@@ -787,16 +763,16 @@ public class MainActivity extends AppCompatActivity {
     public void FixedLengthTestRun(View v) {
         Log.i("Charge",String.format("Charge Level: %d", getChargeLevel()));
         if (getChargeLevel()<50) {
-            statusTV.setText(String.format("Current Charge Level: %d %s, Please plug in and charge!", getChargeLevel(), "%"));
+            warningTV.setText(String.format("Warning: Current Charge Level: %d %s, Please plug in and charge!", getChargeLevel(), "%"));
             return;
         }
         if (getCPUTemperature()>40) {
-            statusTV.setText(String.format("Current CPU Temperature: %.1f °C, Please cool down!", getCPUTemperature()));
+            warningTV.setText(String.format("Warning: Current CPU Temperature: %.1f °C, Please cool down!", getCPUTemperature()));
             return;
         }
         testButton.setBackgroundColor(getResources().getColor(R.color.gray));
         testButton.setClickable(false);
-        statusTV.setText("Fixed Length Testing...");
+        statusTV.setText("Status: Fixed Length Testing...");
 
         // get prefill len and decode len
         try {
@@ -804,25 +780,27 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (NumberFormatException e) {
             prefill_len = 100;
-            statusTV.setText("Warning: prefill len shall be int");
+            warningTV.setText("Warning: prefill len shall be int");
         }
         try {
             decode_len = Integer.parseInt(decodeLenTV.getText().toString());
         } catch (NumberFormatException e) {
             decode_len = 200;
-            statusTV.setText("Warning: decode len shall be int");
+            warningTV.setText("Warning: decode len shall be int");
         }
         try {
             decode_tune_tolerance = Integer.parseInt(toleranceTV.getText().toString());
         } catch (NumberFormatException e) {
             decode_tune_tolerance = -1;
-            statusTV.setText("Warning: no decode tuning!");
+            warningTV.setText("Warning: no decode tuning!");
         }
 
 
 
         new Thread(() -> {
             // tracing
+            ArrayList<Integer> prefillLenList = new ArrayList<Integer>(); // tok/turn
+            ArrayList<Integer> decodeLenList = new ArrayList<Integer>(); // tok/turn
             ArrayList<Integer> uAPrefillList = new ArrayList<Integer>(); // in uA
             ArrayList<Integer> uADecodeList = new ArrayList<Integer>(); // in uA
             ArrayList<Float> timePrefillList = new ArrayList<Float>(); // in s
@@ -831,36 +809,34 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<Float> powerDecodeList = new ArrayList<Float>(); // in mW
             for (int i = 0; i < test_times; ++i) {
                 Bundle profile = mChat.Forward(this, prefill_len, decode_len);
+                prefillLenList.add(profile.getInt("prefill_len"));
                 uAPrefillList.add(profile.getInt("prefill_current"));
                 powerPrefillList.add(profile.getFloat("prefill_power"));
                 timePrefillList.add(profile.getFloat("prefill_time"));
+                decodeLenList.add(profile.getInt("decode_len"));
                 uADecodeList.add(profile.getInt("decode_current"));
                 powerDecodeList.add(profile.getFloat("decode_power"));
                 timeDecodeList.add(profile.getFloat("decode_time"));
                 mChat.Reset();
             }
-            prefill_token_speed = prefill_len / avgFloatArray(timePrefillList);
-            decode_token_speed = decode_len / avgFloatArray(timeDecodeList);
-            prefill_capacity = -getAvgCapacityInuAh(uAPrefillList, timePrefillList) / prefill_len; // negate it, because it's doomed to be negative.
-            decode_capacity = -getAvgCapacityInuAh(uADecodeList, timeDecodeList) / decode_len; // negate it, because it's doomed to be negative.
-            prefill_energy = -getAvgEnergyInmJ(powerPrefillList, timePrefillList) / prefill_len; // negate it, because it's doomed to be negative.
-            decode_energy = -getAvgEnergyInmJ(powerDecodeList, timeDecodeList) / decode_len; // negate it, because it's doomed to be negative.
-            Log.i("prefill", String.format("prefill speed: %.4f tok/s", prefill_token_speed));
-            Log.i("prefill", String.format("prefill battery use: %.4f uAh/tok", prefill_capacity));
-            Log.i("prefill", String.format("prefill energy: %.4f mJ/tok", prefill_energy));
-            Log.i("decode", String.format("decode speed: %.4f tok/s", decode_token_speed));
-            Log.i("decode", String.format("decode battery use: %.4f uAh/tok", decode_capacity));
-            Log.i("decode", String.format("decode energy: %.4f mJ/tok", decode_energy));
+            prefill_token_speed = 1 / avgFloatArray(timePrefillList);
+            decode_token_speed = 1 / avgFloatArray(timeDecodeList);
+            prefill_capacity = getAvgCapacityInuAh(uAPrefillList, timePrefillList);
+            decode_capacity = getAvgCapacityInuAh(uADecodeList, timeDecodeList);
+            prefill_energy = getAvgEnergyInmJ(powerPrefillList, timePrefillList);
+            decode_energy = getAvgEnergyInmJ(powerDecodeList, timeDecodeList);
             Message message=new Message();
-            Bundle data=new Bundle();
-            data.putFloat("prefill_token_speed", prefill_token_speed);
-            data.putFloat("prefill_capacity", prefill_capacity);
-            data.putFloat("prefill_energy", prefill_energy);
-            data.putFloat("decode_token_speed", decode_token_speed);
-            data.putFloat("decode_capacity", decode_capacity);
-            data.putFloat("decode_energy", decode_energy);
-            data.putString("call", "FixedLengthTestRun");
-            message.setData(data);
+            Bundle bundle=new Bundle();
+            bundle.putFloat("prefill_len", avgIntArray(prefillLenList));
+            bundle.putFloat("prefill_token_speed", prefill_token_speed);
+            bundle.putFloat("prefill_capacity", prefill_capacity);
+            bundle.putFloat("prefill_energy", prefill_energy);
+            bundle.putFloat("decode_len", avgIntArray(decodeLenList));
+            bundle.putFloat("decode_token_speed", decode_token_speed);
+            bundle.putFloat("decode_capacity", decode_capacity);
+            bundle.putFloat("decode_energy", decode_energy);
+            bundle.putString("call", "FixedLengthTestRun");
+            message.setData(bundle);
             mHandler.sendMessage(message);
         }).start();
     }

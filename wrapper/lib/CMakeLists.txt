@@ -18,6 +18,10 @@ set(executorch_DIR ${CMAKE_CURRENT_BINARY_DIR}/../../lib/cmake/ExecuTorch)
 find_package(executorch CONFIG REQUIRED)
 target_link_options_shared_lib(executorch)
 
+if (BUILD_ANDROID)
+add_definitions(-DDYNAMIC_LOAD_SYMBOLS)
+endif()
+
 include_directories("${CMAKE_CURRENT_LIST_DIR}/../include")
 file(GLOB SRCS "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
 add_library(et_wrapper SHARED ${SRCS})
