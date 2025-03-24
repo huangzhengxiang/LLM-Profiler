@@ -15,17 +15,20 @@ import java.lang.Math;
 public class EnergyMonitor extends TimerTask {
     private final ArrayList<Integer> uAList;
     private final ArrayList<Float> VList;
+    private final ArrayList<Float> tempList;
     private final Context ctx;
 
     EnergyMonitor(Context parent) {
         uAList = new ArrayList<Integer>();
         VList = new ArrayList<Float>();
+        tempList = new ArrayList<Float>();
         ctx = parent;
     }
 
     public void resetInfo() {
         uAList.clear();
         VList.clear();
+        tempList.clear();
     }
 
     public int getAvgCurrent() {

@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     // <energy profile begin
     private Timer energyTimer;
     private EnergyMonitor energyMonitor;
+    private float mTotalCapacity = 1000000; // (unit: uAh) default: 1000mAh
     private final long energySampleInterval = 50L; // 50ms
     // energy profile end>
 
@@ -122,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     private int mChargeNow = 0;
     // model profiling config end>
 
-    private float getCPUTemperature() {
+    public float getCPUTemperature() {
         float tempInCelsius = 0;
         try {
             for (int i=0; i<30; ++i) {
@@ -251,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
         populateTestSpinner();
         populateDatasetSpinner();
 
+        mTotalCapacity = 1000 * (float)((BatteryManager) this.getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
 
         recordDir = getExternalFilesDir("Recordings");
         if (!recordDir.exists()) {

@@ -22,9 +22,10 @@
 - [ ] [MLC-LLM](https://github.com/mlc-ai/mlc-llm/tree/b636b2ac5e0c8bac6cf2a5427c3380fff856447e) (Version v0.19.0) (Android: GPU-OpenCL) (iOS: )
  
 *Currently Supported Metrics*:
+- [x] prefill/decode length (tok/turn)
 - [x] prefill/decode speed (tok/s)
 - [x] capacity consumption (uAh/tok)
-- [ ] capacity consumption in percentage (%)
+- [x] capacity consumption in percentage (%)
 - [x] energy consumption (mJ/tok)
 - [ ] temperature (peak+average) (measured but not reported yet)
 - [ ] external file size (model disk occupation)
