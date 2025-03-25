@@ -143,7 +143,6 @@ void mllmWrapper::loadModel(std::string model_dir) {
             break;
         }
         case Gemma: {
-
             break;
         }
         case Gemma2: {
@@ -167,6 +166,7 @@ mllmWrapper::mllmWrapper(const char* model_dir,
             // currently only support cpu
         }
         if (!prefill_thread_num.empty()) { CPUBackend::cpu_threads = std::atoi(prefill_thread_num.c_str()); } // thread_num (int, no quotation marks)
+        else { CPUBackend::cpu_threads = 4; }
         if (!success) {
             return;
         }
@@ -181,7 +181,7 @@ bool mllmWrapper::isReady() {
 std::string mllmWrapper::apply_system_prompt(std::string system_prompt) {
     switch (model_type) {
         case Qwen2: {
-            break;
+            return "<|im_start|>system\n" + system_prompt + "<|im_end|>\n";
         }
         case Llama3: {
             return "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n" + system_prompt + "<|eot_id|>";
@@ -197,11 +197,10 @@ std::string mllmWrapper::apply_system_prompt(std::string system_prompt) {
 std::string mllmWrapper::apply_user_prompt(std::string user_prompt) {
     switch (model_type) {
         case Qwen2: {
-            break;
+            return "<|im_start|>user\n" + user_prompt + "<|im_end|>\n<|im_start|>assistant\n";
         }
         case Llama3: {
             return "<|start_header_id|>user<|end_header_id|>\n\n" + user_prompt + "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n";
-            break;
         }
         case Gemma: {
             break;
@@ -215,6 +214,11 @@ std::vector<int> mllmWrapper::tokenizeInternal(const std::string& text) {
     auto tokens_id = vector<token_id_t>();
     switch(model_type) {
         case Qwen2: {
+            auto tensor = ((QWenTokenizer*)(tokenizer.get()))->tokenize(text);
+            for (int i = 0; i < tensor.sequence(); ++i) {
+                auto value = tensor.dataAt<float>(0, 0, i, 0);
+                tokens_id.push_back(value);
+            }
             break;
         }
         case Llama3: {
@@ -279,10 +283,7 @@ std::vector<int> mllmWrapper::tokenizer_encode(const std::string& inputStr,
 }
 std::string mllmWrapper::tokenizer_decode(const std::vector<int>& tokens) {
     switch (model_type) {
-        case Qwen2: {
-            break;
-        }
-        case Llama3: {
+        case Qwen2: case Llama3: {
             return tokenizer->detokenize(convert2unsigned(tokens));
         }
     }
@@ -290,7 +291,8 @@ std::string mllmWrapper::tokenizer_decode(const std::vector<int>& tokens) {
 bool mllmWrapper::isStop(int id) {
     switch (model_type) {
         case Qwen2: {
-            break;
+            std::string text = tokenizer->detokenize({(token_id_t)id});
+            return (text == "<|im_end|>");
         }
         case Llama3: {
             std::string text = tokenizer->detokenize({(token_id_t)id});
