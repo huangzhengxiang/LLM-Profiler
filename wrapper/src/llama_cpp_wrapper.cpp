@@ -165,22 +165,26 @@ std::vector<int> llamacppWrapper::tokenizer_encode(const std::string& inputStr,
                                                    std::string system_prompt) {
     std::vector<llama_token> tokens;
     llama_context * ctx = llm.context.get();
-    std::string user_inp = chat_add_and_format("user", inputStr);
-    const auto line_inp = common_tokenize(ctx, inputStr,            false, true);
-    tokens.insert(tokens.end(), line_inp.begin(), line_inp.end());
     if (use_template) {
+        // add chat prompt and tokenize
+        const auto user_inp = common_tokenize(ctx, chat_add_and_format("user", inputStr), false, true);
+        tokens.insert(tokens.end(), user_inp.begin(), user_inp.end());
         const auto line_pfx = common_tokenize(ctx, params.input_prefix, false, true);
         const auto line_sfx = common_tokenize(ctx, params.input_suffix, false, true);
-        if (!system_prompt.empty()) {
-            const auto sys = common_tokenize(ctx, chat_add_and_format("system", system_prompt), true, true);
-            tokens.insert(tokens.end(), sys.begin(), sys.end());
-        }
         tokens.insert(tokens.begin(), line_pfx.begin(), line_pfx.end());
         tokens.insert(tokens.end(), line_sfx.begin(), line_sfx.end());
+        if (!system_prompt.empty()) {
+            const auto sys = common_tokenize(ctx, chat_add_and_format("system", system_prompt), true, true);
+            tokens.insert(tokens.begin(), sys.begin(), sys.end());
+        }
         if (need_antiprompt && !params.antiprompt.empty()) {
             const auto first_antiprompt = common_tokenize(ctx, params.antiprompt.front(), false, true);
             tokens.insert(tokens.begin(), first_antiprompt.begin(), first_antiprompt.end());
         }
+    } else {
+        // directly tokenize
+        const auto user_inp = common_tokenize(ctx, inputStr, false, true);
+        tokens.insert(tokens.end(), user_inp.begin(), user_inp.end());
     }
     std::vector<int> int_tokens;
     for (auto& id: tokens) {

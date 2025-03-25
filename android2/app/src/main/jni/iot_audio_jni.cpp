@@ -175,7 +175,6 @@ JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_DatasetResponseNative(JNIEnv *env
         // test decode, decode for length times
         for (int i = 0; i < (int) input_prompt.size(); ++i) {
             res = model->forward({input_prompt[i]}, is_prefill, is_first_prefill);
-            __android_log_print(ANDROID_LOG_DEBUG, "MNN_PROFILE", "res: %d", res);
         }
     }
     __android_log_print(ANDROID_LOG_INFO, "MNN_PROFILE", "res: %d", res);

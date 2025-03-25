@@ -27,7 +27,7 @@
 - [x] capacity consumption (uAh/tok)
 - [x] capacity consumption in percentage (%)
 - [x] energy consumption (mJ/tok)
-- [ ] temperature (peak+average) (measured but not reported yet)
+- [x] temperature (peak+average) (measured but not reported yet)
 - [ ] external file size (model disk occupation)
 - [ ] runtime memory size (RSS size)
 - [ ] perplexity
