@@ -9,7 +9,8 @@ set(WRAPPER_HEADER ${CMAKE_CURRENT_LIST_DIR}/include/llm_wrapper.h)
 add_library(mnn_wrapper SHARED ${CMAKE_CURRENT_LIST_DIR}/src/mnn_wrapper.cpp ${WRAPPER_HEADER})
 add_library(llama_cpp_wrapper SHARED ${CMAKE_CURRENT_LIST_DIR}/src/llama_cpp_wrapper.cpp ${WRAPPER_HEADER})
 if (BUILD_ANDROID)
-# add_library(mllm_wrapper SHARED ${CMAKE_CURRENT_LIST_DIR}/src/mllm_wrapper.cpp ${WRAPPER_HEADER})
+# also mllm forgotten files
+add_library(mllm_wrapper SHARED ${CMAKE_CURRENT_LIST_DIR}/src/mllm_wrapper.cpp ${CMAKE_CURRENT_LIST_DIR}/../mllm/src/tokenizers/Tiktoken/tiktoken.cpp ${WRAPPER_HEADER})
 endif()
 
 # include pre_build et_wrapper
@@ -33,7 +34,7 @@ endif()
 target_link_libraries(llama_cpp_wrapper common llama ggml ggml-base ggml-cpu ${CMAKE_THREAD_LIBS_INIT})
 # mllm
 if (BUILD_ANDROID)
-# target_link_libraries(mllm_wrapper mllm_lib)
+target_link_libraries(mllm_wrapper mllm_lib)
 endif()
 
 if (BUILD_IOS)

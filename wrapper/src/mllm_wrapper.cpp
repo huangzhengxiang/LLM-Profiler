@@ -274,7 +274,7 @@ std::vector<int> mllmWrapper::tokenizer_encode(const std::string& inputStr,
     } else {
         text += inputStr;
     }
-    __android_log_print(ANDROID_LOG_ERROR, "mllm_DEBUG", "text for tokenize: %s\n\n", text.c_str());
+//    __android_log_print(ANDROID_LOG_ERROR, "mllm_DEBUG", "text for tokenize: %s\n\n", text.c_str());
     return tokenizeInternal(text);
 }
 std::string mllmWrapper::tokenizer_decode(const std::vector<int>& tokens) {

@@ -98,12 +98,10 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/wrapper)
 # add engine source directory
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/MNN)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/llama.cpp)
-# add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/mllm)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/mllm)
 
 # jni file
 set(SRCS "${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/iot_audio_jni.cpp")
-# mllm forgotten files
-# list(APPEND SRCS "mllm/src/tokenizers/Tiktoken/tiktoken.cpp")
 
 # compile dynamic so, support Linux/Mac
 add_library(mnn_jni SHARED ${SRCS})
@@ -114,8 +112,8 @@ target_link_libraries(mnn_jni dataset mnn_wrapper)
 add_library(llama_cpp_jni SHARED ${SRCS})
 target_link_libraries(llama_cpp_jni dataset llama_cpp_wrapper)
 # mllm
-# add_library(mllm_jni SHARED ${SRCS})
-# target_link_libraries(mllm_jni dataset mllm_wrapper)
+add_library(mllm_jni SHARED ${SRCS})
+target_link_libraries(mllm_jni dataset mllm_wrapper)
 # executorch
 add_library(et_jni SHARED ${SRCS})
 target_link_libraries(et_jni dataset et_wrapper)
@@ -123,11 +121,11 @@ target_link_libraries(et_jni dataset et_wrapper)
 
 set(MNN_LLM_LIBS "")
 set(LLAMA_CPP_LLM_LIBS "")
-# set(MLLM_LLM_LIBS "")
+set(MLLM_LLM_LIBS "")
 set(ET_LLM_LIBS "")
 list(APPEND MNN_LLM_LIBS $<TARGET_FILE:dataset>)
 list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:dataset>)
-# list(APPEND MLLM_LLM_LIBS $<TARGET_FILE:dataset>)
+list(APPEND MLLM_LLM_LIBS $<TARGET_FILE:dataset>)
 list(APPEND ET_LLM_LIBS $<TARGET_FILE:dataset>)
 # MNN
 list(APPEND MNN_LLM_LIBS $<TARGET_FILE:MNN>)
@@ -144,7 +142,7 @@ list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:ggml-base>)
 list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:ggml-cpu>)
 list(APPEND LLAMA_CPP_LLM_LIBS $<TARGET_FILE:llama_cpp_wrapper>)
 # mllm
-# list(APPEND MLLM_LLM_LIBS $<TARGET_FILE:mllm_wrapper>)
+list(APPEND MLLM_LLM_LIBS $<TARGET_FILE:mllm_wrapper>)
 # executorch
 list(APPEND ET_LLM_LIBS $<TARGET_FILE:et_wrapper>)
 
@@ -157,10 +155,10 @@ add_custom_command(TARGET llama_cpp_jni POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
             ${LLAMA_CPP_LLM_LIBS}
             ${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/libs/arm64-v8a)
-# add_custom_command(TARGET mllm_jni POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy
-#             ${MLLM_LLM_LIBS}
-#             ${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/libs/arm64-v8a)
+add_custom_command(TARGET mllm_jni POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${MLLM_LLM_LIBS}
+            ${CMAKE_CURRENT_LIST_DIR}/android2/app/src/main/jni/libs/arm64-v8a)
 add_custom_command(TARGET et_jni POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
             ${ET_LLM_LIBS}
