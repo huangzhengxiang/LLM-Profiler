@@ -38,8 +38,8 @@ test的方法可以选择fixed length和dataset，dataset有四种可用的方�
 
 ### 测试时的参数列表
 
-test部分，需要dataset test四个dataset全部进行测试，而fixed length test需要prefill length为64，256，1024;decode length为128，256，512共九种情况分别测试
+test部分，需要dataset test四个dataset全部进行测试，而fixed length test需要prefill length为64，256，1024;decode length为128，256，512共九种情况分别测试（mediapipe最多支持1024token,所以不需要prefill length = 1024 的组）
 
 MNN的default和其他engine都不需要填入任何参数，只需要选择engine/model/backend和test中的所有选项进行测试即可。
 
-MNN 非default 参数设置为0 0 tune_prefill memory 不填 不填 10 6
+MNN 非default 参数设置为0 0 tune_prefill memory 不填 不填 10 6 
