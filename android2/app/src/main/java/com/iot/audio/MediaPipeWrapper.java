@@ -51,7 +51,7 @@ public class MediaPipeWrapper implements Serializable {
         mBackend = backendName;
         mActivity = activity;
         testProfile = new Bundle();
-        Init(2048);
+        Init(1024); // currently only 1024 context is supported.
     }
     public boolean Init(int maxToken) {
         LlmInference.LlmInferenceOptions options = new LlmInference.LlmInferenceOptions() {
@@ -86,6 +86,8 @@ public class MediaPipeWrapper implements Serializable {
                             testProfile.putInt("prefill_current", mActivity.getAvgCurrent());
                             testProfile.putFloat("prefill_power", mActivity.getAvgPower());
                             testProfile.putFloat("prefill_time", mActivity.getTime());
+                            testProfile.putFloat("prefill_peak_temp", mActivity.getPeakTemperature());
+                            testProfile.putFloat("prefill_avg_temp", mActivity.getAvgTemperature());
                             mActivity.startTracing();
                         }
                         if (mDecodeToken==mDecodeLen || done) {
@@ -95,6 +97,8 @@ public class MediaPipeWrapper implements Serializable {
                             testProfile.putFloat("decode_power", mActivity.getAvgPower());
                             testProfile.putFloat("decode_time", mActivity.getTime());
                             testProfile.putInt("decode_len", mDecodeToken);
+                            testProfile.putFloat("decode_peak_temp", mActivity.getPeakTemperature());
+                            testProfile.putFloat("decode_avg_temp", mActivity.getAvgTemperature());
                         }
                         mDecodeToken += 1;
                         mDecodeResult += partialResult;

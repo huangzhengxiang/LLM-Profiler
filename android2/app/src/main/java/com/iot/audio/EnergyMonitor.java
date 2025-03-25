@@ -49,13 +49,35 @@ public class EnergyMonitor extends TimerTask {
         return  (float)(res/size);
     }
 
+    public float getAvgTemperature() {
+        long size = tempList.size();
+        double res = 0;
+        for (int i=0; i < size; ++i) {
+            res += tempList.get(i);
+        }
+        return (float) (res/size);
+    }
+
+    public float getPeakTemperature() {
+        long size = tempList.size();
+        float res = 0;
+        for (int i=0; i < size; ++i) {
+            if (tempList.get(i)>res) {
+                res = tempList.get(i);
+            }
+        }
+        return res;
+    }
+
     @Override
     public void run() {
         int mBatteryCurrent = ((BatteryManager) ctx.getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
         float mBatteryVoltage = (float) ((MainActivity)ctx).getVoltage(); // V
+        float mTemperature = ((MainActivity)ctx).getCPUTemperature(); // oC
         if (Math.abs(mBatteryCurrent) <= 10000) { mBatteryCurrent *= 1000; } // convert mA -> uA. (device heterogeneity resolution.)
         // current is default to be positive now!
         uAList.add(Math.abs(mBatteryCurrent));
         VList.add(Math.abs(mBatteryVoltage));
+        tempList.add(mTemperature);
     }
 }

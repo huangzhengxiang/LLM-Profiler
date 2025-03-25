@@ -123,6 +123,8 @@ public class Chat implements Serializable {
             bundle.putInt("prefill_current", activity.getAvgCurrent());
             bundle.putFloat("prefill_power", activity.getAvgPower());
             bundle.putFloat("prefill_time", activity.getTime()/prefill_length);
+            bundle.putFloat("prefill_peak_temp", activity.getPeakTemperature());
+            bundle.putFloat("prefill_avg_temp", activity.getAvgTemperature());
 
             activity.startTracing();
             ForwardNative(decode_length, false, false);
@@ -131,6 +133,8 @@ public class Chat implements Serializable {
             bundle.putInt("decode_current", activity.getAvgCurrent());
             bundle.putFloat("decode_power", activity.getAvgPower());
             bundle.putFloat("decode_time", activity.getTime()/decode_length);
+            bundle.putFloat("decode_peak_temp", activity.getPeakTemperature());
+            bundle.putFloat("decode_avg_temp", activity.getAvgTemperature());
             return bundle;
         }
     }
@@ -151,6 +155,8 @@ public class Chat implements Serializable {
         float prefill_time=0, decode_time=0;
         float prefill_energy=0, decode_energy=0;
         int prefill_capacity=0, decode_capacity=0;
+        float prefill_peak_temp=0, prefill_avg_temp=0;
+        float decode_peak_temp=0, decode_avg_temp=0;
         int turns = 0;
         boolean is_first_prefill = true;
         Bundle bundle;
@@ -166,10 +172,14 @@ public class Chat implements Serializable {
                 prefill_capacity += bundle.getInt("prefill_current");
                 prefill_energy += bundle.getFloat("prefill_power");
                 prefill_time += bundle.getFloat("prefill_time");
+                prefill_peak_temp += bundle.getFloat("prefill_peak_temp");
+                prefill_avg_temp += bundle.getFloat("prefill_avg_temp");
                 decode_tokens += bundle.getInt("decode_len");
                 decode_capacity += bundle.getInt("decode_current");
                 decode_energy += bundle.getFloat("decode_power");
                 decode_time += bundle.getFloat("decode_time");
+                decode_peak_temp += bundle.getFloat("decode_peak_temp");
+                decode_avg_temp += bundle.getFloat("decode_avg_temp");
                 gotData = getDialogAssistant();
                 if (gotData) {
                     Log.i("DatasetTest Warning: ", "Java LLM can't control output!");
@@ -181,6 +191,8 @@ public class Chat implements Serializable {
                 prefill_capacity += activity.getAvgCurrent();
                 prefill_energy += activity.getAvgPower();
                 prefill_time += activity.getTime();
+                prefill_peak_temp += activity.getPeakTemperature();
+                prefill_avg_temp += activity.getAvgTemperature();
 
                 is_first_prefill = false;
 
@@ -200,6 +212,8 @@ public class Chat implements Serializable {
                 decode_capacity += activity.getAvgCurrent();
                 decode_energy += activity.getAvgPower();
                 decode_time += activity.getTime();
+                decode_peak_temp += activity.getPeakTemperature();
+                decode_avg_temp += activity.getAvgTemperature();
             }
         }
         bundle = new Bundle();
@@ -208,11 +222,15 @@ public class Chat implements Serializable {
         bundle.putFloat("prefill_power", prefill_energy); // mW
         bundle.putFloat("prefill_time", prefill_time/prefill_tokens); // s/tok
         bundle.putFloat("prefill_time_turn", prefill_time/turns); // s/turn
+        bundle.putFloat("prefill_peak_temp", prefill_peak_temp/turns);
+        bundle.putFloat("prefill_avg_temp", prefill_avg_temp/turns);
         bundle.putFloat("decode_len", (float)decode_tokens/turns); // tok/turn
         bundle.putInt("decode_current",decode_capacity); // uA
         bundle.putFloat("decode_power",decode_energy); // mW
         bundle.putFloat("decode_time", decode_time/decode_tokens); // s/tok
-        bundle.putFloat("decode_time_turn", prefill_time/turns); // s/turn
+        bundle.putFloat("decode_time_turn", decode_time/turns); // s/turn
+        bundle.putFloat("decode_peak_temp", decode_peak_temp/turns);
+        bundle.putFloat("decode_avg_temp", decode_avg_temp/turns);
         Log.i("Test Debug: ", String.format("prefill speed: %.4f tok/s", prefill_tokens/prefill_time));
         Log.i("Test Debug: ", String.format("decode speed: %.4f tok/s", decode_tokens/decode_time));
         return bundle;

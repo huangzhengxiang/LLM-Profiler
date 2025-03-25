@@ -205,15 +205,15 @@ JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_ResponseNative(JNIEnv *env, jo
     }
 
     // test decode, decode for length times
-    std::vector<int> outStr = {res};
+    std::vector<int> outTokens = {res};
     while (!model->isStop(res)) {
         res = model->forward({res}, false, is_first_prefill);
-        outStr.push_back(res);
+        outTokens.push_back(res);
     }
 
     __android_log_print(ANDROID_LOG_INFO, "MNN_PROFILE", "res: %d", res);
     __android_log_print(ANDROID_LOG_INFO, "MNN_DEBUG", "After Response!");
-    return env->NewStringUTF(model->tokenizer_decode(outStr).c_str());
+    return env->NewStringUTF(model->tokenizer_decode(outTokens).c_str());
 }
 
 JNIEXPORT void JNICALL Java_com_iot_audio_Chat_ResetNative(JNIEnv *env, jobject thiz) {

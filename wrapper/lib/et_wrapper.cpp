@@ -139,8 +139,8 @@ ETWrapper::ETWrapper(const char* model_dir,
     }
     if (method_names.count(kEosIds)) {
         eos_ids->clear();
-        for (const auto& eos_id : module_->execute(kEosIds).get()) {
-            auto value = eos_id.toScalar().to<int64_t>();
+        for (int i=0; i<module_->execute(kEosIds)->size(); ++i) {
+            auto value = (*(module_->execute(kEosIds))).operator[](i).toScalar().to<int64_t>();
             eos_ids->emplace(value);
             ET_LOG(Info, "eos_id = %" PRId64, value);
         }
@@ -165,18 +165,18 @@ void ETWrapper::tunePrefill() {}
 void ETWrapper::startDecodeTune(int tolerance) {}
 bool ETWrapper::endDecodeTune(std::vector<int>& plan, float* energy, int tolerance) { return true; }
 int  ETWrapper::forward(const std::vector<int>& tokens, bool is_prefill, bool is_first_prefill) {
-    if (is_first_prefill) {
+    if (is_prefill && is_first_prefill) {
         cur_pos = 0;
     }
     if (is_prefill) {
         // prefill
         std::vector<uint64_t> unsigned_tokens = convert2unsigned(tokens);
         auto res = text_prefiller_->prefill(unsigned_tokens, cur_pos);
-        cur_pos += tokens.size();
+        // cur_pos already modified !!!! (No need to add again)
         return (int)(res.get());
     } else {
         // decode
-        uint64_t cur_token = tokens.back();
+        uint64_t cur_token = (uint64_t)tokens.back();
         std::vector<uint64_t> token_data = {cur_token};
         std::vector<executorch::aten::SizesType> token_shape = {1, 1};
         // initialize input tensor wrappers
@@ -197,7 +197,7 @@ void ETWrapper::reset() {
     cur_pos = 0;
 }
 bool ETWrapper::isStop(int id) {
-    if (eos_ids->find(id) != eos_ids->end()) {
+    if (eos_ids->find((uint64_t)id) != eos_ids->end()) {
         return true;
     }
     return false;
@@ -223,10 +223,10 @@ std::vector<int> ETWrapper::tokenizer_encode(const std::string& inputStr,
 }
 std::string ETWrapper::tokenizer_decode(const std::vector<int>& tokens) {
     // prev token isn't used in tiktoken, but we still implement it correctly here.
-    std::string output_str;
+    std::string output_str = "";
     int prev = tokens.front();
     for (const auto& id: tokens) {
-        output_str += tokenizer_->decode(prev, id).get();
+        output_str += tokenizer_->decode((uint64_t)prev, (uint64_t)id).get();
         prev = id;
     }
     return output_str;

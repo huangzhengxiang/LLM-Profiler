@@ -90,8 +90,10 @@ public class MainActivity extends AppCompatActivity {
     private EditText tuneTimesTV, toleranceTV;
     private TextView statusTV, warningTV, decodeCorePlanTV;
     private TextView prefillSpeedTV, prefillLenActualTV, decodeSpeedTV, decodeLenActualTV;
-    private TextView prefillBatteryTV, decodeBatteryTV;
-    private TextView prefillEnergyTV, decodeEnergyTV;
+    private TextView prefillBatteryTV, prefillBatteryPercentageTV, decodeBatteryTV, decodeBatteryPercentageTV;
+    private TextView prefillBatteryTurnTV, prefillBatteryPercentageTurnTV, decodeBatteryTurnTV, decodeBatteryPercentageTurnTV;
+    private TextView prefillEnergyTV, prefillEnergyTurnTV, decodeEnergyTV, decodeEnergyTurnTV;
+    private TextView prefillPeakTempTV, prefillAvgTempTV, decodePeakTempTV, decodeAvgTempTV;
     private Button mLoadButton, testButton, continueButton;
     private Handler mHandler;
     // view end>
@@ -114,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     private float decode_capacity = -1f; // uAh/tok
     private float prefill_energy= -1f; // mJ/tok
     private float decode_energy = -1f; // mJ/tok
-    private final int test_times = 3;
+    private final int test_times = 2; // FixedLengthTest test times
     private boolean unPowerBlocked = true; // not blocked.
 
     private ArrayList<Integer> decodeCorePlan;
@@ -129,21 +131,25 @@ public class MainActivity extends AppCompatActivity {
             for (int i=0; i<30; ++i) {
                 BufferedReader reader = new BufferedReader(new FileReader(String.format("/sys/class/thermal/thermal_zone%d/type", i)));
                 String type = reader.readLine();
+                if (!type.contains("cpu-") && !type.contains("cluster")) {
+                    continue;
+                }
                 reader = new BufferedReader(new FileReader(String.format("/sys/class/thermal/thermal_zone%d/temp", i)));
                 String temperature = reader.readLine(); // Read the first line of the file
                 // Convert the temperature from millidegrees Celsius to degrees Celsius
                 tempInCelsius = (float) Integer.parseInt(temperature);
+                if (tempInCelsius<0) {
+                    continue;
+                }
                 if (tempInCelsius>1000)  {
                     tempInCelsius = tempInCelsius/ 1000.0f;
                 }
-                if (type.contains("cpu-") || type.contains("cluster")) {
-                    break;
-                }
+                break;
             }
         } catch (IOException e) {
-            Log.e("Error", "Bad Read");
+//            Log.e("Error", "Bad Read");
         }
-        Log.i("Temperature", "CPU Temperature: " + tempInCelsius + "°C");
+//        Log.i("Temperature", "CPU Temperature: " + tempInCelsius + "°C");
         return tempInCelsius;
     }
 
@@ -165,6 +171,8 @@ public class MainActivity extends AppCompatActivity {
     public int getAvgCurrent() { return energyMonitor.getAvgCurrent(); } // in uA
 
     public float getAvgPower() { return energyMonitor.getAvgPower(); } // in uW
+    public float getPeakTemperature() { return energyMonitor.getPeakTemperature(); } // in °C
+    public float getAvgTemperature() { return energyMonitor.getAvgTemperature(); } // in °C
 
     private void startTimeTracing() {
         mElapsedBegin = elapsedRealtime();
@@ -215,11 +223,23 @@ public class MainActivity extends AppCompatActivity {
         prefillSpeedTV = findViewById(R.id.PrefillSpeed);
         prefillLenActualTV = findViewById(R.id.PrefillLenActual);
         prefillBatteryTV = findViewById(R.id.PrefillCapacity);
+        prefillBatteryPercentageTV = findViewById(R.id.PrefillCapacityPercentage);
+        prefillBatteryTurnTV = findViewById(R.id.PrefillCapacityTurn);
+        prefillBatteryPercentageTurnTV = findViewById(R.id.PrefillCapacityPercentageTurn);
         prefillEnergyTV = findViewById(R.id.PrefillEnergy);
+        prefillEnergyTurnTV = findViewById(R.id.PrefillEnergyTurn);
+        prefillPeakTempTV = findViewById(R.id.PrefillPeakTemp);
+        prefillAvgTempTV = findViewById(R.id.PrefillAvgTemp);
         decodeSpeedTV = findViewById(R.id.DecodeSpeed);
         decodeLenActualTV = findViewById(R.id.DecodeLenActual);
         decodeBatteryTV = findViewById(R.id.DecodeCapacity);
+        decodeBatteryPercentageTV = findViewById(R.id.DecodeCapacityPercentage);
+        decodeBatteryTurnTV = findViewById(R.id.DecodeCapacityTurn);
+        decodeBatteryPercentageTurnTV = findViewById(R.id.DecodeCapacityPercentageTurn);
         decodeEnergyTV = findViewById(R.id.DecodeEnergy);
+        decodeEnergyTurnTV = findViewById(R.id.DecodeEnergyTurn);
+        decodePeakTempTV = findViewById(R.id.DecodePeakTemp);
+        decodeAvgTempTV = findViewById(R.id.DecodeAvgTemp);
         mTestModeSpinner = findViewById(R.id.TestMode);
         mDatasetSpinner = findViewById(R.id.DatasetSelect);
         FixedLengthTestLayout = findViewById(R.id.FixedLengthTest);
@@ -252,7 +272,8 @@ public class MainActivity extends AppCompatActivity {
         populateTestSpinner();
         populateDatasetSpinner();
 
-        mTotalCapacity = 1000 * (float)((BatteryManager) this.getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
+        mTotalCapacity = (float) ((BatteryManager) this.getSystemService(Context.BATTERY_SERVICE)).getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER); // in uAh
+        Log.i("Total Capacity: ", String.format("%.4f uAh", mTotalCapacity));
 
         recordDir = getExternalFilesDir("Recordings");
         if (!recordDir.exists()) {
@@ -268,14 +289,7 @@ public class MainActivity extends AppCompatActivity {
                 if (message.getData().getString("call").equals("FixedLengthTestRun")) {
                     testButton.setBackgroundColor(getResources().getColor(R.color.purple_200));
                     testButton.setClickable(true);
-                    prefillLenActualTV.setText(String.format("prefill len:\n %.4f tok/turn", message.getData().getFloat("prefill_len")));
-                    prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", message.getData().getFloat("prefill_token_speed")));
-                    prefillBatteryTV.setText(String.format("prefill battery use:\n %.4f uAh/tok", message.getData().getFloat("prefill_capacity")));
-                    prefillEnergyTV.setText(String.format("prefill energy:\n %.4f mJ/tok", message.getData().getFloat("prefill_energy")));
-                    decodeLenActualTV.setText(String.format("decode len:\n %.4f tok/turn", message.getData().getFloat("decode_len")));
-                    decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
-                    decodeBatteryTV.setText(String.format("decode battery use:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
-                    decodeEnergyTV.setText(String.format("decode energy:\n %.4f mJ/tok", message.getData().getFloat("decode_energy")));
+                    showResults(message, true);
                     statusTV.setText("Status: Test Finished!");
                 } else if (message.getData().getString("call").equals("DatasetTestRun")) {
                     if (message.getData().getString("action")!=null){
@@ -285,14 +299,7 @@ public class MainActivity extends AppCompatActivity {
                             continueButton.setClickable(false);
                         } else if (message.getData().getString("action").equals("Finished")) {
                             testButton.setClickable(true);
-                            prefillLenActualTV.setText(String.format("prefill len:\n %.4f tok/turn", message.getData().getFloat("prefill_len")));
-                            prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", message.getData().getFloat("prefill_token_speed")));
-                            prefillBatteryTV.setText(String.format("prefill battery use:\n %.4f uAh/tok", message.getData().getFloat("prefill_capacity")));
-                            prefillEnergyTV.setText(String.format("prefill energy:\n %.4f mJ/tok", message.getData().getFloat("prefill_energy")));
-                            decodeLenActualTV.setText(String.format("decode len:\n %.4f tok/turn", message.getData().getFloat("decode_len")));
-                            decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
-                            decodeBatteryTV.setText(String.format("decode battery use:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
-                            decodeEnergyTV.setText(String.format("decode energy:\n %.4f mJ/tok", message.getData().getFloat("decode_energy")));
+                            showResults(message, true);
                         }
                     }
                     if (message.getData().getString("message")!=null) {
@@ -309,6 +316,30 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter intentfilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = this.registerReceiver(broadcastreceiver, intentfilter);
 
+    }
+    private void showResults(Message message, boolean needTurn) {
+        prefillLenActualTV.setText(String.format("prefill len:\n %.4f tok/turn", message.getData().getFloat("prefill_len")));
+        prefillSpeedTV.setText(String.format("prefill speed:\n %.4f tok/s", message.getData().getFloat("prefill_token_speed")));
+        prefillBatteryTV.setText(String.format("prefill battery use:\n %.4f uAh/tok", message.getData().getFloat("prefill_capacity")));
+        prefillBatteryPercentageTV.setText(String.format("prefill battery use (%s):\n %.4f %s", "%", 100*message.getData().getFloat("prefill_capacity")/mTotalCapacity, "%"));
+        prefillEnergyTV.setText(String.format("prefill energy:\n %.4f mJ/tok", message.getData().getFloat("prefill_energy")));
+        prefillPeakTempTV.setText(String.format("prefill peak temp:\n %.4f °C", message.getData().getFloat("prefill_peak_temp")));
+        prefillAvgTempTV.setText(String.format("prefill avg temp:\n %.4f °C", message.getData().getFloat("prefill_avg_temp")));
+        decodeLenActualTV.setText(String.format("decode len:\n %.4f tok/turn", message.getData().getFloat("decode_len")));
+        decodeSpeedTV.setText(String.format("decode speed:\n %.4f tok/s", message.getData().getFloat("decode_token_speed")));
+        decodeBatteryTV.setText(String.format("decode battery use:\n %.4f uAh/tok", message.getData().getFloat("decode_capacity")));
+        decodeBatteryPercentageTV.setText(String.format("decode battery use (%s):\n %.4f %s", "%", 100*message.getData().getFloat("decode_capacity")/mTotalCapacity, "%"));
+        decodeEnergyTV.setText(String.format("decode energy:\n %.4f mJ/tok", message.getData().getFloat("decode_energy")));
+        decodePeakTempTV.setText(String.format("decode peak temp:\n %.4f °C", message.getData().getFloat("decode_peak_temp")));
+        decodeAvgTempTV.setText(String.format("decode avg temp:\n %.4f °C", message.getData().getFloat("decode_avg_temp")));
+        if (needTurn) {
+            prefillBatteryTurnTV.setText(String.format("prefill battery use per turn:\n %.4f uAh/turn", message.getData().getFloat("prefill_capacity")*message.getData().getFloat("prefill_len")));
+            prefillBatteryPercentageTurnTV.setText(String.format("prefill battery use per turn (%s):\n %.4f %s", "%", 100*message.getData().getFloat("prefill_capacity")*message.getData().getFloat("prefill_len")/mTotalCapacity, "%"));
+            prefillEnergyTurnTV.setText(String.format("prefill energy per turn:\n %.4f mJ/turn", message.getData().getFloat("prefill_energy")*message.getData().getFloat("prefill_len")));
+            decodeBatteryTurnTV.setText(String.format("decode battery use per turn:\n %.4f uAh/turn", message.getData().getFloat("decode_capacity")*message.getData().getFloat("decode_len")));
+            decodeBatteryPercentageTurnTV.setText(String.format("decode battery use per turn (%s):\n %.4f %s", "%", 100*message.getData().getFloat("decode_capacity")*message.getData().getFloat("decode_len")/mTotalCapacity, "%"));
+            decodeEnergyTurnTV.setText(String.format("decode energy pre turn:\n %.4f mJ/turn", message.getData().getFloat("decode_energy")*message.getData().getFloat("decode_len")));
+        }
     }
     private boolean checkModelsReady() {
         File dir = new File(mModelDir);
@@ -633,6 +664,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void DatasetTestCheck(int i, int test_size) {
         // check temperature d charge before test, wait til condition fulfilled.
+        try {
+            Thread.sleep(10000); // Automatically sleep 10 second, to handle possible temperature read failures.
+        } catch (InterruptedException e) {
+            // nothing
+        }
+
         Message message;
         Bundle bundle;
         Log.i("Charge", String.format("Charge Level: %d", getChargeLevel()));
@@ -701,6 +738,10 @@ public class MainActivity extends AppCompatActivity {
             int test_size = mChat.getDatasetSize();
             Message message;
             Bundle bundle;
+            ArrayList<Float> prefillPeakTempList = new ArrayList<Float>();
+            ArrayList<Float> decodePeakTempList = new ArrayList<Float>();
+            ArrayList<Float> prefillAvgTempList = new ArrayList<Float>();
+            ArrayList<Float> decodeAvgTempList = new ArrayList<Float>();
             ArrayList<Float> prefillLenList = new ArrayList<Float>(); // tok/turn
             ArrayList<Float> decodeLenList = new ArrayList<Float>(); // tok/turn
             ArrayList<Integer> uAPrefillList = new ArrayList<Integer>(); // in uA
@@ -714,16 +755,20 @@ public class MainActivity extends AppCompatActivity {
                 // test once
                 {
                     // get 1 data
-                    bundle = mChat.DatasetTestOnce(this);
+                    Bundle profile = mChat.DatasetTestOnce(this);
 
-                    prefillLenList.add(bundle.getFloat("prefill_len"));
-                    decodeLenList.add(bundle.getFloat("decode_len"));
-                    timePrefillList.add(bundle.getFloat("prefill_time"));
-                    timeDecodeList.add(bundle.getFloat("decode_time"));
-                    uAPrefillList.add(bundle.getInt("prefill_current"));
-                    uADecodeList.add(bundle.getInt("decode_current"));
-                    powerPrefillList.add(bundle.getFloat("prefill_power"));
-                    powerDecodeList.add(bundle.getFloat("decode_power"));
+                    prefillLenList.add(profile.getFloat("prefill_len"));
+                    timePrefillList.add(profile.getFloat("prefill_time"));
+                    uAPrefillList.add(profile.getInt("prefill_current"));
+                    powerPrefillList.add(profile.getFloat("prefill_power"));
+                    prefillPeakTempList.add(profile.getFloat("prefill_peak_temp"));
+                    prefillAvgTempList.add(profile.getFloat("prefill_avg_temp"));
+                    decodeLenList.add(profile.getFloat("decode_len"));
+                    timeDecodeList.add(profile.getFloat("decode_time"));
+                    uADecodeList.add(profile.getInt("decode_current"));
+                    powerDecodeList.add(profile.getFloat("decode_power"));
+                    decodePeakTempList.add(profile.getFloat("decode_peak_temp"));
+                    decodeAvgTempList.add(profile.getFloat("decode_avg_temp"));
 
                     mChat.datasetNext();
                     mChat.Reset();
@@ -750,10 +795,14 @@ public class MainActivity extends AppCompatActivity {
             bundle.putFloat("prefill_token_speed", prefill_token_speed);
             bundle.putFloat("prefill_capacity", prefill_capacity);
             bundle.putFloat("prefill_energy", prefill_energy);
+            bundle.putFloat("prefill_peak_temp", avgFloatArray(prefillPeakTempList));
+            bundle.putFloat("prefill_avg_temp", avgFloatArray(prefillAvgTempList));
             bundle.putFloat("decode_len", avgFloatArray(decodeLenList));
             bundle.putFloat("decode_token_speed", decode_token_speed);
             bundle.putFloat("decode_capacity", decode_capacity);
             bundle.putFloat("decode_energy", decode_energy);
+            bundle.putFloat("decode_peak_temp", avgFloatArray(decodePeakTempList));
+            bundle.putFloat("decode_avg_temp", avgFloatArray(decodeAvgTempList));
             bundle.putString("action", "Finished");
             bundle.putString("message", "Test Finished!");
             bundle.putString("call", "DatasetTestRun");
@@ -801,6 +850,10 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             // tracing
+            ArrayList<Float> prefillPeakTempList = new ArrayList<Float>();
+            ArrayList<Float> decodePeakTempList = new ArrayList<Float>();
+            ArrayList<Float> prefillAvgTempList = new ArrayList<Float>();
+            ArrayList<Float> decodeAvgTempList = new ArrayList<Float>();
             ArrayList<Integer> prefillLenList = new ArrayList<Integer>(); // tok/turn
             ArrayList<Integer> decodeLenList = new ArrayList<Integer>(); // tok/turn
             ArrayList<Integer> uAPrefillList = new ArrayList<Integer>(); // in uA
@@ -815,10 +868,14 @@ public class MainActivity extends AppCompatActivity {
                 uAPrefillList.add(profile.getInt("prefill_current"));
                 powerPrefillList.add(profile.getFloat("prefill_power"));
                 timePrefillList.add(profile.getFloat("prefill_time"));
+                prefillPeakTempList.add(profile.getFloat("prefill_peak_temp"));
+                prefillAvgTempList.add(profile.getFloat("prefill_avg_temp"));
                 decodeLenList.add(profile.getInt("decode_len"));
                 uADecodeList.add(profile.getInt("decode_current"));
                 powerDecodeList.add(profile.getFloat("decode_power"));
                 timeDecodeList.add(profile.getFloat("decode_time"));
+                decodePeakTempList.add(profile.getFloat("decode_peak_temp"));
+                decodeAvgTempList.add(profile.getFloat("decode_avg_temp"));
                 mChat.Reset();
             }
             prefill_token_speed = 1 / avgFloatArray(timePrefillList);
@@ -833,10 +890,14 @@ public class MainActivity extends AppCompatActivity {
             bundle.putFloat("prefill_token_speed", prefill_token_speed);
             bundle.putFloat("prefill_capacity", prefill_capacity);
             bundle.putFloat("prefill_energy", prefill_energy);
+            bundle.putFloat("prefill_peak_temp", avgFloatArray(prefillPeakTempList));
+            bundle.putFloat("prefill_avg_temp", avgFloatArray(prefillAvgTempList));
             bundle.putFloat("decode_len", avgIntArray(decodeLenList));
             bundle.putFloat("decode_token_speed", decode_token_speed);
             bundle.putFloat("decode_capacity", decode_capacity);
             bundle.putFloat("decode_energy", decode_energy);
+            bundle.putFloat("decode_peak_temp", avgFloatArray(decodePeakTempList));
+            bundle.putFloat("decode_avg_temp", avgFloatArray(decodeAvgTempList));
             bundle.putString("call", "FixedLengthTestRun");
             message.setData(bundle);
             mHandler.sendMessage(message);
