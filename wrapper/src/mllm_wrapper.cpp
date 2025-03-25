@@ -165,7 +165,7 @@ mllmWrapper::mllmWrapper(const char* model_dir,
         if (!backend_name.empty()) { 
             // currently only support cpu
         }
-        if (!prefill_thread_num.empty()) { CPUBackend::cpu_threads = std::atoi(prefill_thread_num.c_str()); } // thread_num (int, no quotation marks)
+        if (std::atoi(prefill_thread_num.c_str())>0) { CPUBackend::cpu_threads = std::atoi(prefill_thread_num.c_str()); } // thread_num (int, no quotation marks)
         else { CPUBackend::cpu_threads = 4; }
         if (!success) {
             return;
