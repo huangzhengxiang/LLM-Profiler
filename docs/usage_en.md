@@ -63,8 +63,16 @@
 **Total Combinations**:
 - 9 tests (6 for MediaPipe).
 
-### MNN Non-Default Settings
+### Ours Settings
 ```plaintext
-Prefill Power: tune_prefill  
-Decode Power: memory  
-Other Fields: 0 0 10 6)  
+engine: MNN
+backend: CPU
+prefill thread: 0
+decode thread: 0
+prefill power: tune_prefill 
+decode power: memory 
+prefill cores:
+decode cores: 
+tune times: 10 
+decode tol: 8 
+```
