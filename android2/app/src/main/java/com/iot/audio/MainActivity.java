@@ -446,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
                     // do nothing
                 }
             }
-            if (mPrefillPowerSelectSpinner.getSelectedItem().toString().equals("memory")) {
+            if (mDecodePowerSelectSpinner.getSelectedItem().toString().equals("memory")) {
                 decodeTune();
                 try {
                     Thread.sleep(20000); // take 20s to cool down
