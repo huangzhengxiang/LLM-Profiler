@@ -487,6 +487,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void temperatureCheck() {
+        while (getCPUTemperature() > 40.0) {
+            Message message=new Message();
+            Bundle bundle=new Bundle();
+            bundle.putString("message", String.format("Tuning. Current CPU Temperature: %.1f °C, wait for cool down", getCPUTemperature()));
+            bundle.putString("call", "DatasetTestRun");
+            message.setData(bundle);
+            mHandler.sendMessage(message);
+            try {
+                Thread.sleep(5000); // sleep for 5s  to cool down
+            } catch (InterruptedException e) {
+                // nothing
+            }
+        }
+    }
+
     public void loadModel(View view) {
         onCheckModels();
         mLoadButton.setClickable(false);
@@ -516,6 +532,7 @@ public class MainActivity extends AppCompatActivity {
                        decodeCorePlanInputTV.getText().toString(),
                        tuneTimesTV.getText().toString());
             if (mPrefillPowerSelectSpinner.getSelectedItem().toString().equals("tune_prefill")) {
+                temperatureCheck();
                 mChat.tunePrefill();
                 try {
                     Thread.sleep(20000); // take 20s to cool down
@@ -524,6 +541,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             if (mDecodePowerSelectSpinner.getSelectedItem().toString().equals("memory")) {
+                temperatureCheck();
                 decodeTune();
                 try {
                     Thread.sleep(20000); // take 20s to cool down
