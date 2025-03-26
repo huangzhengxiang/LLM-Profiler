@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             // 1. 构建目标路径
-            File outputDir = new File("/data/local/tmp/llm/output");
+            File outputDir = new File("/sdcard/Download/llm/output");
             if (!outputDir.exists()) {
                 if (!outputDir.mkdirs()) {
                     throw new IOException("无法创建目录: " + outputDir.getAbsolutePath());
@@ -397,14 +397,12 @@ public class MainActivity extends AppCompatActivity {
             // 添加表头
             for (String key : dataMap.keySet()) {
                 csvContent.append(key).append(",");    // 名称列
-                csvContent.append("value").append(",");// 数值列
             }
             csvContent.deleteCharAt(csvContent.length()-1); // 删除最后一个逗号
             csvContent.append("\n");
 
             // 添加数据行
             for (Float value : dataMap.values()) {
-                csvContent.append(",");                // 跳过名称列
                 csvContent.append(value).append(",");  // 数值列
             }
             csvContent.deleteCharAt(csvContent.length()-1);
