@@ -441,12 +441,19 @@ public class MainActivity extends AppCompatActivity {
             if (mPrefillPowerSelectSpinner.getSelectedItem().toString().equals("tune_prefill")) {
                 mChat.tunePrefill();
                 try {
-                    Thread.sleep(10000); // take 10s to cool down
+                    Thread.sleep(20000); // take 20s to cool down
                 } catch (InterruptedException e) {
                     // do nothing
                 }
             }
-            decodeTune();
+            if (mPrefillPowerSelectSpinner.getSelectedItem().toString().equals("memory")) {
+                decodeTune();
+                try {
+                    Thread.sleep(20000); // take 20s to cool down
+                } catch (InterruptedException e) {
+                    // do nothing
+                }
+            }
             String decode_core_plan = "";
             if (decodeCorePlan!=null) {
                 for (int i = 0; i<decodeCorePlan.size(); ++i) {
@@ -649,7 +656,7 @@ public class MainActivity extends AppCompatActivity {
             mChat.startDecodeTune(decode_tune_tolerance);
             endTimeTracing();
             endEnergyTracing();
-            tune_end = mChat.endDecodeTune(decodeCorePlan, getAvgPower()/1000f, decode_tune_tolerance); // unit: mW
+            tune_end = mChat.endDecodeTune(decodeCorePlan, getAvgPower() / 1000f, decode_tune_tolerance); // unit: mW
         }
     }
 

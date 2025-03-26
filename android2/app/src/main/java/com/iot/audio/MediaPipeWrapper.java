@@ -103,10 +103,10 @@ public class MediaPipeWrapper implements Serializable {
                             testProfile.putFloat("decode_avg_temp", mActivity.getAvgTemperature());
                         }
                         mDecodeToken += 1;
+                        currentKVLen += 1;
                         mDecodeResult += partialResult;
                         if (done) {
                             // message the test thread
-                            currentKVLen += mDecodeToken;
                             mLatch.countDown();
                         }
                     }
@@ -154,9 +154,12 @@ public class MediaPipeWrapper implements Serializable {
         session = LlmInferenceSession.createFromOptions(model, LlmInferenceSession.LlmInferenceSessionOptions.builder().build());
     }
     public String Response(String inputText) {
-        mLatch = new CountDownLatch(1);
         currentKVLen += countToken(inputText)+2;
+        if (currentKVLen>=maxKVLen+10) {
+            throw new UnsupportedOperationException("MediaPipe MaxKVLen exceeded!");
+        }
         mActivity.startTracing();
+        mLatch = new CountDownLatch(1);
         session.addQueryChunk(inputText);
         session.generateResponseAsync();
         try {
@@ -165,7 +168,9 @@ public class MediaPipeWrapper implements Serializable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return mDecodeResult;
+        String result = mDecodeResult;
+        mDecodeResult = ""; // clear the results of the last turn!
+        return result;
     }
     public int countToken(String inputText) {
         return session.sizeInTokens(inputText);

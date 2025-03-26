@@ -166,6 +166,7 @@ public class Chat implements Serializable {
             // if current_kv_len + current_input_len >= max_kv_len+10, gotData=false
             // During Response/DatasetResponse, continuously focusing on if current_kv_len >= max_kv_len, if so, stop!
             if (getCurrentKVLen() + StringTokenSize(getDatasetCurrentInput()) >= getMaxKVLen()+10) {
+                Log.i("DatasetTest Warning", "DatasetTest Warning: the input too long, cut off!");
                 gotData = false;
             }
             if (!gotData) {
@@ -190,6 +191,7 @@ public class Chat implements Serializable {
                 if (gotData) {
                     Log.i("DatasetTest Warning: ", "Java LLM can't control output!");
                 }
+                Log.i("Java DatasetTest", "another round");
             } else {
                 activity.startTracing();
                 prefill_tokens += DatasetResponse(true, is_first_prefill);
