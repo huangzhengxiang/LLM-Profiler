@@ -26,6 +26,8 @@ public class MediaPipeWrapper implements Serializable {
     private final String mModelDir;
     private final String mBackend;
     private MainActivity mActivity;
+    private final int maxKVLen = 1024;
+    private int currentKVLen = 0;
     // test profiles
     private int mDecodeLen = 10;
     private int mDecodeToken = 0;
@@ -51,7 +53,7 @@ public class MediaPipeWrapper implements Serializable {
         mBackend = backendName;
         mActivity = activity;
         testProfile = new Bundle();
-        Init(1024); // currently only 1024 context is supported.
+        Init(maxKVLen); // currently only 1024 context is supported.
     }
     public boolean Init(int maxToken) {
         LlmInference.LlmInferenceOptions options = new LlmInference.LlmInferenceOptions() {
@@ -90,8 +92,8 @@ public class MediaPipeWrapper implements Serializable {
                             testProfile.putFloat("prefill_avg_temp", mActivity.getAvgTemperature());
                             mActivity.startTracing();
                         }
-                        if (mDecodeToken==mDecodeLen || done) {
-                            // shall finish
+                        if (mDecodeToken==mDecodeLen || (done && mDecodeToken<=mDecodeLen)) {
+                            // shall finish, this function shall not be called twice (the second condition prevents too long decode)
                             mActivity.endTracing();
                             testProfile.putInt("decode_current", mActivity.getAvgCurrent());
                             testProfile.putFloat("decode_power", mActivity.getAvgPower());
@@ -104,6 +106,7 @@ public class MediaPipeWrapper implements Serializable {
                         mDecodeResult += partialResult;
                         if (done) {
                             // message the test thread
+                            currentKVLen += mDecodeToken;
                             mLatch.countDown();
                         }
                     }
@@ -142,6 +145,7 @@ public class MediaPipeWrapper implements Serializable {
     public void Reset() {
         mDecodeToken = 0;
         mDecodeResult = "";
+        currentKVLen = 0;
         testProfile.clear();
         // reset the session
         if (session != null) {
@@ -151,6 +155,8 @@ public class MediaPipeWrapper implements Serializable {
     }
     public String Response(String inputText) {
         mLatch = new CountDownLatch(1);
+        currentKVLen += countToken(inputText)+2;
+        mActivity.startTracing();
         session.addQueryChunk(inputText);
         session.generateResponseAsync();
         try {
@@ -164,4 +170,6 @@ public class MediaPipeWrapper implements Serializable {
     public int countToken(String inputText) {
         return session.sizeInTokens(inputText);
     }
+    public int getMaxKVLen() { return maxKVLen; }
+    public int getCurrentKVLen() { return currentKVLen; }
 }

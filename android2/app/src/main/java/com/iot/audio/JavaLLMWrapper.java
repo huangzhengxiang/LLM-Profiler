@@ -67,7 +67,6 @@ public class JavaLLMWrapper implements Serializable {
     }
     public Bundle testResponse(MainActivity activity, String inputStr) {
         setDecodeLen(1024); // set decode length to max: 1024
-        activity.startTracing();;
         String res = Response(inputStr);
         Log.i("java output", res);
         if (mEngine.equals("mediapipe")) {
@@ -115,6 +114,18 @@ public class JavaLLMWrapper implements Serializable {
             return mediaPipeWrapper.countToken(inputText);
         }
         return 0;
+    }
+    public int getCurrentKVLen() {
+        if (mEngine.equals("mediapipe")) {
+            return mediaPipeWrapper.getCurrentKVLen();
+        }
+        return 0;
+    }
+    public int getMaxKVLen() {
+        if (mEngine.equals("mediapipe")) {
+            return mediaPipeWrapper.getMaxKVLen();
+        }
+        return 1024;
     }
     public void Reset() {
         if (mEngine.equals("mediapipe")) {

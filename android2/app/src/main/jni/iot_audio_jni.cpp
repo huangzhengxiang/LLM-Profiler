@@ -15,6 +15,8 @@
 static int dataset_itr=0;
 static int cnv_itr=0;
 static int last_res=0;
+static int max_kv_len=2048; // default max_kv_len=2048 (executorch)
+static int current_kv_len=0;
 static std::vector<int> input_prompt;
 static std::vector<std::vector<std::vector<PromptItem>>> test_dataset;
 static std::unique_ptr<LLMWrapper> model(nullptr);
@@ -161,6 +163,7 @@ Java_com_iot_audio_Chat_ForwardNative(JNIEnv *env, jobject thiz, jint length, jb
 
 JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_DatasetResponseNative(JNIEnv *env, jobject thiz, jboolean is_prefill,
                                                                jboolean is_first_prefill) {
+    int processed_len = 0;
     __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "Forward");
     if (!model->isReady()) {
         __android_log_print(ANDROID_LOG_DEBUG, "MNN_DEBUG", "model not ready!");
@@ -170,16 +173,23 @@ JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_DatasetResponseNative(JNIEnv *env
     if ((bool) is_prefill) {
         // test prefill
         res = model->forward(input_prompt, is_prefill, is_first_prefill);
+        current_kv_len += input_prompt.size();
+        processed_len += input_prompt.size();
         last_res = res;
     } else {
         // test decode, decode for length times
         for (int i = 0; i < (int) input_prompt.size(); ++i) {
             res = model->forward({input_prompt[i]}, is_prefill, is_first_prefill);
+            current_kv_len++;
+            if (current_kv_len==max_kv_len || i==input_prompt.size()-1) {
+                processed_len += i+1;
+                break;
+            }
         }
     }
     __android_log_print(ANDROID_LOG_INFO, "MNN_PROFILE", "res: %d", res);
     __android_log_print(ANDROID_LOG_INFO, "MNN_DEBUG", "After Response!");
-    return input_prompt.size();
+    return (jint)processed_len;
 }
 
 JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_ResponseNative(JNIEnv *env, jobject thiz, jstring input, jboolean is_first_prefill) {
@@ -201,13 +211,15 @@ JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_ResponseNative(JNIEnv *env, jo
         // test prefill
         res = model->forward(model->tokenizer_encode(inputStr, true, need_antiprompt, system_prompt), true, is_first_prefill);
         last_res = res;
+        current_kv_len += model->tokenizer_decode(model->tokenizer_encode(inputStr, true, need_antiprompt, system_prompt)).size();
     }
 
     // test decode, decode for length times
     std::vector<int> outTokens = {res};
-    while (!model->isStop(res)) {
+    while (!model->isStop(res) && current_kv_len<max_kv_len) {
         res = model->forward({res}, false, is_first_prefill);
         outTokens.push_back(res);
+        current_kv_len++;
     }
 
     __android_log_print(ANDROID_LOG_INFO, "MNN_PROFILE", "res: %d", res);
@@ -216,6 +228,7 @@ JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_ResponseNative(JNIEnv *env, jo
 }
 
 JNIEXPORT void JNICALL Java_com_iot_audio_Chat_ResetNative(JNIEnv *env, jobject thiz) {
+    current_kv_len = 0;
     model->reset();
 }
 
@@ -279,7 +292,17 @@ JNIEXPORT jboolean JNICALL Java_com_iot_audio_Chat_getDialogAssistant(JNIEnv *en
     return (jboolean)gotData;
 }
 
+JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_getMaxKVLenNative(JNIEnv *env, jobject thiz) {
+    return max_kv_len;
+}
 
+JNIEXPORT jint JNICALL Java_com_iot_audio_Chat_getCurrentKVLenNative(JNIEnv *env, jobject thiz) {
+    return current_kv_len;
+}
+
+JNIEXPORT jstring JNICALL Java_com_iot_audio_Chat_getDatasetCurrentInput(JNIEnv *env, jobject thiz) {
+    return env->NewStringUTF(model->tokenizer_decode(input_prompt).c_str());
+}
 
 JNIEXPORT void JNICALL Java_com_iot_audio_Chat_datasetNext(JNIEnv *env, jobject thiz) {
     dataset_itr++;

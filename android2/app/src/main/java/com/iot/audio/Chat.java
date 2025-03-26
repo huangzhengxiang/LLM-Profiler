@@ -162,6 +162,12 @@ public class Chat implements Serializable {
         Bundle bundle;
         while (true) {
             boolean gotData = getDialogUser();
+            // add 2 fields: current_kv_len and max_kv_len
+            // if current_kv_len + current_input_len >= max_kv_len+10, gotData=false
+            // During Response/DatasetResponse, continuously focusing on if current_kv_len >= max_kv_len, if so, stop!
+            if (getCurrentKVLen() + StringTokenSize(getDatasetCurrentInput()) >= getMaxKVLen()+10) {
+                gotData = false;
+            }
             if (!gotData) {
                 break;
             }
@@ -251,7 +257,23 @@ public class Chat implements Serializable {
         }
     }
     public native int DatasetResponseNative(boolean is_prefill, boolean is_first_prefill);
-    private native String getDatasetCurrentInput(); // used only for JavaLLMWrapper.
+    private native String getDatasetCurrentInput();
+    public int getCurrentKVLen() {
+        if (javaEngine.contains(mEngine)) {
+            return javaLLMWrapper.getCurrentKVLen();
+        } else {
+            return getCurrentKVLenNative();
+        }
+    }
+    private native int getCurrentKVLenNative();
+    public int getMaxKVLen() {
+        if (javaEngine.contains(mEngine)) {
+            return javaLLMWrapper.getMaxKVLen();
+        } else {
+            return getMaxKVLenNative();
+        }
+    }
+    private native int getMaxKVLenNative();
 
     public int StringTokenSize(String input) {
         if (javaEngine.contains(mEngine)) {

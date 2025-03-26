@@ -127,8 +127,8 @@ public class MainActivity extends AppCompatActivity {
 
     public float getCPUTemperature() {
         float tempInCelsius = 0;
-        try {
-            for (int i=0; i<30; ++i) {
+        for (int i=0; i<30; ++i) {
+            try {
                 BufferedReader reader = new BufferedReader(new FileReader(String.format("/sys/class/thermal/thermal_zone%d/type", i)));
                 String type = reader.readLine();
                 if (!type.contains("cpu-") && !type.contains("cluster")) {
@@ -145,9 +145,9 @@ public class MainActivity extends AppCompatActivity {
                     tempInCelsius = tempInCelsius/ 1000.0f;
                 }
                 break;
+            } catch (IOException e) {
+//                Log.e("Error", "Bad Read");
             }
-        } catch (IOException e) {
-//            Log.e("Error", "Bad Read");
         }
 //        Log.i("Temperature", "CPU Temperature: " + tempInCelsius + "°C");
         return tempInCelsius;
@@ -440,6 +440,11 @@ public class MainActivity extends AppCompatActivity {
                        tuneTimesTV.getText().toString());
             if (mPrefillPowerSelectSpinner.getSelectedItem().toString().equals("tune_prefill")) {
                 mChat.tunePrefill();
+                try {
+                    Thread.sleep(10000); // take 10s to cool down
+                } catch (InterruptedException e) {
+                    // do nothing
+                }
             }
             decodeTune();
             String decode_core_plan = "";
