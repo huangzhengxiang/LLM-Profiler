@@ -41,10 +41,15 @@ import android.provider.MediaStore;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.nio.file.Paths;
@@ -340,6 +345,78 @@ public class MainActivity extends AppCompatActivity {
             decodeBatteryPercentageTurnTV.setText(String.format("decode battery use per turn (%s):\n %.4f %s", "%", 100*message.getData().getFloat("decode_capacity")*message.getData().getFloat("decode_len")/mTotalCapacity, "%"));
             decodeEnergyTurnTV.setText(String.format("decode energy pre turn:\n %.4f mJ/turn", message.getData().getFloat("decode_energy")*message.getData().getFloat("decode_len")));
         }
+
+        try {
+            // 1. 构建目标路径
+            File outputDir = new File("/sdcard/Download/llm/output");
+            if (!outputDir.exists()) {
+                if (!outputDir.mkdirs()) {
+                    throw new IOException("无法创建目录: " + outputDir.getAbsolutePath());
+                }
+            }
+
+            // 2. 生成带时间的文件名
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+            String fileName = sdf.format(new Date()) + ".csv";
+            File csvFile = new File(outputDir, fileName);
+
+            // 3. 准备数据容器
+            LinkedHashMap<String, Float> dataMap = new LinkedHashMap<>();
+
+            // 4. 填充基础数据
+            Bundle data = message.getData();
+            dataMap.put("prefill_len", data.getFloat("prefill_len"));
+            dataMap.put("prefill_token_speed", data.getFloat("prefill_token_speed"));
+            dataMap.put("prefill_capacity", data.getFloat("prefill_capacity"));
+            dataMap.put("prefill_energy", data.getFloat("prefill_energy"));
+            dataMap.put("prefill_peak_temp", data.getFloat("prefill_peak_temp"));
+            dataMap.put("prefill_avg_temp", data.getFloat("prefill_avg_temp"));
+            dataMap.put("decode_len", data.getFloat("decode_len"));
+            dataMap.put("decode_token_speed", data.getFloat("decode_token_speed"));
+            dataMap.put("decode_capacity", data.getFloat("decode_capacity"));
+            dataMap.put("decode_energy", data.getFloat("decode_energy"));
+            dataMap.put("decode_peak_temp", data.getFloat("decode_peak_temp"));
+            dataMap.put("decode_avg_temp", data.getFloat("decode_avg_temp"));
+
+            // 5. 计算需要Turn的数据
+            if (needTurn) {
+                float prefillLen = data.getFloat("prefill_len");
+                float decodeLen = data.getFloat("decode_len");
+
+                dataMap.put("prefill_battery_turn", data.getFloat("prefill_capacity") * prefillLen);
+                dataMap.put("prefill_battery_percentage_turn", 100 * data.getFloat("prefill_capacity") * prefillLen / mTotalCapacity);
+                dataMap.put("prefill_energy_turn", data.getFloat("prefill_energy") * prefillLen);
+                dataMap.put("decode_battery_turn", data.getFloat("decode_capacity") * decodeLen);
+                dataMap.put("decode_battery_percentage_turn", 100 * data.getFloat("decode_capacity") * decodeLen / mTotalCapacity);
+                dataMap.put("decode_energy_turn", data.getFloat("decode_energy") * decodeLen);
+            }
+
+            // 6. 构建CSV内容（名称+数值格式）
+            StringBuilder csvContent = new StringBuilder();
+
+            // 添加表头
+            for (String key : dataMap.keySet()) {
+                csvContent.append(key).append(",");    // 名称列
+            }
+            csvContent.deleteCharAt(csvContent.length()-1); // 删除最后一个逗号
+            csvContent.append("\n");
+
+            // 添加数据行
+            for (Float value : dataMap.values()) {
+                csvContent.append(value).append(",");  // 数值列
+            }
+            csvContent.deleteCharAt(csvContent.length()-1);
+
+            // 7. 写入文件（主线程操作）
+            FileWriter writer = new FileWriter(csvFile);
+            writer.write(csvContent.toString());
+            writer.close();
+
+            Toast.makeText(this, "数据已保存到：" + csvFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "CSV保存失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
     private boolean checkModelsReady() {
         File dir = new File(mModelDir);
@@ -410,6 +487,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void temperatureCheck() {
+        while (getCPUTemperature() > 40.0) {
+            Message message=new Message();
+            Bundle bundle=new Bundle();
+            bundle.putString("message", String.format("Tuning. Current CPU Temperature: %.1f °C, wait for cool down", getCPUTemperature()));
+            bundle.putString("call", "DatasetTestRun");
+            message.setData(bundle);
+            mHandler.sendMessage(message);
+            try {
+                Thread.sleep(5000); // sleep for 5s  to cool down
+            } catch (InterruptedException e) {
+                // nothing
+            }
+        }
+    }
+
     public void loadModel(View view) {
         onCheckModels();
         mLoadButton.setClickable(false);
@@ -439,6 +532,7 @@ public class MainActivity extends AppCompatActivity {
                        decodeCorePlanInputTV.getText().toString(),
                        tuneTimesTV.getText().toString());
             if (mPrefillPowerSelectSpinner.getSelectedItem().toString().equals("tune_prefill")) {
+                temperatureCheck();
                 mChat.tunePrefill();
                 try {
                     Thread.sleep(20000); // take 20s to cool down
@@ -447,6 +541,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             if (mDecodePowerSelectSpinner.getSelectedItem().toString().equals("memory")) {
+                temperatureCheck();
                 decodeTune();
                 try {
                     Thread.sleep(20000); // take 20s to cool down
