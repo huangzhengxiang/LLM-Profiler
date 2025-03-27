@@ -762,7 +762,7 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<Float> timeDecodeList = new ArrayList<Float>(); // in s
             ArrayList<Float> powerPrefillList = new ArrayList<Float>(); // in mW
             ArrayList<Float> powerDecodeList = new ArrayList<Float>(); // in mW
-            for (int i=0; i<10; ++i) {
+            for (int i=0; i<test_size; ++i) {
                 DatasetTestCheck(i, test_size);
                 // test once
                 {

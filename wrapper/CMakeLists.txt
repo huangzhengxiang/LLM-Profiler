@@ -48,4 +48,18 @@ set_target_properties(mnn_wrapper PROPERTIES
 )
 set_target_properties(MNN PROPERTIES MACOSX_FRAMEWORK_INFO_PLIST ${CMAKE_CURRENT_LIST_DIR}/../MNN/project/ios/MNN/Info.plist)
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_LIST_DIR}/include/llm_wrapper.h PROPERTIES MACOSX_PACKAGE_LOCATION Headers/)
+
+# set_target_properties(llama_cpp_wrapper PROPERTIES FRAMEWORK TRUE)
+# set_target_properties(llama_cpp_wrapper PROPERTIES
+#     MACOSX_FRAMEWORK_IDENTIFIER com.hzx.llm.llama_cpp_wrapper
+#     MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${PACKAGE_VERSION}
+#     MACOSX_FRAMEWORK_BUNDLE_VERSION ${PACKAGE_VERSION}
+#     XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+# )
+# set_target_properties(MNN PROPERTIES MACOSX_FRAMEWORK_INFO_PLIST ${CMAKE_CURRENT_LIST_DIR}/../MNN/project/ios/MNN/Info.plist)
+# SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_LIST_DIR}/include/llm_wrapper.h PROPERTIES MACOSX_PACKAGE_LOCATION Headers/)
+# set_target_properties(llama PROPERTIES MACOSX_PACKAGE_LOCATION "")
+# set_target_properties(ggml PROPERTIES MACOSX_PACKAGE_LOCATION "")
+# set_target_properties(ggml-base PROPERTIES MACOSX_PACKAGE_LOCATION "")
+# set_target_properties(ggml-cpu PROPERTIES MACOSX_PACKAGE_LOCATION "")
 endif()

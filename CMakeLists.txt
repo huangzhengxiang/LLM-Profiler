@@ -51,6 +51,7 @@ set(MNN_SEP_BUILD OFF CACHE BOOL "Close MNN_SEP_BUILD" FORCE)
 # Do not use MNN.framework, but mnn_wrapper
 endif()
 # compile llama.cpp
+set(GGML_METAL OFF CACHE BOOL "Close Metal Build" FORCE) # currently not support ggml metal (our iOS device is toooo old!)
 set(LLAMA_BUILD_COMMON ON CACHE BOOL "Open LLAMA_BUILD_COMMON" FORCE)
 # compile mllm
 set(ARM ON CACHE BOOL "Open mllm compilatin for ARM" FORCE)

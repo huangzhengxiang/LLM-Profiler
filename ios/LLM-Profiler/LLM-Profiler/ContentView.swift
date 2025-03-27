@@ -17,6 +17,8 @@ struct ContentView: View {
     @State private var backendSelector = "select backend"
     @State private var prefillPowerMode = "prefill power"
     @State private var decodePowerMode = "decode power"
+    @State private var Load = false
+    @State private var Testing = false
     
     // State variables for text fields
     @State private var prefillThreadNum = ""
@@ -119,6 +121,7 @@ struct ContentView: View {
                         // Action for Button 1
                         print("LoadModel tapped")
                         loadModel();
+                        Load = true
                     }) {
                         Text("Load Model")
                             .frame(maxWidth: .infinity)
@@ -126,11 +129,13 @@ struct ContentView: View {
                             .background(Color.purple).font(.headline)
                             .foregroundColor(.white)
                             .cornerRadius(10)
-                    }
+                    }.disabled(Load)
                     
                     Button(action: {
                         // Action for Button 2
-                        print("Button 2 tapped")
+                        print("start test")
+                        FixedLengthTestRun(prefill_len: 64, decode_len: 128)
+                        Testing = true
                     }) {
                         Text("start test")
                             .frame(maxWidth: .infinity)
@@ -138,7 +143,7 @@ struct ContentView: View {
                             .background(Color.purple).font(.headline)
                             .foregroundColor(.white)
                             .cornerRadius(10)
-                    }
+                    }.disabled(Testing)
                 }
 
                 Text(statusText).frame(maxWidth: .infinity).padding(.horizontal, 10)
@@ -196,6 +201,15 @@ struct ContentView: View {
         } else {
             print("Resource path not found")
         }
+    }
+    
+    func FixedLengthTestRun(prefill_len: Int, decode_len: Int) {
+        chat.FixedLengthTestRun(prefill_len: prefill_len, decode_len: decode_len, callback: saveTimeStamp)
+    }
+    
+    func saveTimeStamp() {
+        print("test finished!\n")
+        Testing = false
     }
 }
 
