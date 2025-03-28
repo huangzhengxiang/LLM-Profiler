@@ -73,6 +73,6 @@ prefill power: tune_prefill
 decode power: memory 
 prefill cores:
 decode cores: 
-tune times: 10 
+tune times: 30 
 decode tol: 8 
 ```

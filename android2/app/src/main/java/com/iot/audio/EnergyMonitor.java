@@ -17,21 +17,58 @@ public class EnergyMonitor extends TimerTask {
     private final ArrayList<Float> VList;
     private final ArrayList<Float> tempList;
     private final Context ctx;
+    private boolean rectified;
 
     EnergyMonitor(Context parent) {
         uAList = new ArrayList<Integer>();
         VList = new ArrayList<Float>();
         tempList = new ArrayList<Float>();
         ctx = parent;
+        rectified = false;
     }
 
     public void resetInfo() {
         uAList.clear();
         VList.clear();
         tempList.clear();
+        rectified = false;
+    }
+
+    public void rectifyCapacity() {
+        if (rectified) { return; }
+        rectified = true;
+        long size = uAList.size();
+//        for (int i=0; i < size; ++i) {
+//            Log.i("MNNJNI", String.format("Current: %d uA", uAList.get(i)));
+//        }
+        int itr = 1, id = 0;
+        int first = uAList.get(0), second = uAList.get(0);
+        for (int i = 0; i <= size; ++i) {
+            if (itr==1 && uAList.get(i)!=first) {
+                second = uAList.get(i);
+                if (uAList.get(i)>2*first) {
+                    for (int j=id; j<i; ++j) {
+                        uAList.set(j, second);
+                    }
+                }
+                itr++; id=i;
+            }
+            if (itr==2 && uAList.get(i)!=second) {
+                if (uAList.get(i)>2*second) {
+                    for (int j=id; j<i; ++j) {
+                        uAList.set(j, uAList.get(i));
+                    }
+                }
+                break;
+            }
+        }
+//        for (int i=0; i < size; ++i) {
+//            Log.i("MNNJNI", String.format("Current: %d uA", uAList.get(i)));
+//        }
     }
 
     public int getAvgCurrent() {
+        rectifyCapacity();
         long size = uAList.size();
         long res = 0;
         for (int i=0; i < size; ++i) {
@@ -41,6 +78,7 @@ public class EnergyMonitor extends TimerTask {
     }
 
     public float getAvgPower() {
+        rectifyCapacity();
         long size = uAList.size();
         double res = 0;
         for (int i=0; i < size; ++i) {

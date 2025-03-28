@@ -496,7 +496,7 @@ public class MainActivity extends AppCompatActivity {
             message.setData(bundle);
             mHandler.sendMessage(message);
             try {
-                Thread.sleep(5000); // sleep for 5s  to cool down
+                Thread.sleep(3000); // sleep for 5s  to cool down
             } catch (InterruptedException e) {
                 // nothing
             }
@@ -535,7 +535,7 @@ public class MainActivity extends AppCompatActivity {
                 temperatureCheck();
                 mChat.tunePrefill();
                 try {
-                    Thread.sleep(20000); // take 20s to cool down
+                    Thread.sleep(10000); // take 20s to cool down
                 } catch (InterruptedException e) {
                     // do nothing
                 }
@@ -544,7 +544,7 @@ public class MainActivity extends AppCompatActivity {
                 temperatureCheck();
                 decodeTune();
                 try {
-                    Thread.sleep(20000); // take 20s to cool down
+                    Thread.sleep(10000); // take 20s to cool down
                 } catch (InterruptedException e) {
                     // do nothing
                 }
@@ -746,12 +746,12 @@ public class MainActivity extends AppCompatActivity {
         boolean tune_end = false;
         decodeCorePlan = new ArrayList<Integer>();
         while (!tune_end) {
-            startEnergyTracing();
-            startTimeTracing();
+            temperatureCheck();
+            startTracing();
             mChat.startDecodeTune(decode_tune_tolerance);
-            endTimeTracing();
-            endEnergyTracing();
+            endTracing();
             tune_end = mChat.endDecodeTune(decodeCorePlan, getAvgPower() / 1000f, decode_tune_tolerance); // unit: mW
+            Log.i("MNNJNI", String.format("power: %.3f mW", getAvgPower() / 1000f));
         }
     }
 
