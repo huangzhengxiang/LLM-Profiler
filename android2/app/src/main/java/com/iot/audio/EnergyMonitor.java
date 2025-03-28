@@ -43,7 +43,7 @@ public class EnergyMonitor extends TimerTask {
 //        }
         int itr = 1, id = 0;
         int first = uAList.get(0), second = uAList.get(0);
-        for (int i = 0; i <= size; ++i) {
+        for (int i = 0; i < size; ++i) {
             if (itr==1 && uAList.get(i)!=first) {
                 second = uAList.get(i);
                 if (uAList.get(i)>2*first) {
