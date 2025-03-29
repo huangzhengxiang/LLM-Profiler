@@ -520,6 +520,13 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.i("LLM Model Path", mModelDir);
 
+        try {
+            decode_tune_tolerance = Integer.parseInt(toleranceTV.getText().toString());
+        } catch (NumberFormatException e) {
+            decode_tune_tolerance = -1;
+            warningTV.setText("Warning: no decode tuning!");
+        }
+
         new Thread(() -> {
             mChat = new Chat();
             mChat.Init(this, getApplicationContext(),
@@ -945,12 +952,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (NumberFormatException e) {
             decode_len = 200;
             warningTV.setText("Warning: decode len shall be int");
-        }
-        try {
-            decode_tune_tolerance = Integer.parseInt(toleranceTV.getText().toString());
-        } catch (NumberFormatException e) {
-            decode_tune_tolerance = -1;
-            warningTV.setText("Warning: no decode tuning!");
         }
 
 
