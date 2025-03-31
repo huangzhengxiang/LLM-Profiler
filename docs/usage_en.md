@@ -73,6 +73,8 @@ prefill power: tune_prefill
 decode power: memory 
 prefill cores:
 decode cores: 
-tune times: 30 
+tune times: 50 
 decode tol: 8 
 ```
+
+The more the `tune times` is, the higher the tuning accuracy is. 

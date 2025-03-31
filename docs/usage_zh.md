@@ -46,6 +46,7 @@ MNN的default和其他engine都不需要填入任何参数，只需要选择engi
 
 
 Ours 参数设置为
+```
 engine: MNN
 backend: CPU
 prefill thread: 0
@@ -54,5 +55,6 @@ prefill power: tune_prefill
 decode power: memory 
 prefill cores:
 decode cores: 
-tune times: 30 
+tune times: 50 
 decode tol: 8 
+```
