@@ -27,6 +27,9 @@ struct ContentView: View {
     @State private var decodeCorePlan = ""
     @State private var tuneTimes = ""
     @State private var decodeTol = ""
+    @State private var prefillLen = ""
+    @State private var decodeLen = ""
+    @State private var testTimes = ""
     @State private var modelOptions: [String] = [] // List of files and directories
     
     let engineOptions = ["select engine", "MNN", "llama.cpp", "mediapipe", "mllm", "executorch"]
@@ -113,6 +116,22 @@ struct ContentView: View {
                         .textFieldStyle(.roundedBorder)
                 }
                 
+                
+                Rectangle().fill(Color.black).frame(height:  1).padding(.vertical, 5).frame(maxWidth: .infinity)
+                
+                
+                HStack {
+                    TextField("prefill_len", text: $prefillLen)
+                        .textFieldStyle(.roundedBorder)
+                    
+                    TextField("decode_len", text: $decodeLen)
+                        .textFieldStyle(.roundedBorder)
+                }
+                
+                TextField("test times", text: $testTimes)
+                    .textFieldStyle(.roundedBorder)
+                
+                
                 Rectangle().fill(Color.black).frame(height:  1).padding(.vertical, 5).frame(maxWidth: .infinity)
                 
                 HStack {
@@ -134,7 +153,10 @@ struct ContentView: View {
                     Button(action: {
                         // Action for Button 2
                         print("start test")
-                        FixedLengthTestRun(prefill_len: 64, decode_len: 128)
+                        let prefill_len = Int(prefillLen) ?? 64
+                        let decode_len = Int(decodeLen) ?? 128
+                        let test_times = Int(testTimes) ?? 100
+                        FixedLengthTestRun(prefill_len: prefill_len, decode_len: decode_len, test_times: test_times)
                         Testing = true
                     }) {
                         Text("start test")
@@ -203,8 +225,8 @@ struct ContentView: View {
         }
     }
     
-    func FixedLengthTestRun(prefill_len: Int, decode_len: Int) {
-        chat.FixedLengthTestRun(prefill_len: prefill_len, decode_len: decode_len, callback: saveTimeStamp)
+    func FixedLengthTestRun(prefill_len: Int, decode_len: Int, test_times: Int) {
+        chat.FixedLengthTestRun(prefill_len: prefill_len, decode_len: decode_len, test_times: test_times, callback: saveTimeStamp)
     }
     
     func saveTimeStamp() {
