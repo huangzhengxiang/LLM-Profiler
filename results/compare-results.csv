@@ -1,0 +1,9 @@
+test,device,prefill_token_speed,prefill_capacity,prefill_energy,decode_token_speed,decode_capacity,decode_energy
+ours-mnn-llama3_2-1b-CPU,mate40pro,0.3609,-0.2102,-0.2106,-0.0304,-0.1722,-0.1730
+ours-mnn-qwen2_5-1_5b-CPU,mate40pro,0.3746,-0.2185,-0.2383,0.0043,-0.1965,-0.2160
+ours-mnn-llama3_2-1b-CPU,meizu21,0.6229,0.0108,-0.0003,0.1264,0.0148,0.0023
+ours-mnn-qwen2_5-1_5b-CPU,meizu21,0.4887,0.0252,0.0047,0.0087,-0.0429,-0.0631
+ours-mnn-llama3_2-1b-CPU,xiaomi15pro,1.1691,-0.4685,-0.4712,0.0288,-0.0977,-0.1023
+ours-mnn-qwen2_5-1_5b-CPU,xiaomi15pro,1.3649,-0.3652,-0.3724,0.0365,-0.0673,-0.0758
+ours-mnn-llama3_2-1b-CPU,v30pro,0.2406,-0.2579,-0.1969,-0.0725,-0.3008,-0.2415
+ours-mnn-qwen2_5-1_5b-CPU,v30pro,0.1214,-0.0901,-0.1217,-0.0779,-0.2083,-0.2340

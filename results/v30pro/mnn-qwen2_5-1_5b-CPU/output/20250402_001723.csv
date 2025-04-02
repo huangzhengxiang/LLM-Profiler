@@ -1,0 +1,2 @@
+prefill_len,prefill_token_speed,prefill_capacity,prefill_energy,prefill_peak_temp,prefill_avg_temp,decode_len,decode_token_speed,decode_capacity,decode_energy,decode_peak_temp,decode_avg_temp,prefill_battery_turn,prefill_battery_percentage_turn,prefill_energy_turn,decode_battery_turn,decode_battery_percentage_turn,decode_energy_turn
+1024.0,63.90215,6.3314486,94.20438,56.5,52.599697,512.0,19.676414,26.601416,388.96155,64.0,60.850086,6483.4033,0.2181495,96465.28,13619.925,0.45827472,199148.31
