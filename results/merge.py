@@ -10,7 +10,7 @@ def merge_model(root, format="csv") -> pd.DataFrame:
             df = pd.read_csv(path)
             dataframes.append(df)
     merged_df = pd.concat(dataframes, ignore_index=True)
-    merged_df = merged_df.sort_values(by=["prefill_len", "decode_len"])
+    merged_df = merged_df.sort_values(by=["prefill_len", "decode_len"], ignore_index=True)
     merged_df.to_csv(os.path.join(root, "merged.csv"), float_format=lambda f: "{:.4f}".format(f), index=False)
     return merged_df
 
