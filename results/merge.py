@@ -82,18 +82,19 @@ def average_device(root, device, data: Dict[str, Dict[str, pd.DataFrame]]):
     merged_df = pd.concat(results, ignore_index=True)
     return merged_df
 
-def average_all(root, data: Dict[str, Dict[str, pd.DataFrame]]):
+def average_all(root, data: Dict[str, Dict[str, pd.DataFrame]], file_name="compare-results.csv"):
     results = []
     for device, dd in data.items():
         results.append(average_device(root, device, dd))
     merged_df = pd.concat(results, ignore_index=True)
-    merged_df.to_csv(os.path.join(root, "compare-results.csv"), float_format=lambda f: "{:.4f}".format(f), index=False)
+    merged_df.to_csv(os.path.join(root, file_name), float_format=lambda f: "{:.4f}".format(f), index=False)
     return merged_df
     
 
 if __name__=="__main__":
     data = merge_all(".")
     comparison = compare_all(".", data)
-    results = average_all(".", comparison)
+    compare_results = average_all(".", comparison, "compare-results.csv")
+    results = average_all(".", data, "results.csv")
+    print(compare_results)
     print(results)
-    
