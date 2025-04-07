@@ -30,6 +30,8 @@ struct ContentView: View {
     @State private var prefillLen = ""
     @State private var decodeLen = ""
     @State private var testTimes = ""
+    @State private var prefillSpeed = "prefill speed: tok/s"
+    @State private var decodeSpeed = "decode speed: tok/s"
     @State private var modelOptions: [String] = [] // List of files and directories
     
     let engineOptions = ["select engine", "MNN", "llama.cpp", "mediapipe", "mllm", "executorch"]
@@ -159,7 +161,7 @@ struct ContentView: View {
                         print("start test")
                         let prefill_len = Int(prefillLen) ?? 64
                         let decode_len = Int(decodeLen) ?? 128
-                        let test_times = Int(testTimes) ?? 100
+                        let test_times = Int(testTimes) ?? 10
                         FixedLengthTestRun(prefill_len: prefill_len, decode_len: decode_len, test_times: test_times)
                         Testing = true
                     }) {
@@ -178,6 +180,17 @@ struct ContentView: View {
                 
                 Text(corePlan).frame(maxWidth: .infinity).padding(.horizontal, 10).background(Color.purple).padding().font(.title)
                     .foregroundColor(.white)
+                
+                HStack {
+                    
+                    Text(prefillSpeed).frame(maxWidth: .infinity).padding(.horizontal, 10).background(Color.purple).padding().font(.title2)
+                        .foregroundColor(.white)
+                    
+                    Text(decodeSpeed).frame(maxWidth: .infinity).padding(.horizontal, 10).background(Color.purple).padding().font(.title2)
+                        .foregroundColor(.white)
+                    
+                }
+                
             }
             .padding()
         }
@@ -185,7 +198,13 @@ struct ContentView: View {
     }
     
     func setCorePlan(plan: Int) {
-        corePlan = String(format: "decode core plan: %d", plan)
+        if (plan<=0) {
+            corePlan = "decode core plan: default"
+        }
+        else {
+            corePlan = String(format: "decode core plan: %d", plan)
+        }
+        setStatus(text: "model is loaded! decode tuning is finished!")
     }
 
     func setStatus(text: String) {
@@ -211,8 +230,9 @@ struct ContentView: View {
                           decodePowerMode: decodePowerMode,
                           decodeCorePlan: decodeCorePlan,
                           tuneTimes: tuneTimes,
-                          completion: setStatus)
-            chat.decodeTune(tolerance: decodeTol, completion: setCorePlan)
+                          tolerance: decodeTol,
+                          completion: setStatus,
+                          tuneCompletion: setCorePlan)
         } else {
             print("Resource path not found")
         }
@@ -241,7 +261,7 @@ struct ContentView: View {
         chat.FixedLengthTestRun(prefill_len: prefill_len, decode_len: decode_len, test_times: test_times, statusCallBack: setStatus, resultsCallBack: saveTimeStamp)
     }
     
-    func saveTimeStamp(startTime: CFAbsoluteTime?, endTime: CFAbsoluteTime?) {
+    func saveTimeStamp(startTime: CFAbsoluteTime?, endTime: CFAbsoluteTime?, prefill_speed: Double, decode_speed: Double) {
         let swift2sysdiagnose = 978307200.0
         print("Test finished!\n")
         if let startTime = startTime {
@@ -263,6 +283,8 @@ struct ContentView: View {
             statusText += " End Time: \(endTime+swift2sysdiagnose)"
         }
         setStatus(text: statusText)
+        prefillSpeed = String(format: "prefill speed: %.2f tok/s", prefill_speed)
+        decodeSpeed = String(format: "decode speed: %.2f tok/s", decode_speed)
         Testing = false
     }
 }

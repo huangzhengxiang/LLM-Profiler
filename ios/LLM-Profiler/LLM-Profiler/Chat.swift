@@ -14,7 +14,9 @@ class Chat: ObservableObject {
                   decodePowerMode: String,
                   decodeCorePlan: String,
                   tuneTimes: String,
-                  completion: @escaping (String) -> Void) {
+                  tolerance: String,
+                  completion: @escaping (String) -> Void,
+                  tuneCompletion: @escaping (Int) -> Void) {
         llm = SwiftLLMWrapper(engine: engineName,
                          modelPath: modelPath,
                          backendName: backendName,
@@ -28,7 +30,8 @@ class Chat: ObservableObject {
         { [weak self] success in
             Task { @MainActor in
                 self?.isModelLoaded = success
-                completion("model is loaded, decode tuning")
+                completion("model is loaded, decode tuning...")
+                self?.decodeTune(tolerance: tolerance, completion: tuneCompletion)
             }
         }
     }
@@ -41,7 +44,9 @@ class Chat: ObservableObject {
                 decode_tune_tolerance = tolerance_hint
             }
             
+            print(String(format: "decode tolerance: %d", decode_tune_tolerance))
             if (decode_tune_tolerance<0) {
+                completion(0) // default
                 return // no decode tuning
             }
             
@@ -62,17 +67,28 @@ class Chat: ObservableObject {
         }
     }
     
+    func getAvg(list: [Double]) -> Double {
+        var res: Double = 0
+        for itr in 0..<list.count {
+            res += list[itr]
+        }
+        let avg = res / Double(list.count)
+        return avg
+    }
+    
     func FixedLengthTestRun(prefill_len: Int,
                             decode_len: Int,
                             test_times: Int,
                             statusCallBack: @escaping (String) -> Void,
-                            resultsCallBack: @escaping (CFAbsoluteTime?, CFAbsoluteTime?) -> Void) {
+                            resultsCallBack: @escaping (CFAbsoluteTime?, CFAbsoluteTime?, Double, Double) -> Void) {
         Task { @MainActor in
             
             var prefillStartTimes: [CFAbsoluteTime] = []
             var prefillEndTimes: [CFAbsoluteTime] = []
             var decodeStartTimes: [CFAbsoluteTime] = []
             var decodeEndTimes: [CFAbsoluteTime] = []
+            var prefillSpeedList: [Double] = []
+            var decodeSpeedList: [Double] = []
 
             // Loop to execute the code repeatedly
             for itr in 0..<test_times {
@@ -80,9 +96,11 @@ class Chat: ObservableObject {
                 let prefillStartTime = CFAbsoluteTimeGetCurrent()
                 llm?.forward(Int32(prefill_len), is_prefill: true, is_first_prefill: true)
                 let prefillEndTime = CFAbsoluteTimeGetCurrent()
+                let prefillSpeed = Double(prefill_len)/(prefillEndTime-prefillStartTime)
                 let decodeStartTime = CFAbsoluteTimeGetCurrent()
                 llm?.forward(Int32(decode_len), is_prefill: false, is_first_prefill: false)
                 let decodeEndTime = CFAbsoluteTimeGetCurrent()
+                let decodeSpeed = Double(decode_len)/(decodeEndTime-decodeStartTime)
                 llm?.reset()
                 
                 // Append the timing values to the respective lists
@@ -90,14 +108,17 @@ class Chat: ObservableObject {
                 prefillEndTimes.append(prefillEndTime)
                 decodeStartTimes.append(decodeStartTime)
                 decodeEndTimes.append(decodeEndTime)
+                prefillSpeedList.append(prefillSpeed)
+                decodeSpeedList.append(decodeSpeed)
+                print(String(format: "decode speed: %.2f\n", decodeSpeed))
                 
                 // sleep
-                try? await Task.sleep(nanoseconds: 5_000_000_000)  // wait seconds in nanoseconds
+                try? await Task.sleep(nanoseconds: 12_000_000_000)  // wait seconds in nanoseconds
                 
-                statusCallBack(String(format: "Fixed Len Test: %.1f%%", (Double(itr) / Double(test_times)) * 100))
+                statusCallBack(String(format: "Fixed Len Test: %.1f%%", (Double(itr+1) / Double(test_times)) * 100))
             }
             
-            resultsCallBack(prefillStartTimes.first, decodeEndTimes.last)
+            resultsCallBack(prefillStartTimes.first, decodeEndTimes.last, getAvg(list: prefillSpeedList), getAvg(list: decodeSpeedList))
         }
     }
 }

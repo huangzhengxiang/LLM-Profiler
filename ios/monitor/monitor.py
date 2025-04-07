@@ -28,7 +28,11 @@ def monitor(path: str, interval: int = 5):
         with open(path, "wt") as f:
             json.dump(records, f, indent=4)
     
-def get_results(input_path: str, output_path: str, start: int, end: int):
+def get_results(input_path: str, output_path: str, args):
+    start = args.s
+    end = args.e
+    prefill_speed = args.p
+    decode_speed = args.d
     assert start < end
     res = {} # capacity consumption, energy consumption(capacity*voltage)
     with open(input_path, "rt") as f:
@@ -49,6 +53,8 @@ def get_results(input_path: str, output_path: str, start: int, end: int):
     res["capacity"] = start_item["AppleRawCurrentCapacity"] - end_item["AppleRawCurrentCapacity"]
     res["energy"] = start_item["AppleRawCurrentCapacity"]*start_item["Voltage"]/1000 - end_item["AppleRawCurrentCapacity"]*end_item["Voltage"]/1000
     res["capacity_percentage"] = res["capacity"]/end_item["AppleRawMaxCapacity"]
+    res["prefill_speed"] = prefill_speed
+    res["decode_speed"] = decode_speed
     with open(output_path, "wt") as f:
         json.dump(res, f, indent=4)
     
@@ -58,8 +64,10 @@ if __name__=="__main__":
     parser.add_argument("-m", action="store_true", default=False)
     parser.add_argument("-s", type=int, default=0)
     parser.add_argument("-e", type=int, default=0x7f7f7f7f)
+    parser.add_argument("-p", type=float, default=0)
+    parser.add_argument("-d", type=float, default=0)
     args = parser.parse_args()
     if (args.m):
         monitor(os.path.join("data", raw_file))
     else:
-        get_results(os.path.join("data", raw_file), os.path.join("data", result_file), args.s, args.e)
+        get_results(os.path.join("data", raw_file), os.path.join("data", result_file), args)
