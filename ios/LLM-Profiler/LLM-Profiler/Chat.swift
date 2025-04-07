@@ -89,6 +89,11 @@ class Chat: ObservableObject {
             var decodeEndTimes: [CFAbsoluteTime] = []
             var prefillSpeedList: [Double] = []
             var decodeSpeedList: [Double] = []
+            
+            statusCallBack("Fixed Len Test: 0%")
+            
+            // sleep
+            try? await Task.sleep(nanoseconds: 20_000_000_000)  // wait seconds in nanoseconds, avoid pre-effects
 
             // Loop to execute the code repeatedly
             for itr in 0..<test_times {
@@ -117,6 +122,9 @@ class Chat: ObservableObject {
                 
                 statusCallBack(String(format: "Fixed Len Test: %.1f%%", (Double(itr+1) / Double(test_times)) * 100))
             }
+            
+            // sleep
+            try? await Task.sleep(nanoseconds: 20_000_000_000)  // wait seconds in nanoseconds, avoid post-effects
             
             resultsCallBack(prefillStartTimes.first, decodeEndTimes.last, getAvg(list: prefillSpeedList), getAvg(list: decodeSpeedList))
         }

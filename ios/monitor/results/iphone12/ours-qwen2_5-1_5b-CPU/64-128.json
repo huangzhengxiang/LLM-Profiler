@@ -1,7 +1,7 @@
 {
-    "capacity": 186,
-    "energy": 967.6199999999999,
-    "capacity_percentage": 0.06549295774647887,
-    "prefill_speed": 167.44,
-    "decode_speed": 28.58
+    "capacity": 60,
+    "energy": 309.3860000000004,
+    "capacity_percentage": 0.02112676056338028,
+    "prefill_speed": 168.88,
+    "decode_speed": 31.17
 }

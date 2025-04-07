@@ -50,6 +50,7 @@ def get_results(input_path: str, output_path: str, args):
             endp = item["UpdateTime"]
             end_item = item 
     assert (start_item is not None) and (end_item is not None), "required time interval data not found~"
+    print("start checkpoint: {:d}, end checkpoint: {:d}".format(startp, endp))
     res["capacity"] = start_item["AppleRawCurrentCapacity"] - end_item["AppleRawCurrentCapacity"]
     res["energy"] = start_item["AppleRawCurrentCapacity"]*start_item["Voltage"]/1000 - end_item["AppleRawCurrentCapacity"]*end_item["Voltage"]/1000
     res["capacity_percentage"] = res["capacity"]/end_item["AppleRawMaxCapacity"]
