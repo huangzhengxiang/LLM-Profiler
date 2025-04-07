@@ -1,0 +1,268 @@
+[
+    {
+        "UpdateTime": 1744028063,
+        "Voltage": 3968,
+        "AppleRawCurrentCapacity": 1630,
+        "AppleRawMaxCapacity": 2759,
+        "Percentage": 0.5907937658571947
+    },
+    {
+        "UpdateTime": 1744028083,
+        "Voltage": 3968,
+        "AppleRawCurrentCapacity": 1648,
+        "AppleRawMaxCapacity": 2778,
+        "Percentage": 0.5932325413966882
+    },
+    {
+        "UpdateTime": 1744028083,
+        "Voltage": 3968,
+        "AppleRawCurrentCapacity": 1648,
+        "AppleRawMaxCapacity": 2778,
+        "Percentage": 0.5932325413966882
+    },
+    {
+        "UpdateTime": 1744028083,
+        "Voltage": 3968,
+        "AppleRawCurrentCapacity": 1648,
+        "AppleRawMaxCapacity": 2778,
+        "Percentage": 0.5932325413966882
+    },
+    {
+        "UpdateTime": 1744028103,
+        "Voltage": 3963,
+        "AppleRawCurrentCapacity": 1648,
+        "AppleRawMaxCapacity": 2778,
+        "Percentage": 0.5932325413966882
+    },
+    {
+        "UpdateTime": 1744028103,
+        "Voltage": 3963,
+        "AppleRawCurrentCapacity": 1648,
+        "AppleRawMaxCapacity": 2778,
+        "Percentage": 0.5932325413966882
+    },
+    {
+        "UpdateTime": 1744028103,
+        "Voltage": 3963,
+        "AppleRawCurrentCapacity": 1648,
+        "AppleRawMaxCapacity": 2778,
+        "Percentage": 0.5932325413966882
+    },
+    {
+        "UpdateTime": 1744028103,
+        "Voltage": 3963,
+        "AppleRawCurrentCapacity": 1648,
+        "AppleRawMaxCapacity": 2778,
+        "Percentage": 0.5932325413966882
+    },
+    {
+        "UpdateTime": 1744028123,
+        "Voltage": 3763,
+        "AppleRawCurrentCapacity": 1606,
+        "AppleRawMaxCapacity": 2741,
+        "Percentage": 0.5859175483400219
+    },
+    {
+        "UpdateTime": 1744028123,
+        "Voltage": 3763,
+        "AppleRawCurrentCapacity": 1606,
+        "AppleRawMaxCapacity": 2741,
+        "Percentage": 0.5859175483400219
+    },
+    {
+        "UpdateTime": 1744028123,
+        "Voltage": 3763,
+        "AppleRawCurrentCapacity": 1606,
+        "AppleRawMaxCapacity": 2741,
+        "Percentage": 0.5859175483400219
+    },
+    {
+        "UpdateTime": 1744028143,
+        "Voltage": 3934,
+        "AppleRawCurrentCapacity": 1575,
+        "AppleRawMaxCapacity": 2714,
+        "Percentage": 0.5803242446573323
+    },
+    {
+        "UpdateTime": 1744028143,
+        "Voltage": 3934,
+        "AppleRawCurrentCapacity": 1575,
+        "AppleRawMaxCapacity": 2714,
+        "Percentage": 0.5803242446573323
+    },
+    {
+        "UpdateTime": 1744028143,
+        "Voltage": 3934,
+        "AppleRawCurrentCapacity": 1575,
+        "AppleRawMaxCapacity": 2714,
+        "Percentage": 0.5803242446573323
+    },
+    {
+        "UpdateTime": 1744028143,
+        "Voltage": 3934,
+        "AppleRawCurrentCapacity": 1575,
+        "AppleRawMaxCapacity": 2714,
+        "Percentage": 0.5803242446573323
+    },
+    {
+        "UpdateTime": 1744028163,
+        "Voltage": 3934,
+        "AppleRawCurrentCapacity": 1581,
+        "AppleRawMaxCapacity": 2724,
+        "Percentage": 0.5803964757709251
+    },
+    {
+        "UpdateTime": 1744028163,
+        "Voltage": 3934,
+        "AppleRawCurrentCapacity": 1581,
+        "AppleRawMaxCapacity": 2724,
+        "Percentage": 0.5803964757709251
+    },
+    {
+        "UpdateTime": 1744028163,
+        "Voltage": 3934,
+        "AppleRawCurrentCapacity": 1581,
+        "AppleRawMaxCapacity": 2724,
+        "Percentage": 0.5803964757709251
+    },
+    {
+        "UpdateTime": 1744028183,
+        "Voltage": 3933,
+        "AppleRawCurrentCapacity": 1580,
+        "AppleRawMaxCapacity": 2727,
+        "Percentage": 0.5793912724605794
+    },
+    {
+        "UpdateTime": 1744028183,
+        "Voltage": 3933,
+        "AppleRawCurrentCapacity": 1580,
+        "AppleRawMaxCapacity": 2727,
+        "Percentage": 0.5793912724605794
+    },
+    {
+        "UpdateTime": 1744028183,
+        "Voltage": 3933,
+        "AppleRawCurrentCapacity": 1580,
+        "AppleRawMaxCapacity": 2727,
+        "Percentage": 0.5793912724605794
+    },
+    {
+        "UpdateTime": 1744028183,
+        "Voltage": 3933,
+        "AppleRawCurrentCapacity": 1580,
+        "AppleRawMaxCapacity": 2727,
+        "Percentage": 0.5793912724605794
+    },
+    {
+        "UpdateTime": 1744028203,
+        "Voltage": 3932,
+        "AppleRawCurrentCapacity": 1583,
+        "AppleRawMaxCapacity": 2733,
+        "Percentage": 0.5792169776802049
+    },
+    {
+        "UpdateTime": 1744028203,
+        "Voltage": 3932,
+        "AppleRawCurrentCapacity": 1583,
+        "AppleRawMaxCapacity": 2733,
+        "Percentage": 0.5792169776802049
+    },
+    {
+        "UpdateTime": 1744028203,
+        "Voltage": 3932,
+        "AppleRawCurrentCapacity": 1583,
+        "AppleRawMaxCapacity": 2733,
+        "Percentage": 0.5792169776802049
+    },
+    {
+        "UpdateTime": 1744028223,
+        "Voltage": 3901,
+        "AppleRawCurrentCapacity": 1557,
+        "AppleRawMaxCapacity": 2713,
+        "Percentage": 0.5739034279395503
+    },
+    {
+        "UpdateTime": 1744028223,
+        "Voltage": 3901,
+        "AppleRawCurrentCapacity": 1557,
+        "AppleRawMaxCapacity": 2713,
+        "Percentage": 0.5739034279395503
+    },
+    {
+        "UpdateTime": 1744028223,
+        "Voltage": 3901,
+        "AppleRawCurrentCapacity": 1557,
+        "AppleRawMaxCapacity": 2713,
+        "Percentage": 0.5739034279395503
+    },
+    {
+        "UpdateTime": 1744028223,
+        "Voltage": 3901,
+        "AppleRawCurrentCapacity": 1557,
+        "AppleRawMaxCapacity": 2713,
+        "Percentage": 0.5739034279395503
+    },
+    {
+        "UpdateTime": 1744028243,
+        "Voltage": 3918,
+        "AppleRawCurrentCapacity": 1555,
+        "AppleRawMaxCapacity": 2715,
+        "Percentage": 0.572744014732965
+    },
+    {
+        "UpdateTime": 1744028243,
+        "Voltage": 3918,
+        "AppleRawCurrentCapacity": 1555,
+        "AppleRawMaxCapacity": 2715,
+        "Percentage": 0.572744014732965
+    },
+    {
+        "UpdateTime": 1744028243,
+        "Voltage": 3918,
+        "AppleRawCurrentCapacity": 1555,
+        "AppleRawMaxCapacity": 2715,
+        "Percentage": 0.572744014732965
+    },
+    {
+        "UpdateTime": 1744028263,
+        "Voltage": 3911,
+        "AppleRawCurrentCapacity": 1561,
+        "AppleRawMaxCapacity": 2725,
+        "Percentage": 0.5728440366972477
+    },
+    {
+        "UpdateTime": 1744028263,
+        "Voltage": 3911,
+        "AppleRawCurrentCapacity": 1561,
+        "AppleRawMaxCapacity": 2725,
+        "Percentage": 0.5728440366972477
+    },
+    {
+        "UpdateTime": 1744028263,
+        "Voltage": 3911,
+        "AppleRawCurrentCapacity": 1561,
+        "AppleRawMaxCapacity": 2725,
+        "Percentage": 0.5728440366972477
+    },
+    {
+        "UpdateTime": 1744028263,
+        "Voltage": 3911,
+        "AppleRawCurrentCapacity": 1561,
+        "AppleRawMaxCapacity": 2725,
+        "Percentage": 0.5728440366972477
+    },
+    {
+        "UpdateTime": 1744028283,
+        "Voltage": 3924,
+        "AppleRawCurrentCapacity": 1598,
+        "AppleRawMaxCapacity": 2763,
+        "Percentage": 0.5783568584871517
+    },
+    {
+        "UpdateTime": 1744028283,
+        "Voltage": 3924,
+        "AppleRawCurrentCapacity": 1598,
+        "AppleRawMaxCapacity": 2763,
+        "Percentage": 0.5783568584871517
+    }
+]
