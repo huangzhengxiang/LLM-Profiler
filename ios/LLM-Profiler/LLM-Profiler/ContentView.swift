@@ -40,6 +40,10 @@ struct ContentView: View {
     // Text displays
     @State private var statusText: String = "Status"
     @State private var warningText: String = "Warning"
+    
+    // result display
+    @State private var corePlan: String = "decode core plan: "
+    
 
     var body: some View {
         ScrollView {
@@ -171,10 +175,17 @@ struct ContentView: View {
                 Text(statusText).frame(maxWidth: .infinity).padding(.horizontal, 10)
 
                 Text(warningText).frame(maxWidth: .infinity).padding(.horizontal, 10)
+                
+                Text(corePlan).frame(maxWidth: .infinity).padding(.horizontal, 10).background(Color.purple).padding().font(.title)
+                    .foregroundColor(.white)
             }
             .padding()
         }
         .navigationTitle("Scrollable Form")
+    }
+    
+    func setCorePlan(plan: Int) {
+        corePlan = String(format: "decode core plan: %d", plan)
     }
 
     func setStatus(text: String) {
@@ -201,6 +212,7 @@ struct ContentView: View {
                           decodeCorePlan: decodeCorePlan,
                           tuneTimes: tuneTimes,
                           completion: setStatus)
+            chat.decodeTune(tolerance: decodeTol, completion: setCorePlan)
         } else {
             print("Resource path not found")
         }
@@ -226,11 +238,31 @@ struct ContentView: View {
     }
     
     func FixedLengthTestRun(prefill_len: Int, decode_len: Int, test_times: Int) {
-        chat.FixedLengthTestRun(prefill_len: prefill_len, decode_len: decode_len, test_times: test_times, callback: saveTimeStamp)
+        chat.FixedLengthTestRun(prefill_len: prefill_len, decode_len: decode_len, test_times: test_times, statusCallBack: setStatus, resultsCallBack: saveTimeStamp)
     }
     
-    func saveTimeStamp() {
-        print("test finished!\n")
+    func saveTimeStamp(startTime: CFAbsoluteTime?, endTime: CFAbsoluteTime?) {
+        let swift2sysdiagnose = 978307200.0
+        print("Test finished!\n")
+        if let startTime = startTime {
+            print("Start Time: \(startTime+swift2sysdiagnose)")
+        } else {
+            print("Start Time: N/A")
+        }
+        if let endTime = endTime {
+            print("End Time: \(endTime+swift2sysdiagnose)")
+        } else {
+            print("End Time: N/A")
+        }
+        
+        var statusText = "Test Finished!"
+        if let startTime = startTime {
+            statusText += " Start Time: \(startTime+swift2sysdiagnose)"
+        }
+        if let endTime = endTime {
+            statusText += " End Time: \(endTime+swift2sysdiagnose)"
+        }
+        setStatus(text: statusText)
         Testing = false
     }
 }

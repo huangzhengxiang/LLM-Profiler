@@ -88,6 +88,9 @@
 }
 
 - (BOOL)endDecodeTune:(int *)core tolerance:(int)tolerance {
+    if (tolerance<0) {
+        return true; // no tuning
+    }
     std::vector<int> core_plan;
     bool tune_end = model->endDecodeTune(core_plan, nullptr, (int) tolerance);
     if (tune_end) {
