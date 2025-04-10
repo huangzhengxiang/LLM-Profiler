@@ -56,7 +56,7 @@ set(LLAMA_BUILD_COMMON ON CACHE BOOL "Open LLAMA_BUILD_COMMON" FORCE)
 # compile mllm
 set(ARM ON CACHE BOOL "Open mllm compilatin for ARM" FORCE)
 set(APK ON CACHE BOOL "Open mllm compilation for APK" FORCE)
-set(QNN ON CACHE BOOL "Open mllm compilation for QNN" FORCE)
+set(QNN OFF CACHE BOOL "Don't use QNN" FORCE)
 set(DEBUG OFF CACHE BOOL "Close mllm debug" FORCE)
 set(TEST OFF  CACHE BOOL "Close mllm test" FORCE)
 set(QUANT OFF CACHE BOOL "Close mllm quant" FORCE)

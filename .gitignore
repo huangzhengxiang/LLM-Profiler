@@ -7,3 +7,4 @@ visualization/tmp/
 model-converter/converted_models/
 5.5.0
 executorch/.model/
+pid.json
