@@ -113,6 +113,7 @@ public class EnergyMonitor extends TimerTask {
         float mBatteryVoltage = (float) ((MainActivity)ctx).getVoltage(); // V
         float mTemperature = ((MainActivity)ctx).getCPUTemperature(); // oC
         if (Math.abs(mBatteryCurrent) <= 10000) { mBatteryCurrent *= 1000; } // convert mA -> uA. (device heterogeneity resolution.)
+        if (mBatteryVoltage <= 0.1) {mBatteryVoltage *= 1000;} // convert kV -> V. (device heterogeneity resolution.)
         // current is default to be positive now!
         uAList.add(Math.abs(mBatteryCurrent));
         VList.add(Math.abs(mBatteryVoltage));

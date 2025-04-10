@@ -501,6 +501,13 @@ public class MainActivity extends AppCompatActivity {
                 // nothing
             }
         }
+        if (getCPUTemperature() < 1.0) {
+            try {
+                Thread.sleep(6000); // sleep for 10s to cool down between tests
+            } catch (InterruptedException e) {
+                // nothing
+            }
+        }
     }
 
     public void loadModel(View view) {
@@ -931,10 +938,11 @@ public class MainActivity extends AppCompatActivity {
             warningTV.setText(String.format("Warning: Current Charge Level: %d %s, Please plug in and charge!", getChargeLevel(), "%"));
             return;
         }
-        if (getCPUTemperature()>40) {
-            warningTV.setText(String.format("Warning: Current CPU Temperature: %.1f °C, Please cool down!", getCPUTemperature()));
-            return;
-        }
+//        if (getCPUTemperature()>40) {
+//            warningTV.setText(String.format("Warning: Current CPU Temperature: %.1f °C, Please cool down!", getCPUTemperature()));
+//            return;
+//        }
+        temperatureCheck(); // temperature barrier
         testButton.setBackgroundColor(getResources().getColor(R.color.gray));
         testButton.setClickable(false);
         statusTV.setText("Status: Fixed Length Testing...");
