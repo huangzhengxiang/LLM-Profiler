@@ -18,7 +18,8 @@
         android:padding="8dp"
         android:scrollbars="vertical"
         android:visibility="visible"
-        tools:visibility="visible">
+        tools:visibility="visible"
+        android:keepScreenOn="true">
 
         <!--Heading Text View-->
         <TextView
