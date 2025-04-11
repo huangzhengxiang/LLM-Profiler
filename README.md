@@ -36,7 +36,7 @@
 *Currently Supported Models*:
 - [x] Qwen Series (text-generation)
 - [x] Llama Series (text-generation)
-- [x] Gemma Series
+- [x] Gemma-2
 - [x] Phi-2
 - [ ] Phi-3-mini
 

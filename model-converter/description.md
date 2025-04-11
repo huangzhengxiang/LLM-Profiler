@@ -23,7 +23,7 @@ mllm
 - qwen2_5-1_5b-instruct-q4_0-mllm
 
 mediapipe
-- gemma-2b-it-cpu-int4.bin
+- gemma-2-2b-it-cpu-int8.task
 
 executorch
 - llama3_2-1b-instruct-spinquant-torch
